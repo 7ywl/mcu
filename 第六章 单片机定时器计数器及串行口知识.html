@@ -1,0 +1,1172 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>《单片机技术与应用》第六章知识要点</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#2563eb',
+                        secondary: '#4f46e5',
+                        accent: '#8b5cf6',
+                        dark: '#1e293b',
+                        light: '#f8fafc'
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                        mono: ['Consolas', 'Monaco', 'monospace']
+                    },
+                }
+            }
+        }
+    </script>
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .content-auto {
+                content-visibility: auto;
+            }
+            .text-shadow {
+                text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            }
+            .card-hover {
+                transition: all 0.3s ease;
+            }
+            .card-hover:hover {
+                transform: translateY(-5px);
+                box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04);
+            }
+            .scrollbar-hide::-webkit-scrollbar {
+                display: none;
+            }
+            .scrollbar-hide {
+                -ms-overflow-style: none;
+                scrollbar-width: none;
+            }
+            .gradient-text {
+                background-clip: text;
+                -webkit-background-clip: text;
+                color: transparent;
+                background-image: linear-gradient(to right, #2563eb, #8b5cf6);
+            }
+        }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-800 font-sans">
+    <!-- 导航栏 -->
+    <nav id="navbar" class="fixed w-full bg-white/90 backdrop-blur-md shadow-sm z-50 transition-all duration-300">
+        <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+            <div class="flex items-center space-x-2">
+                <i class="fa fa-microchip text-primary text-2xl"></i>
+                <h1 class="text-xl md:text-2xl font-bold gradient-text">单片机技术与应用</h1>
+            </div>
+            <div class="hidden md:flex items-center space-x-8">
+                <a href="/" class="font-medium hover:text-primary transition-colors">首页</a>
+                <a href="#timer-counter" class="font-medium hover:text-primary transition-colors">定时器/计数器</a>
+                <a href="#serial-communication" class="font-medium hover:text-primary transition-colors">串行口通信</a>
+                <a href="#timer-project" class="font-medium hover:text-primary transition-colors">定时器项目案例</a>
+                <a href="#serial-project" class="font-medium hover:text-primary transition-colors">串行口项目案例</a>
+                <a href="#summary" class="font-medium hover:text-primary transition-colors">本章总结</a>
+            </div>
+            <button id="menu-toggle" class="md:hidden text-gray-700 focus:outline-none">
+                <i class="fa fa-bars text-xl"></i>
+            </button>
+        </div>
+        <!-- 移动端菜单 -->
+        <div id="mobile-menu" class="md:hidden hidden bg-white border-t">
+            <div class="container mx-auto px-4 py-2 flex flex-col space-y-3">
+                <a href="/" class="py-2 font-medium hover:text-primary transition-colors">首页</a>
+                <a href="#timer-counter" class="py-2 font-medium hover:text-primary transition-colors">定时器/计数器</a>
+                <a href="#serial-communication" class="py-2 font-medium hover:text-primary transition-colors">串行口通信</a>
+                <a href="#timer-project" class="py-2 font-medium hover:text-primary transition-colors">定时器项目案例</a>
+                <a href="#serial-project" class="py-2 font-medium hover:text-primary transition-colors">串行口项目案例</a>
+                <a href="#summary" class="py-2 font-medium hover:text-primary transition-colors">本章总结</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 头部区域 -->
+    <header class="pt-24 pb-16 md:pt-32 md:pb-24 bg-gradient-to-br from-primary/10 to-secondary/10">
+        <div class="container mx-auto px-4 text-center">
+            <h1 class="text-[clamp(2rem,5vw,3.5rem)] font-bold text-dark mb-4 text-shadow">
+                第六章 单片机定时器/计数器及串行口
+            </h1>
+            <p class="text-[clamp(1rem,2vw,1.25rem)] text-gray-600 max-w-3xl mx-auto">
+                本章将深入学习单片机定时器/计数器的工作原理、编程方法以及串行口通信的基础知识和应用，
+                通过项目案例掌握定时器和串行口的实际应用技能。
+            </p>
+            <div class="mt-8 flex flex-wrap justify-center gap-4">
+                <a href="#timer-counter" class="px-6 py-3 bg-primary text-white rounded-lg shadow-lg hover:bg-primary/90 transition-all transform hover:-translate-y-1">
+                    <i class="fa fa-clock-o mr-2"></i>定时器/计数器
+                </a>
+                <a href="#serial-communication" class="px-6 py-3 bg-secondary text-white rounded-lg shadow-lg hover:bg-secondary/90 transition-all transform hover:-translate-y-1">
+                    <i class="fa fa-exchange mr-2"></i>串行口通信
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- 主要内容区域 -->
+    <main class="container mx-auto px-4 py-12">
+        <!-- 定时器/计数器部分 -->
+        <section id="timer-counter" class="mb-20 scroll-mt-20">
+            <div class="text-center mb-12">
+                <h2 class="text-[clamp(1.5rem,3vw,2.5rem)] font-bold text-dark mb-4">
+                    <i class="fa fa-clock-o text-primary mr-3"></i>定时器/计数器
+                </h2>
+                <div class="w-24 h-1 bg-primary mx-auto rounded-full"></div>
+            </div>
+
+            <div class="grid md:grid-cols-2 gap-8">
+                <div class="bg-white rounded-xl shadow-lg p-6 card-hover">
+                    <h3 class="text-xl font-bold text-dark mb-4 flex items-center">
+                        <span class="bg-primary/10 text-primary p-2 rounded-lg mr-3">
+                            <i class="fa fa-info-circle"></i>
+                        </span>
+                        基本概念
+                    </h3>
+                    <ul class="space-y-3">
+                        <li class="flex items-start">
+                            <i class="fa fa-check-circle text-primary mt-1 mr-2"></i>
+                            <span>定时器/计数器是单片机的重要组成部分，可用于精确计时、产生定时中断和计数外部事件</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fa fa-check-circle text-primary mt-1 mr-2"></i>
+                            <span>8051单片机有两个16位定时器/计数器：T0和T1，每个定时器/计数器由两个8位寄存器组成</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fa fa-check-circle text-primary mt-1 mr-2"></i>
+                            <span>定时器模式下，计数器对内部机器周期计数；计数器模式下，对外部输入脉冲计数</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fa fa-check-circle text-primary mt-1 mr-2"></i>
+                            <span>定时器/计数器的核心是一个加1计数器，当计数值溢出时产生中断</span>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="bg-white rounded-xl shadow-lg p-6 card-hover">
+                    <h3 class="text-xl font-bold text-dark mb-4 flex items-center">
+                        <span class="bg-primary/10 text-primary p-2 rounded-lg mr-3">
+                            <i class="fa fa-cogs"></i>
+                        </span>
+                        工作原理
+                    </h3>
+                    <ul class="space-y-3">
+                        <li class="flex items-start">
+                            <i class="fa fa-check-circle text-primary mt-1 mr-2"></i>
+                            <span>定时器/计数器的核心是一个16位加1计数器，由THx和TLx两个8位寄存器组成</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fa fa-check-circle text-primary mt-1 mr-2"></i>
+                            <span>定时器模式下，计数脉冲来自内部时钟，频率为晶振频率的1/12</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fa fa-check-circle text-primary mt-1 mr-2"></i>
+                            <span>计数器模式下，计数脉冲来自外部输入引脚T0(P3.4)或T1(P3.5)</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fa fa-check-circle text-primary mt-1 mr-2"></i>
+                            <span>当计数器计满溢出时，TFx标志位置1，可触发中断或作为查询标志</span>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="bg-white rounded-xl shadow-lg p-6 card-hover">
+                    <h3 class="text-xl font-bold text-dark mb-4 flex items-center">
+                        <span class="bg-primary/10 text-primary p-2 rounded-lg mr-3">
+                            <i class="fa fa-sliders"></i>
+                        </span>
+                        工作模式
+                    </h3>
+                    <ul class="space-y-3">
+                        <li class="flex items-start">
+                            <i class="fa fa-check-circle text-primary mt-1 mr-2"></i>
+                            <span><strong>模式0</strong>：13位定时器/计数器，由THx的8位和TLx的低5位组成</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fa fa-check-circle text-primary mt-1 mr-2"></i>
+                            <span><strong>模式1</strong>：16位定时器/计数器，由THx和TLx组成完整的16位计数器</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fa fa-check-circle text-primary mt-1 mr-2"></i>
+                            <span><strong>模式2</strong>：自动重装初值的8位定时器/计数器，TLx作为计数器，THx作为初值寄存器</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fa fa-check-circle text-primary mt-1 mr-2"></i>
+                            <span><strong>模式3</strong>：仅适用于T0，将T0分成两个独立的8位计数器，T1停止工作</span>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="bg-white rounded-xl shadow-lg p-6 card-hover">
+                    <h3 class="text-xl font-bold text-dark mb-4 flex items-center">
+                        <span class="bg-primary/10 text-primary p-2 rounded-lg mr-3">
+                            <i class="fa fa-code"></i>
+                        </span>
+                        编程步骤
+                    </h3>
+                    <ol class="space-y-3">
+                        <li class="flex items-start">
+                            <span class="bg-primary text-white rounded-full w-6 h-6 flex items-center justify-center text-sm mr-3 mt-1">1</span>
+                            <span>确定定时器/计数器的工作模式，设置TMOD寄存器</span>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="bg-primary text-white rounded-full w-6 h-6 flex items-center justify-center text-sm mr-3 mt-1">2</span>
+                            <span>计算定时器初值，并写入THx和TLx寄存器</span>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="bg-primary text-white rounded-full w-6 h-6 flex items-center justify-center text-sm mr-3 mt-1">3</span>
+                            <span>根据需要，设置中断允许寄存器IE和中断优先级寄存器IP</span>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="bg-primary text-white rounded-full w-6 h-6 flex items-center justify-center text-sm mr-3 mt-1">4</span>
+                            <span>启动定时器/计数器，设置TCON寄存器中的TRx位</span>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="bg-primary text-white rounded-full w-6 h-6 flex items-center justify-center text-sm mr-3 mt-1">5</span>
+                            <span>编写中断服务程序或查询程序处理定时器溢出事件</span>
+                        </li>
+                    </ol>
+                </div>
+            </div>
+
+            <div class="mt-12 bg-white rounded-xl shadow-lg p-6">
+                <h3 class="text-xl font-bold text-dark mb-4 flex items-center">
+                    <span class="bg-primary/10 text-primary p-2 rounded-lg mr-3">
+                        <i class="fa fa-file-code-o"></i>
+                    </span>
+                    定时器初值计算
+                </h3>
+                <div class="bg-gray-50 rounded-lg p-4 overflow-x-auto">
+                    <pre class="font-mono text-sm">
+初值计算公式：
+初值 = 2^n - (定时时间 / 机器周期)
+
+其中：
+- n为计数器位数（模式0为13，模式1为16，模式2为8）
+- 机器周期 = 12 / 晶振频率
+
+例如：使用12MHz晶振，定时1ms，工作在模式1
+机器周期 = 12 / 12MHz = 1μs
+初值 = 65536 - (1000μs / 1μs) = 64536 = 0xFC18H
+即：TH0 = 0xFCH，TL0 = 0x18H
+                    </pre>
+                </div>
+            </div>
+        </section>
+
+        <!-- 串行口通信部分 -->
+        <section id="serial-communication" class="mb-20 scroll-mt-20">
+            <div class="text-center mb-12">
+                <h2 class="text-[clamp(1.5rem,3vw,2.5rem)] font-bold text-dark mb-4">
+                    <i class="fa fa-exchange text-secondary mr-3"></i>单片机串行口通信
+                </h2>
+                <div class="w-24 h-1 bg-secondary mx-auto rounded-full"></div>
+            </div>
+
+            <div class="grid md:grid-cols-2 gap-8">
+                <div class="bg-white rounded-xl shadow-lg p-6 card-hover">
+                    <h3 class="text-xl font-bold text-dark mb-4 flex items-center">
+                        <span class="bg-secondary/10 text-secondary p-2 rounded-lg mr-3">
+                            <i class="fa fa-info-circle"></i>
+                        </span>
+                        基本概念
+                    </h3>
+                    <ul class="space-y-3">
+                        <li class="flex items-start">
+                            <i class="fa fa-check-circle text-secondary mt-1 mr-2"></i>
+                            <span>串行通信是指数据一位一位地按顺序传送的通信方式，具有传输线少、成本低等优点</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fa fa-check-circle text-secondary mt-1 mr-2"></i>
+                            <span>8051单片机内置一个全双工串行通信接口，可实现单片机之间或单片机与其他设备之间的通信</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fa fa-check-circle text-secondary mt-1 mr-2"></i>
+                            <span>串行通信分为同步通信和异步通信，8051单片机采用异步通信方式</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fa fa-check-circle text-secondary mt-1 mr-2"></i>
+                            <span>异步通信以帧为单位进行数据传输，每帧包含起始位、数据位、奇偶校验位和停止位</span>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="bg-white rounded-xl shadow-lg p-6 card-hover">
+                    <h3 class="text-xl font-bold text-dark mb-4 flex items-center">
+                        <span class="bg-secondary/10 text-secondary p-2 rounded-lg mr-3">
+                            <i class="fa fa-cogs"></i>
+                        </span>
+                        串行口结构
+                    </h3>
+                    <ul class="space-y-3">
+                        <li class="flex items-start">
+                            <i class="fa fa-check-circle text-secondary mt-1 mr-2"></i>
+                            <span>8051串行口主要由发送缓冲器SBUF、接收缓冲器SBUF、串行控制寄存器SCON和波特率发生器组成</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fa fa-check-circle text-secondary mt-1 mr-2"></i>
+                            <span>发送缓冲器SBUF和接收缓冲器SBUF共用一个地址99H，通过读写指令区分</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fa fa-check-circle text-secondary mt-1 mr-2"></i>
+                            <span>串行控制寄存器SCON用于设置串行口的工作方式、接收/发送控制和状态标志</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fa fa-check-circle text-secondary mt-1 mr-2"></i>
+                            <span>波特率发生器通常由定时器T1或T2构成，用于控制串行通信的速率</span>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="bg-white rounded-xl shadow-lg p-6 card-hover">
+                    <h3 class="text-xl font-bold text-dark mb-4 flex items-center">
+                        <span class="bg-secondary/10 text-secondary p-2 rounded-lg mr-3">
+                            <i class="fa fa-sliders"></i>
+                        </span>
+                        工作方式
+                    </h3>
+                    <ul class="space-y-3">
+                        <li class="flex items-start">
+                            <i class="fa fa-check-circle text-secondary mt-1 mr-2"></i>
+                            <span><strong>方式0</strong>：同步移位寄存器方式，波特率固定为fosc/12，主要用于扩展I/O口</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fa fa-check-circle text-secondary mt-1 mr-2"></i>
+                            <span><strong>方式1</strong>：8位异步通信方式，波特率可变，由定时器T1或T2控制</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fa fa-check-circle text-secondary mt-1 mr-2"></i>
+                            <span><strong>方式2</strong>：9位异步通信方式，波特率固定为fosc/64或fosc/32</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fa fa-check-circle text-secondary mt-1 mr-2"></i>
+                            <span><strong>方式3</strong>：9位异步通信方式，波特率可变，由定时器T1或T2控制</span>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="bg-white rounded-xl shadow-lg p-6 card-hover">
+                    <h3 class="text-xl font-bold text-dark mb-4 flex items-center">
+                        <span class="bg-secondary/10 text-secondary p-2 rounded-lg mr-3">
+                            <i class="fa fa-code"></i>
+                        </span>
+                        编程步骤
+                    </h3>
+                    <ol class="space-y-3">
+                        <li class="flex items-start">
+                            <span class="bg-secondary text-white rounded-full w-6 h-6 flex items-center justify-center text-sm mr-3 mt-1">1</span>
+                            <span>确定串行口的工作方式，设置SCON寄存器</span>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="bg-secondary text-white rounded-full w-6 h-6 flex items-center justify-center text-sm mr-3 mt-1">2</span>
+                            <span>如果工作在方式1或方式3，设置定时器T1或T2为波特率发生器</span>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="bg-secondary text-white rounded-full w-6 h-6 flex items-center justify-center text-sm mr-3 mt-1">3</span>
+                            <span>计算波特率初值，并写入定时器寄存器</span>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="bg-secondary text-white rounded-full w-6 h-6 flex items-center justify-center text-sm mr-3 mt-1">4</span>
+                            <span>根据需要，设置中断允许寄存器IE和中断优先级寄存器IP</span>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="bg-secondary text-white rounded-full w-6 h-6 flex items-center justify-center text-sm mr-3 mt-1">5</span>
+                            <span>启动定时器T1或T2（如果用作波特率发生器）</span>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="bg-secondary text-white rounded-full w-6 h-6 flex items-center justify-center text-sm mr-3 mt-1">6</span>
+                            <span>通过SBUF寄存器进行数据的发送和接收</span>
+                        </li>
+                    </ol>
+                </div>
+            </div>
+
+            <div class="mt-12 bg-white rounded-xl shadow-lg p-6">
+                <h3 class="text-xl font-bold text-dark mb-4 flex items-center">
+                    <span class="bg-secondary/10 text-secondary p-2 rounded-lg mr-3">
+                        <i class="fa fa-file-code-o"></i>
+                    </span>
+                    波特率计算
+                </h3>
+                <div class="bg-gray-50 rounded-lg p-4 overflow-x-auto">
+                    <pre class="font-mono text-sm">
+方式1和方式3的波特率计算公式：
+波特率 = (2^SMOD / 32) × (定时器T1溢出率)
+
+其中：
+- SMOD是PCON寄存器的最高位
+- 定时器T1溢出率 = fosc / [12 × (256 - TH1)]
+
+例如：使用11.0592MHz晶振，波特率为9600bps，SMOD=0
+9600 = (1 / 32) × [11059200 / (12 × (256 - TH1))]
+解得：TH1 = 253 = 0xFDH
+                    </pre>
+                </div>
+            </div>
+        </section>
+
+        <!-- 定时器项目案例部分 -->
+        <section id="timer-project" class="mb-20 scroll-mt-20">
+            <div class="text-center mb-12">
+                <h2 class="text-[clamp(1.5rem,3vw,2.5rem)] font-bold text-dark mb-4">
+                    <i class="fa fa-cubes text-accent mr-3"></i>定时器/计数器项目案例
+                </h2>
+                <div class="w-24 h-1 bg-accent mx-auto rounded-full"></div>
+            </div>
+
+            <div class="grid md:grid-cols-2 gap-8">
+                <div class="bg-white rounded-xl shadow-lg overflow-hidden card-hover">
+                    <div class="bg-accent/10 p-6">
+                        <h3 class="text-xl font-bold text-dark mb-2">案例1：LED闪烁控制</h3>
+                        <p class="text-gray-600">使用定时器控制LED以1秒为周期闪烁</p>
+                    </div>
+                    <div class="p-6">
+                        <h4 class="font-bold text-dark mb-3 flex items-center">
+                            <i class="fa fa-lightbulb-o text-accent mr-2"></i>
+                            项目说明
+                        </h4>
+                        <p class="mb-4">
+                            本项目使用定时器T0产生500ms的定时中断，在中断服务程序中切换LED的状态，从而实现LED以1秒为周期闪烁。
+                        </p>
+                        <h4 class="font-bold text-dark mb-3 flex items-center">
+                            <i class="fa fa-microchip text-accent mr-2"></i>
+                            硬件连接
+                        </h4>
+                        <ul class="space-y-2 mb-4">
+                            <li class="flex items-start">
+                                <i class="fa fa-check-circle text-accent mt-1 mr-2"></i>
+                                <span>LED阳极接P1.0引脚</span>
+                            </li>
+                            <li class="flex items-start">
+                                <i class="fa fa-check-circle text-accent mt-1 mr-2"></i>
+                                <span>LED阴极通过220Ω电阻接地</span>
+                            </li>
+                        </ul>
+                        <div class="bg-gray-50 rounded-lg p-4 overflow-x-auto">
+                            <pre class="font-mono text-sm">
+; 使用定时器T0实现LED闪烁(1秒周期)
+ORG 0000H
+    LJMP MAIN        ; 跳转到主程序
+
+ORG 000BH           ; T0中断服务程序入口
+    LJMP TIMER0_ISR  ; 跳转到T0中断服务程序
+
+ORG 0030H
+MAIN:
+    MOV SP, #60H     ; 设置堆栈指针
+    
+    ; 初始化定时器T0
+    MOV TMOD, #01H    ; 设置T0为模式1(16位定时器)
+    MOV TH0, #3CH     ; 设置定时器初值，定时50ms
+    MOV TL0, #0B0H
+    SETB ET0         ; 使能T0中断
+    SETB EA          ; 开总中断
+    SETB TR0         ; 启动T0
+    
+    MOV R7, #10       ; 50ms * 10 = 500ms
+    
+    ; 主循环
+MAIN_LOOP:
+    SJMP MAIN_LOOP   ; 无限循环
+
+; T0中断服务程序
+TIMER0_ISR:
+    PUSH ACC         ; 保护现场
+    PUSH PSW
+    
+    ; 重新加载定时器初值
+    MOV TH0, #3CH
+    MOV TL0, #0B0H
+    
+    DJNZ R7, EXIT_ISR ; 如果未到500ms，直接退出
+    
+    ; 500ms时间到，切换LED状态
+    CPL P1.0
+    MOV R7, #10       ; 重新加载计数初值
+    
+EXIT_ISR:
+    POP PSW          ; 恢复现场
+    POP ACC
+    RETI             ; 中断返回
+
+END
+                            </pre>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-xl shadow-lg overflow-hidden card-hover">
+                    <div class="bg-accent/10 p-6">
+                        <h3 class="text-xl font-bold text-dark mb-2">案例2：数码管动态显示</h3>
+                        <p class="text-gray-600">使用定时器实现数码管动态扫描显示</p>
+                    </div>
+                    <div class="p-6">
+                        <h4 class="font-bold text-dark mb-3 flex items-center">
+                            <i class="fa fa-lightbulb-o text-accent mr-2"></i>
+                            项目说明
+                        </h4>
+                        <p class="mb-4">
+                            本项目使用定时器T1产生2ms的定时中断，在中断服务程序中进行数码管的动态扫描，实现4位数码管显示0-9999的计数。
+                        </p>
+                        <h4 class="font-bold text-dark mb-3 flex items-center">
+                            <i class="fa fa-microchip text-accent mr-2"></i>
+                            硬件连接
+                        </h4>
+                        <ul class="space-y-2 mb-4">
+                            <li class="flex items-start">
+                                <i class="fa fa-check-circle text-accent mt-1 mr-2"></i>
+                                <span>数码管段选信号接P0口</span>
+                            </li>
+                            <li class="flex items-start">
+                                <i class="fa fa-check-circle text-accent mt-1 mr-2"></i>
+                                <span>数码管位选信号通过74HC138译码器接P2.0-P2.2</span>
+                            </li>
+                        </ul>
+                        <div class="bg-gray-50 rounded-lg p-4 overflow-x-auto">
+                            <pre class="font-mono text-sm">
+; 使用定时器T1实现数码管动态显示
+ORG 0000H
+    LJMP MAIN        ; 跳转到主程序
+
+ORG 001BH           ; T1中断服务程序入口
+    LJMP TIMER1_ISR  ; 跳转到T1中断服务程序
+
+ORG 0030H
+MAIN:
+    MOV SP, #60H     ; 设置堆栈指针
+    
+    ; 初始化P0口为数码管段选输出
+    MOV P0, #0FFH
+    
+    ; 初始化定时器T1
+    MOV TMOD, #20H    ; 设置T1为模式2(自动重装)
+    MOV TH1, #0F3H    ; 设置定时器初值，定时2ms
+    MOV TL1, #0F3H
+    SETB ET1         ; 使能T1中断
+    SETB EA          ; 开总中断
+    SETB TR1         ; 启动T1
+    
+    MOV R0, #0        ; 显示缓冲区指针
+    MOV R1, #0        ; 计数值
+    
+    ; 主循环
+MAIN_LOOP:
+    ; 计数值加1(0-9999)
+    INC R1
+    MOV A, R1
+    CJNE A, #100, SKIP_RESET
+    MOV R1, #0        ; 计数值超过99，重置为0
+SKIP_RESET:
+    
+    ; 将计数值拆分为4位数字，存入显示缓冲区
+    MOV A, R1
+    MOV B, #100
+    DIV AB
+    MOV 30H, A        ; 百位
+    MOV A, B
+    MOV B, #10
+    DIV AB
+    MOV 31H, A        ; 十位
+    MOV 32H, B        ; 个位
+    
+    ; 延时
+    MOV R7, #200
+DELAY:
+    MOV R6, #250
+    DJNZ R6, $
+    DJNZ R7, DELAY
+    
+    SJMP MAIN_LOOP   ; 无限循环
+
+; T1中断服务程序(数码管扫描)
+TIMER1_ISR:
+    PUSH ACC         ; 保护现场
+    PUSH PSW
+    PUSH DPH
+    PUSH DPL
+    
+    ; 关闭所有数码管
+    MOV P2, #00H
+    
+    ; 根据当前扫描位，选择显示的数字
+    MOV A, R0
+    MOV DPTR, #SEG_TAB
+    MOVC A, @A+DPTR
+    MOV P0, A        ; 输出段选信号
+    
+    ; 选择当前扫描位
+    MOV A, R0
+    MOV P2, A        ; 输出位选信号
+    
+    ; 更新扫描位(0-3)
+    INC R0
+    MOV A, R0
+    CJNE A, #4, SKIP_RESET_R0
+    MOV R0, #0       ; 扫描完4位后，从头开始
+SKIP_RESET_R0:
+    
+    POP DPL          ; 恢复现场
+    POP DPH
+    POP PSW
+    POP ACC
+    RETI             ; 中断返回
+
+; 数码管段码表(共阴)
+SEG_TAB:
+    DB 3FH, 06H, 5BH, 4FH, 66H, 6DH, 7DH, 07H ; 0-7
+    DB 7FH, 6FH, 77H, 7CH, 39H, 5EH, 79H, 71H ; 8-F
+
+END
+                            </pre>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 串行口项目案例部分 -->
+        <section id="serial-project" class="mb-20 scroll-mt-20">
+            <div class="text-center mb-12">
+                <h2 class="text-[clamp(1.5rem,3vw,2.5rem)] font-bold text-dark mb-4">
+                    <i class="fa fa-cubes text-accent mr-3"></i>串行口项目案例
+                </h2>
+                <div class="w-24 h-1 bg-accent mx-auto rounded-full"></div>
+            </div>
+
+            <div class="grid md:grid-cols-2 gap-8">
+                <div class="bg-white rounded-xl shadow-lg overflow-hidden card-hover">
+                    <div class="bg-accent/10 p-6">
+                        <h3 class="text-xl font-bold text-dark mb-2">案例1：串口通信测试</h3>
+                        <p class="text-gray-600">单片机与PC之间的串口通信</p>
+                    </div>
+                    <div class="p-6">
+                        <h4 class="font-bold text-dark mb-3 flex items-center">
+                            <i class="fa fa-lightbulb-o text-accent mr-2"></i>
+                            项目说明
+                        </h4>
+                        <p class="mb-4">
+                            本项目实现单片机与PC之间的串口通信，单片机接收PC发送的数据，并将其原样返回。使用串口调试助手可以观察通信效果。
+                        </p>
+                        <h4 class="font-bold text-dark mb-3 flex items-center">
+                            <i class="fa fa-microchip text-accent mr-2"></i>
+                            硬件连接
+                        </h4>
+                        <ul class="space-y-2 mb-4">
+                            <li class="flex items-start">
+                                <i class="fa fa-check-circle text-accent mt-1 mr-2"></i>
+                                <span>单片机RXD(P3.0)接MAX232的TXD</span>
+                            </li>
+                            <li class="flex items-start">
+                                <i class="fa fa-check-circle text-accent mt-1 mr-2"></i>
+                                <span>单片机TXD(P3.1)接MAX232的RXD</span>
+                            </li>
+                            <li class="flex items-start">
+                                <i class="fa fa-check-circle text-accent mt-1 mr-2"></i>
+                                <span>MAX232通过RS232接口连接到PC</span>
+                            </li>
+                        </ul>
+                        <div class="bg-gray-50 rounded-lg p-4 overflow-x-auto">
+                            <pre class="font-mono text-sm">
+; 串口通信测试程序(波特率9600bps)
+ORG 0000H
+    LJMP MAIN        ; 跳转到主程序
+
+ORG 0023H           ; 串口中断服务程序入口
+    LJMP UART_ISR    ; 跳转到串口中断服务程序
+
+ORG 0030H
+MAIN:
+    MOV SP, #60H     ; 设置堆栈指针
+    
+    ; 初始化串口
+    MOV SCON, #50H    ; 设置串口为方式1(8位数据，可变波特率)
+    MOV PCON, #00H    ; SMOD=0
+    
+    ; 初始化定时器T1(波特率发生器)
+    MOV TMOD, #20H    ; 设置T1为模式2(自动重装)
+    MOV TH1, #0FDH    ; 设置波特率为9600bps(晶振11.0592MHz)
+    MOV TL1, #0FDH
+    SETB TR1         ; 启动T1
+    
+    SETB ES          ; 使能串口中断
+    SETB EA          ; 开总中断
+    
+    ; 发送欢迎信息
+    MOV A, #'H'
+    ACALL SEND_CHAR
+    MOV A, #'e'
+    ACALL SEND_CHAR
+    MOV A, #'l'
+    ACALL SEND_CHAR
+    MOV A, #'l'
+    ACALL SEND_CHAR
+    MOV A, #'o'
+    ACALL SEND_CHAR
+    MOV A, #' '
+    ACALL SEND_CHAR
+    MOV A, #'W'
+    ACALL SEND_CHAR
+    MOV A, #'o'
+    ACALL SEND_CHAR
+    MOV A, #'r'
+    ACALL SEND_CHAR
+    MOV A, #'l'
+    ACALL SEND_CHAR
+    MOV A, #'d'
+    ACALL SEND_CHAR
+    MOV A, #13       ; 回车符
+    ACALL SEND_CHAR
+    MOV A, #10       ; 换行符
+    ACALL SEND_CHAR
+    
+    ; 主循环
+MAIN_LOOP:
+    SJMP MAIN_LOOP   ; 无限循环
+
+; 发送字符子程序
+SEND_CHAR:
+    MOV SBUF, A      ; 发送数据
+WAIT_TX:
+    JNB TI, WAIT_TX  ; 等待发送完成
+    CLR TI           ; 清除发送完成标志
+    RET
+
+; 串口中断服务程序
+UART_ISR:
+    PUSH ACC         ; 保护现场
+    PUSH PSW
+    
+    JNB RI, UART_EXIT ; 不是接收中断，直接退出
+    
+    CLR RI           ; 清除接收中断标志
+    MOV A, SBUF      ; 读取接收到的数据
+    
+    ; 回显接收到的数据
+    ACALL SEND_CHAR
+    
+UART_EXIT:
+    POP PSW          ; 恢复现场
+    POP ACC
+    RETI             ; 中断返回
+
+END
+                            </pre>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-xl shadow-lg overflow-hidden card-hover">
+                    <div class="bg-accent/10 p-6">
+                        <h3 class="text-xl font-bold text-dark mb-2">案例2：串口控制LED</h3>
+                        <p class="text-gray-600">通过串口发送指令控制LED</p>
+                    </div>
+                    <div class="p-6">
+                        <h4 class="font-bold text-dark mb-3 flex items-center">
+                            <i class="fa fa-lightbulb-o text-accent mr-2"></i>
+                            项目说明
+                        </h4>
+                        <p class="mb-4">
+                            本项目实现通过串口发送指令控制LED的亮灭。发送'A'点亮LED，发送'B'熄灭LED，发送'C'切换LED状态。
+                        </p>
+                        <h4 class="font-bold text-dark mb-3 flex items-center">
+                            <i class="fa fa-microchip text-accent mr-2"></i>
+                            硬件连接
+                        </h4>
+                        <ul class="space-y-2 mb-4">
+                            <li class="flex items-start">
+                                <i class="fa fa-check-circle text-accent mt-1 mr-2"></i>
+                                <span>LED阳极接P1.0引脚</span>
+                            </li>
+                            <li class="flex items-start">
+                                <i class="fa fa-check-circle text-accent mt-1 mr-2"></i>
+                                <span>LED阴极通过220Ω电阻接地</span>
+                            </li>
+                            <li class="flex items-start">
+                                <i class="fa fa-check-circle text-accent mt-1 mr-2"></i>
+                                <span>单片机串口通过MAX232连接到PC</span>
+                            </li>
+                        </ul>
+                        <div class="bg-gray-50 rounded-lg p-4 overflow-x-auto">
+                            <pre class="font-mono text-sm">
+; 串口控制LED程序
+ORG 0000H
+    LJMP MAIN        ; 跳转到主程序
+
+ORG 0023H           ; 串口中断服务程序入口
+    LJMP UART_ISR    ; 跳转到串口中断服务程序
+
+ORG 0030H
+MAIN:
+    MOV SP, #60H     ; 设置堆栈指针
+    
+    ; 初始化LED控制引脚
+    SETB P1.0        ; 默认LED熄灭
+    
+    ; 初始化串口
+    MOV SCON, #50H    ; 设置串口为方式1(8位数据，可变波特率)
+    MOV PCON, #00H    ; SMOD=0
+    
+    ; 初始化定时器T1(波特率发生器)
+    MOV TMOD, #20H    ; 设置T1为模式2(自动重装)
+    MOV TH1, #0FDH    ; 设置波特率为9600bps(晶振11.0592MHz)
+    MOV TL1, #0FDH
+    SETB TR1         ; 启动T1
+    
+    SETB ES          ; 使能串口中断
+    SETB EA          ; 开总中断
+    
+    ; 发送使用说明
+    MOV A, #'C'
+    ACALL SEND_CHAR
+    MOV A, #'o'
+    ACALL SEND_CHAR
+    MOV A, #'m'
+    ACALL SEND_CHAR
+    MOV A, #'m'
+    ACALL SEND_CHAR
+    MOV A, #'a'
+    ACALL SEND_CHAR
+    MOV A, #'n'
+    ACALL SEND_CHAR
+    MOV A, #'d'
+    ACALL SEND_CHAR
+    MOV A, #':'
+    ACALL SEND_CHAR
+    MOV A, #' '
+    ACALL SEND_CHAR
+    MOV A, #'A'
+    ACALL SEND_CHAR
+    MOV A, #'-'
+    ACALL SEND_CHAR
+    MOV A, #'O'
+    ACALL SEND_CHAR
+    MOV A, #'N'
+    ACALL SEND_CHAR
+    MOV A, #'  '
+    ACALL SEND_CHAR
+    MOV A, #'B'
+    ACALL SEND_CHAR
+    MOV A, #'-'
+    ACALL SEND_CHAR
+    MOV A, #'O'
+    ACALL SEND_CHAR
+    MOV A, #'F'
+    ACALL SEND_CHAR
+    MOV A, #'F'
+    ACALL SEND_CHAR
+    MOV A, #'  '
+    ACALL SEND_CHAR
+    MOV A, #'C'
+    ACALL SEND_CHAR
+    MOV A, #'-'
+    ACALL SEND_CHAR
+    MOV A, #'T'
+    ACALL SEND_CHAR
+    MOV A, #'O'
+    ACALL SEND_CHAR
+    MOV A, #'G'
+    ACALL SEND_CHAR
+    MOV A, #'G'
+    ACALL SEND_CHAR
+    MOV A, #'L'
+    ACALL SEND_CHAR
+    MOV A, #'E'
+    ACALL SEND_CHAR
+    MOV A, #13       ; 回车符
+    ACALL SEND_CHAR
+    MOV A, #10       ; 换行符
+    ACALL SEND_CHAR
+    
+    ; 主循环
+MAIN_LOOP:
+    SJMP MAIN_LOOP   ; 无限循环
+
+; 发送字符子程序
+SEND_CHAR:
+    MOV SBUF, A      ; 发送数据
+WAIT_TX:
+    JNB TI, WAIT_TX  ; 等待发送完成
+    CLR TI           ; 清除发送完成标志
+    RET
+
+; 串口中断服务程序
+UART_ISR:
+    PUSH ACC         ; 保护现场
+    PUSH PSW
+    
+    JNB RI, UART_EXIT ; 不是接收中断，直接退出
+    
+    CLR RI           ; 清除接收中断标志
+    MOV A, SBUF      ; 读取接收到的数据
+    
+    ; 判断接收到的命令
+    CJNE A, #'A', CHECK_B
+    ; 命令A：点亮LED
+    CLR P1.0
+    SJMP SEND_ACK
+    
+CHECK_B:
+    CJNE A, #'B', CHECK_C
+    ; 命令B：熄灭LED
+    SETB P1.0
+    SJMP SEND_ACK
+    
+CHECK_C:
+    CJNE A, #'C', SEND_ACK
+    ; 命令C：切换LED状态
+    CPL P1.0
+    
+SEND_ACK:
+    ; 发送确认信息
+    MOV A, #'>'
+    ACALL SEND_CHAR
+    MOV A, #' '
+    ACALL SEND_CHAR
+    MOV A, SBUF      ; 回显接收到的命令
+    ACALL SEND_CHAR
+    MOV A, #' '
+    ACALL SEND_CHAR
+    MOV A, #'='
+    ACALL SEND_CHAR
+    MOV A, #' '
+    ACALL SEND_CHAR
+    JB P1.0, LED_OFF
+    MOV A, #'O'
+    ACALL SEND_CHAR
+    MOV A, #'N'
+    ACALL SEND_CHAR
+    SJMP SEND_END
+LED_OFF:
+    MOV A, #'O'
+    ACALL SEND_CHAR
+    MOV A, #'F'
+    ACALL SEND_CHAR
+    MOV A, #'F'
+    ACALL SEND_CHAR
+SEND_END:
+    MOV A, #13       ; 回车符
+    ACALL SEND_CHAR
+    MOV A, #10       ; 换行符
+    ACALL SEND_CHAR
+    
+UART_EXIT:
+    POP PSW          ; 恢复现场
+    POP ACC
+    RETI             ; 中断返回
+
+END
+                            </pre>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 本章总结部分 -->
+        <section id="summary" class="mb-20 scroll-mt-20">
+            <div class="text-center mb-12">
+                <h2 class="text-[clamp(1.5rem,3vw,2.5rem)] font-bold text-dark mb-4">
+                    <i class="fa fa-book text-primary mr-3"></i>本章总结
+                </h2>
+                <div class="w-24 h-1 bg-primary mx-auto rounded-full"></div>
+            </div>
+
+            <div class="bg-white rounded-xl shadow-lg p-6">
+                <div class="grid md:grid-cols-2 gap-8">
+                    <div>
+                        <h3 class="text-xl font-bold text-dark mb-4 flex items-center">
+                            <i class="fa fa-check-circle text-primary mr-2"></i>
+                            重点掌握
+                        </h3>
+                        <ul class="space-y-3">
+                            <li class="flex items-start">
+                                <i class="fa fa-check-circle text-primary mt-1 mr-2"></i>
+                                <span>定时器/计数器的基本概念、工作原理和四种工作模式</span>
+                            </li>
+                            <li class="flex items-start">
+                                <i class="fa fa-check-circle text-primary mt-1 mr-2"></i>
+                                <span>定时器初值的计算方法和编程步骤</span>
+                            </li>
+                            <li class="flex items-start">
+                                <i class="fa fa-check-circle text-primary mt-1 mr-2"></i>
+                                <span>串行口通信的基本概念、异步通信格式和四种工作方式</span>
+                            </li>
+                            <li class="flex items-start">
+                                <i class="fa fa-check-circle text-primary mt-1 mr-2"></i>
+                                <span>波特率的计算方法和串行口编程步骤</span>
+                            </li>
+                            <li class="flex items-start">
+                                <i class="fa fa-check-circle text-primary mt-1 mr-2"></i>
+                                <span>定时器/计数器和串行口的中断处理方法</span>
+                            </li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h3 class="text-xl font-bold text-dark mb-4 flex items-center">
+                            <i class="fa fa-lightbulb-o text-primary mr-2"></i>
+                            学习建议
+                        </h3>
+                        <ul class="space-y-3">
+                            <li class="flex items-start">
+                                <i class="fa fa-check-circle text-primary mt-1 mr-2"></i>
+                                <span>深入理解定时器/计数器和串行口的工作原理，掌握相关寄存器的功能和设置方法</span>
+                            </li>
+                            <li class="flex items-start">
+                                <i class="fa fa-check-circle text-primary mt-1 mr-2"></i>
+                                <span>多做实验，通过实际项目加深对定时器/计数器和串行口的理解和应用能力</span>
+                            </li>
+                            <li class="flex items-start">
+                                <i class="fa fa-check-circle text-primary mt-1 mr-2"></i>
+                                <span>掌握定时器初值和波特率的计算方法，能够根据实际需求进行参数设置</span>
+                            </li>
+                            <li class="flex items-start">
+                                <i class="fa fa-check-circle text-primary mt-1 mr-2"></i>
+                                <span>学会使用中断方式处理定时器溢出和串行口收发事件，提高程序的效率</span>
+                            </li>
+                            <li class="flex items-start">
+                                <i class="fa fa-check-circle text-primary mt-1 mr-2"></i>
+                                <span>理解串行通信协议的基本原理，能够设计简单的通信协议实现数据传输</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="mt-8">
+                    <h3 class="text-xl font-bold text-dark mb-4 flex items-center">
+                        <i class="fa fa-trophy text-primary mr-2"></i>
+                        知识拓展
+                    </h3>
+                    <p class="mb-4">
+                        学习完本章内容后，你可以进一步探索以下方向：
+                    </p>
+                    <ul class="grid md:grid-cols-2 gap-4">
+                        <li class="bg-gray-50 p-4 rounded-lg flex items-start">
+                            <i class="fa fa-arrow-right text-primary mt-1 mr-3"></i>
+                            <div>
+                                <h4 class="font-bold mb-1">高级定时器应用</h4>
+                                <p class="text-gray-600">学习使用定时器实现PWM控制、频率测量等高级应用</p>
+                            </div>
+                        </li>
+                        <li class="bg-gray-50 p-4 rounded-lg flex items-start">
+                            <i class="fa fa-arrow-right text-primary mt-1 mr-3"></i>
+                            <div>
+                                <h4 class="font-bold mb-1">多机通信</h4>
+                                <p class="text-gray-600">学习单片机之间的多机通信技术，实现分布式控制系统</p>
+                            </div>
+                        </li>
+                        <li class="bg-gray-50 p-4 rounded-lg flex items-start">
+                            <i class="fa fa-arrow-right text-primary mt-1 mr-3"></i>
+                            <div>
+                                <h4 class="font-bold mb-1">异步通信协议</h4>
+                                <p class="text-gray-600">深入学习UART、SPI、I2C等串行通信协议的原理和应用</p>
+                            </div>
+                        </li>
+                        <li class="bg-gray-50 p-4 rounded-lg flex items-start">
+                            <i class="fa fa-arrow-right text-primary mt-1 mr-3"></i>
+                            <div>
+                                <h4 class="font-bold mb-1">无线通信</h4>
+                                <p class="text-gray-600">了解无线通信模块的使用，如蓝牙、WiFi等与单片机的接口</p>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- 页脚 -->
+    <footer class="bg-dark text-white py-12">
+        <div class="container mx-auto px-4">
+            <div class="grid md:grid-cols-3 gap-8">
+                <div>
+                    <h3 class="text-xl font-bold mb-4 flex items-center">
+                        <i class="fa fa-microchip text-primary mr-2"></i>
+                        单片机技术与应用
+                    </h3>
+                    <p class="text-gray-400">
+                        本资料由高等教育出版社《单片机技术与应用》教材第六章整理而来，
+                        供中职单片机课程教学使用。
+                    </p>
+                </div>
+                <div>
+                    <h3 class="text-lg font-bold mb-4">快速导航</h3>
+                    <ul class="space-y-2">
+                        <li><a href="#timer-counter" class="text-gray-400 hover:text-primary transition-colors">定时器/计数器</a></li>
+                        <li><a href="#serial-communication" class="text-gray-400 hover:text-primary transition-colors">串行口通信</a></li>
+                        <li><a href="#timer-project" class="text-gray-400 hover:text-primary transition-colors">定时器项目案例</a></li>
+                        <li><a href="#serial-project" class="text-gray-400 hover:text-primary transition-colors">串行口项目案例</a></li>
+                        <li><a href="#summary" class="text-gray-400 hover:text-primary transition-colors">本章总结</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="text-lg font-bold mb-4">联系我们</h3>
+                    <ul class="space-y-2">
+                        <li class="flex items-center">
+                            <i class="fa fa-envelope text-primary mr-2"></i>
+                            <span class="text-gray-400">50394113@qq.com</span>
+                        </li>
+                        <li class="flex items-center">
+                            <i class="fa fa-phone text-primary mr-2"></i>
+                            <span class="text-gray-400">单片机课程QQ群：370743825</span>
+                        </li>
+                        <li class="flex items-center">
+                            <i class="fa fa-map-marker text-primary mr-2"></i>
+                            <span class="text-gray-400">QQ:50394113</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <div class="mt-8 pt-8 border-t border-gray-800 text-center text-gray-500">
+                <p>《单片机技术与应用》课程  &copy; 王老师. 保留所有权利.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // 导航栏滚动效果
+        window.addEventListener('scroll', function() {
+            const navbar = document.getElementById('navbar');
+            if (window.scrollY > 50) {
+                navbar.classList.add('py-2', 'shadow-md');
+                navbar.classList.remove('py-3', 'shadow-sm');
+            } else {
+                navbar.classList.add('py-3', 'shadow-sm');
+                navbar.classList.remove('py-2', 'shadow-md');
+            }
+        });
+
+        // 移动端菜单切换
+        document.getElementById('menu-toggle').addEventListener('click', function() {
+            const mobileMenu = document.getElementById('mobile-menu');
+            mobileMenu.classList.toggle('hidden');
+        });
+
+        // 平滑滚动
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                
+                const targetId = this.getAttribute('href');
+                const targetElement = document.querySelector(targetId);
+                
+                if (targetElement) {
+                    window.scrollTo({
+                        top: targetElement.offsetTop - 80,
+                        behavior: 'smooth'
+                    });
+                    
+                    // 关闭移动端菜单
+                    document.getElementById('mobile-menu').classList.add('hidden');
+                }
+            });
+        });
+    </script>
+</body>
+</html>
+    

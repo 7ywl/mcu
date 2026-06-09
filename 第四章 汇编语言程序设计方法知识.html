@@ -1,0 +1,789 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>《单片机技术与应用》第四章知识要点</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#165DFF',
+                        secondary: '#36CFC9',
+                        accent: '#722ED1',
+                        neutral: '#F2F3F5',
+                        'neutral-dark': '#4E5969',
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .content-auto {
+                content-visibility: auto;
+            }
+            .scrollbar-hide {
+                -ms-overflow-style: none;
+                scrollbar-width: none;
+            }
+            .scrollbar-hide::-webkit-scrollbar {
+                display: none;
+            }
+            .text-shadow {
+                text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            }
+            .transition-all-300 {
+                transition: all 300ms ease-in-out;
+            }
+        }
+    </style>
+</head>
+<body class="bg-gray-50 font-sans text-gray-800">
+    <!-- 导航栏 -->
+    <nav id="navbar" class="fixed top-0 left-0 right-0 z-50 bg-white bg-opacity-90 shadow-md transition-all duration-300">
+        <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+            <div class="flex items-center space-x-2">
+                <i class="fa fa-microchip text-primary text-2xl"></i>
+                <h1 class="text-xl font-bold text-primary">51单片机汇编语言</h1>
+            </div>
+            <div class="hidden md:flex items-center space-x-6">
+                <a href="/" class="text-neutral-dark hover:text-primary transition-all-300">首页</a>
+                <a href="#sec1" class="text-neutral-dark hover:text-primary transition-all-300">顺序程序</a>
+                <a href="#sec2" class="text-neutral-dark hover:text-primary transition-all-300">分支程序</a>
+                <a href="#sec3" class="text-neutral-dark hover:text-primary transition-all-300">循环程序</a>
+                <a href="#sec4" class="text-neutral-dark hover:text-primary transition-all-300">查表程序</a>
+                <a href="#sec5" class="text-neutral-dark hover:text-primary transition-all-300">子程序</a>
+                <a href="#sec6" class="text-neutral-dark hover:text-primary transition-all-300">实例</a>
+                <a href="#sec7" class="text-neutral-dark hover:text-primary transition-all-300">总结</a>
+            </div>
+            <button id="menu-toggle" class="md:hidden text-gray-600 focus:outline-none">
+                <i class="fa fa-bars text-xl"></i>
+            </button>
+        </div>
+        <!-- 移动端菜单 -->
+        <div id="mobile-menu" class="hidden md:hidden bg-white border-t">
+            <div class="container mx-auto px-4 py-2 flex flex-col space-y-3">
+                <a href="/" class="text-neutral-dark hover:text-primary py-2 transition-all-300">首页</a>
+                <a href="#sec1" class="text-neutral-dark hover:text-primary py-2 transition-all-300">顺序程序</a>
+                <a href="#sec2" class="text-neutral-dark hover:text-primary py-2 transition-all-300">分支程序</a>
+                <a href="#sec3" class="text-neutral-dark hover:text-primary py-2 transition-all-300">循环程序</a>
+                <a href="#sec4" class="text-neutral-dark hover:text-primary py-2 transition-all-300">查表程序</a>
+                <a href="#sec5" class="text-neutral-dark hover:text-primary py-2 transition-all-300">子程序</a>
+                <a href="#sec6" class="text-neutral-dark hover:text-primary py-2 transition-all-300">实例</a>
+                <a href="#sec7" class="text-neutral-dark hover:text-primary py-2 transition-all-300">总结</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 主内容 -->
+    <main class="container mx-auto px-4 pt-24 pb-16">
+        <!-- 标题区域 -->
+        <header class="text-center mb-12">
+            <h1 class="text-[clamp(2rem,5vw,3rem)] font-bold text-primary mb-4 text-shadow">
+                《单片机技术与应用》第四章<br>汇编语言程序设计方法
+            </h1>
+            <p class="text-neutral-dark text-lg max-w-3xl mx-auto">
+                本章系统讲解51单片机汇编语言的程序设计方法，包括顺序、分支、循环、查表、子程序等核心技术
+            </p>
+        </header>
+
+        <!-- 目录 -->
+        <section class="bg-white rounded-xl shadow-lg p-6 mb-12 transform hover:shadow-xl transition-all-300">
+            <h2 class="text-2xl font-bold text-primary mb-4 border-b-2 border-primary pb-2 flex items-center">
+                <i class="fa fa-list-ul mr-2"></i>目录
+            </h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <ul class="space-y-2 pl-2">
+                    <li class="flex items-start">
+                        <i class="fa fa-angle-right text-primary mt-1 mr-2"></i>
+                        <a href="#sec1" class="text-gray-700 hover:text-primary transition-all-300">一、顺序程序设计</a>
+                    </li>
+                    <li class="flex items-start">
+                        <i class="fa fa-angle-right text-primary mt-1 mr-2"></i>
+                        <a href="#sec2" class="text-gray-700 hover:text-primary transition-all-300">二、分支程序设计</a>
+                    </li>
+                    <li class="flex items-start">
+                        <i class="fa fa-angle-right text-primary mt-1 mr-2"></i>
+                        <a href="#sec3" class="text-gray-700 hover:text-primary transition-all-300">三、循环程序设计</a>
+                    </li>
+                </ul>
+                <ul class="space-y-2 pl-2">
+                    <li class="flex items-start">
+                        <i class="fa fa-angle-right text-primary mt-1 mr-2"></i>
+                        <a href="#sec4" class="text-gray-700 hover:text-primary transition-all-300">四、查表程序设计</a>
+                    </li>
+                    <li class="flex items-start">
+                        <i class="fa fa-angle-right text-primary mt-1 mr-2"></i>
+                        <a href="#sec5" class="text-gray-700 hover:text-primary transition-all-300">五、子程序设计和参数传递</a>
+                    </li>
+                    <li class="flex items-start">
+                        <i class="fa fa-angle-right text-primary mt-1 mr-2"></i>
+                        <a href="#sec6" class="text-gray-700 hover:text-primary transition-all-300">六、单片机简单程序设计实例</a>
+                    </li>
+                    <li class="flex items-start">
+                        <i class="fa fa-angle-right text-primary mt-1 mr-2"></i>
+                        <a href="#sec7" class="text-gray-700 hover:text-primary transition-all-300">七、本章总结</a>
+                    </li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- 各章节内容 -->
+        <div class="space-y-12">
+            <!-- 顺序程序设计 -->
+            <section id="sec1" class="bg-white rounded-xl shadow-lg overflow-hidden transform hover:shadow-xl transition-all-300">
+                <div class="bg-primary text-white p-4">
+                    <h2 class="text-2xl font-bold flex items-center">
+                        <i class="fa fa-arrow-right mr-2"></i>一、顺序程序设计
+                    </h2>
+                </div>
+                <div class="p-6">
+                    <p class="mb-4 text-lg">
+                        顺序程序是按照指令编写顺序逐条执行的程序结构，无分支、循环等控制逻辑。其核心是利用基本指令实现数据处理。
+                    </p>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+                        <div class="bg-neutral rounded-lg p-4">
+                            <h3 class="text-xl font-semibold text-primary mb-2 flex items-center">
+                                <i class="fa fa-code mr-2"></i>基本指令应用
+                            </h3>
+                            <ul class="space-y-2">
+                                <li class="flex items-start">
+                                    <i class="fa fa-check-circle text-secondary mt-1 mr-2"></i>
+                                    <span>数据传送（MOV、MOVX、MOVC）</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <i class="fa fa-check-circle text-secondary mt-1 mr-2"></i>
+                                    <span>算术运算（ADD、SUBB、INC）</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <i class="fa fa-check-circle text-secondary mt-1 mr-2"></i>
+                                    <span>逻辑运算（ANL、ORL、XRL）</span>
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="bg-neutral rounded-lg p-4">
+                            <h3 class="text-xl font-semibold text-primary mb-2 flex items-center">
+                                <i class="fa fa-file-text-o mr-2"></i>伪指令支持
+                            </h3>
+                            <ul class="space-y-2">
+                                <li class="flex items-start">
+                                    <i class="fa fa-check-circle text-secondary mt-1 mr-2"></i>
+                                    <span>ORG（指定程序起始地址）</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <i class="fa fa-check-circle text-secondary mt-1 mr-2"></i>
+                                    <span>EQU（符号定义）</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <i class="fa fa-check-circle text-secondary mt-1 mr-2"></i>
+                                    <span>DATA（数据地址赋值）</span>
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="bg-neutral rounded-lg p-4">
+                            <h3 class="text-xl font-semibold text-primary mb-2 flex items-center">
+                                <i class="fa fa-cubes mr-2"></i>典型场景
+                            </h3>
+                            <ul class="space-y-2">
+                                <li class="flex items-start">
+                                    <i class="fa fa-check-circle text-secondary mt-1 mr-2"></i>
+                                    <span>简单数据处理</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <i class="fa fa-check-circle text-secondary mt-1 mr-2"></i>
+                                    <span>初始化设置</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <i class="fa fa-check-circle text-secondary mt-1 mr-2"></i>
+                                    <span>I/O端口直接操作</span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="bg-gray-800 text-white rounded-lg p-4 overflow-x-auto">
+                        <h3 class="text-lg font-semibold mb-3 flex items-center">
+                            <i class="fa fa-code mr-2"></i>示例代码：点亮LED并延时
+                        </h3>
+                        <pre class="font-mono text-sm">ORG 0000H
+MOV P2, #0FEH  ; 点亮第一个LED
+MOV R7, #20    ; 延时参数
+DELAY:
+DJNZ R7, DELAY  ; 循环延时
+SJMP $         ; 程序暂停</pre>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 分支程序设计 -->
+            <section id="sec2" class="bg-white rounded-xl shadow-lg overflow-hidden transform hover:shadow-xl transition-all-300">
+                <div class="bg-primary text-white p-4">
+                    <h2 class="text-2xl font-bold flex items-center">
+                        <i class="fa fa-random mr-2"></i>二、分支程序设计
+                    </h2>
+                </div>
+                <div class="p-6">
+                    <p class="mb-4 text-lg">
+                        通过条件判断实现程序流向控制，分为单分支、多分支结构。
+                    </p>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+                        <div class="bg-neutral rounded-lg p-4">
+                            <h3 class="text-xl font-semibold text-primary mb-2 flex items-center">
+                                <i class="fa fa-exchange mr-2"></i>条件转移指令
+                            </h3>
+                            <ul class="space-y-2">
+                                <li class="flex items-start">
+                                    <i class="fa fa-check-circle text-secondary mt-1 mr-2"></i>
+                                    <span>CJNE（比较转移）</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <i class="fa fa-check-circle text-secondary mt-1 mr-2"></i>
+                                    <span>JZ（判零转移）</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <i class="fa fa-check-circle text-secondary mt-1 mr-2"></i>
+                                    <span>JB（判位转移）</span>
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="bg-neutral rounded-lg p-4">
+                            <h3 class="text-xl font-semibold text-primary mb-2 flex items-center">
+                                <i class="fa fa-sitemap mr-2"></i>多分支实现
+                            </h3>
+                            <ul class="space-y-2">
+                                <li class="flex items-start">
+                                    <i class="fa fa-check-circle text-secondary mt-1 mr-2"></i>
+                                    <span>使用散转程序（JMP @A+DPTR）</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <i class="fa fa-check-circle text-secondary mt-1 mr-2"></i>
+                                    <span>结合数据表格实现多路分支</span>
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="bg-neutral rounded-lg p-4">
+                            <h3 class="text-xl font-semibold text-primary mb-2 flex items-center">
+                                <i class="fa fa-lightbulb-o mr-2"></i>设计要点
+                            </h3>
+                            <ul class="space-y-2">
+                                <li class="flex items-start">
+                                    <i class="fa fa-check-circle text-secondary mt-1 mr-2"></i>
+                                    <span>条件判断逻辑清晰</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <i class="fa fa-check-circle text-secondary mt-1 mr-2"></i>
+                                    <span>避免分支嵌套过深</span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="bg-gray-800 text-white rounded-lg p-4 overflow-x-auto">
+                        <h3 class="text-lg font-semibold mb-3 flex items-center">
+                            <i class="fa fa-code mr-2"></i>示例代码：根据数值点亮不同LED
+                        </h3>
+                        <pre class="font-mono text-sm">CJNE A, #10, NEXT  ; 比较A与10
+MOV P2, #0FFH      ; 相等时全灭
+SJMP END
+NEXT:
+JNC HIGH           ; A>10则跳转
+MOV P2, #0FEH      ; A<10点亮第一个LED
+SJMP END
+HIGH:
+MOV P2, #01H       ; A>10点亮最后一个LED
+END:
+SJMP END</pre>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 循环程序设计 -->
+            <section id="sec3" class="bg-white rounded-xl shadow-lg overflow-hidden transform hover:shadow-xl transition-all-300">
+                <div class="bg-primary text-white p-4">
+                    <h2 class="text-2xl font-bold flex items-center">
+                        <i class="fa fa-repeat mr-2"></i>三、循环程序设计
+                    </h2>
+                </div>
+                <div class="p-6">
+                    <p class="mb-4 text-lg">
+                        通过循环结构重复执行某段程序，分为计数循环和条件循环。
+                    </p>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+                        <div class="bg-neutral rounded-lg p-4">
+                            <h3 class="text-xl font-semibold text-primary mb-2 flex items-center">
+                                <i class="fa fa-cogs mr-2"></i>循环三要素
+                            </h3>
+                            <ul class="space-y-2">
+                                <li class="flex items-start">
+                                    <i class="fa fa-check-circle text-secondary mt-1 mr-2"></i>
+                                    <span>初始化</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <i class="fa fa-check-circle text-secondary mt-1 mr-2"></i>
+                                    <span>循环体</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <i class="fa fa-check-circle text-secondary mt-1 mr-2"></i>
+                                    <span>循环控制（DJNZ、CJNE等）</span>
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="bg-neutral rounded-lg p-4">
+                            <h3 class="text-xl font-semibold text-primary mb-2 flex items-center">
+                                <i class="fa fa-th-list mr-2"></i>典型应用
+                            </h3>
+                            <ul class="space-y-2">
+                                <li class="flex items-start">
+                                    <i class="fa fa-check-circle text-secondary mt-1 mr-2"></i>
+                                    <span>延时程序</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <i class="fa fa-check-circle text-secondary mt-1 mr-2"></i>
+                                    <span>数据块处理</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <i class="fa fa-check-circle text-secondary mt-1 mr-2"></i>
+                                    <span>查表遍历</span>
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="bg-neutral rounded-lg p-4">
+                            <h3 class="text-xl font-semibold text-primary mb-2 flex items-center">
+                                <i class="fa fa-exclamation-triangle mr-2"></i>注意事项
+                            </h3>
+                            <ul class="space-y-2">
+                                <li class="flex items-start">
+                                    <i class="fa fa-check-circle text-secondary mt-1 mr-2"></i>
+                                    <span>避免死循环</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <i class="fa fa-check-circle text-secondary mt-1 mr-2"></i>
+                                    <span>合理分配寄存器资源</span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="bg-gray-800 text-white rounded-lg p-4 overflow-x-auto">
+                        <h3 class="text-lg font-semibold mb-3 flex items-center">
+                            <i class="fa fa-code mr-2"></i>示例代码：数据块求和
+                        </h3>
+                        <pre class="font-mono text-sm">MOV R0, #30H      ; 数据块起始地址
+MOV R7, #10       ; 数据长度
+CLR A             ; 累加器清零
+LOOP:
+ADD A, @R0        ; 累加数据
+INC R0            ; 指针后移
+DJNZ R7, LOOP     ; 未完成继续循环
+MOV 40H, A        ; 保存结果</pre>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 查表程序设计 -->
+            <section id="sec4" class="bg-white rounded-xl shadow-lg overflow-hidden transform hover:shadow-xl transition-all-300">
+                <div class="bg-primary text-white p-4">
+                    <h2 class="text-2xl font-bold flex items-center">
+                        <i class="fa fa-book mr-2"></i>四、查表程序设计
+                    </h2>
+                </div>
+                <div class="p-6">
+                    <p class="mb-4 text-lg">
+                        通过查表指令（MOVC）快速获取预存数据，适用于非线性运算或固定参数访问。
+                    </p>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+                        <div class="bg-neutral rounded-lg p-4">
+                            <h3 class="text-xl font-semibold text-primary mb-2 flex items-center">
+                                <i class="fa fa-search mr-2"></i>查表方式
+                            </h3>
+                            <ul class="space-y-2">
+                                <li class="flex items-start">
+                                    <i class="fa fa-check-circle text-secondary mt-1 mr-2"></i>
+                                    <span>直接查表（表格起始地址固定）</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <i class="fa fa-check-circle text-secondary mt-1 mr-2"></i>
+                                    <span>变址查表（通过DPTR+A定位）</span>
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="bg-neutral rounded-lg p-4">
+                            <h3 class="text-xl font-semibold text-primary mb-2 flex items-center">
+                                <i class="fa fa-list-alt mr-2"></i>表格定义
+                            </h3>
+                            <ul class="space-y-2">
+                                <li class="flex items-start">
+                                    <i class="fa fa-check-circle text-secondary mt-1 mr-2"></i>
+                                    <span>DB（定义字节）</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <i class="fa fa-check-circle text-secondary mt-1 mr-2"></i>
+                                    <span>DW（定义字）</span>
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="bg-neutral rounded-lg p-4">
+                            <h3 class="text-xl font-semibold text-primary mb-2 flex items-center">
+                                <i class="fa fa-cogs mr-2"></i>应用场景
+                            </h3>
+                            <ul class="space-y-2">
+                                <li class="flex items-start">
+                                    <i class="fa fa-check-circle text-secondary mt-1 mr-2"></i>
+                                    <span>LED段码转换</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <i class="fa fa-check-circle text-secondary mt-1 mr-2"></i>
+                                    <span>温度补偿</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <i class="fa fa-check-circle text-secondary mt-1 mr-2"></i>
+                                    <span>代码转换</span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="bg-gray-800 text-white rounded-lg p-4 overflow-x-auto">
+                        <h3 class="text-lg font-semibold mb-3 flex items-center">
+                            <i class="fa fa-code mr-2"></i>示例代码：数码管段码查表
+                        </h3>
+                        <pre class="font-mono text-sm">MOV DPTR, #SEG_TAB  ; 段码表首地址
+MOV A, R2           ; 待转换数据
+MOVC A, @A+DPTR     ; 查表
+MOV P0, A           ; 输出显示
+SEG_TAB:
+DB 0C0H, 0F9H, 0A4H, 0B0H  ; 0-3的段码</pre>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 子程序设计和参数传递 -->
+            <section id="sec5" class="bg-white rounded-xl shadow-lg overflow-hidden transform hover:shadow-xl transition-all-300">
+                <div class="bg-primary text-white p-4">
+                    <h2 class="text-2xl font-bold flex items-center">
+                        <i class="fa fa-cubes mr-2"></i>五、子程序设计和参数传递
+                    </h2>
+                </div>
+                <div class="p-6">
+                    <p class="mb-4 text-lg">
+                        将重复使用的代码模块化，通过调用指令（ACALL、LCALL）实现复用。
+                    </p>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+                        <div class="bg-neutral rounded-lg p-4">
+                            <h3 class="text-xl font-semibold text-primary mb-2 flex items-center">
+                                <i class="fa fa-cube mr-2"></i>子程序结构
+                            </h3>
+                            <ul class="space-y-2">
+                                <li class="flex items-start">
+                                    <i class="fa fa-check-circle text-secondary mt-1 mr-2"></i>
+                                    <span>入口参数处理</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <i class="fa fa-check-circle text-secondary mt-1 mr-2"></i>
+                                    <span>功能实现</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <i class="fa fa-check-circle text-secondary mt-1 mr-2"></i>
+                                    <span>出口参数返回</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <i class="fa fa-check-circle text-secondary mt-1 mr-2"></i>
+                                    <span>现场保护</span>
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="bg-neutral rounded-lg p-4">
+                            <h3 class="text-xl font-semibold text-primary mb-2 flex items-center">
+                                <i class="fa fa-exchange mr-2"></i>参数传递方法
+                            </h3>
+                            <ul class="space-y-2">
+                                <li class="flex items-start">
+                                    <i class="fa fa-check-circle text-secondary mt-1 mr-2"></i>
+                                    <span>寄存器传递：利用R0-R7传递数据</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <i class="fa fa-check-circle text-secondary mt-1 mr-2"></i>
+                                    <span>内存传递：通过固定地址单元交换数据</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <i class="fa fa-check-circle text-secondary mt-1 mr-2"></i>
+                                    <span>堆栈传递：使用PUSH/POP指令压栈出栈</span>
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="bg-neutral rounded-lg p-4">
+                            <h3 class="text-xl font-semibold text-primary mb-2 flex items-center">
+                                <i class="fa fa-exclamation-triangle mr-2"></i>注意事项
+                            </h3>
+                            <ul class="space-y-2">
+                                <li class="flex items-start">
+                                    <i class="fa fa-check-circle text-secondary mt-1 mr-2"></i>
+                                    <span>堆栈深度计算避免溢出</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <i class="fa fa-check-circle text-secondary mt-1 mr-2"></i>
+                                    <span>子程序嵌套不超过3层</span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="bg-gray-800 text-white rounded-lg p-4 overflow-x-auto">
+                        <h3 class="text-lg font-semibold mb-3 flex items-center">
+                            <i class="fa fa-code mr-2"></i>示例代码：数据乘法子程序
+                        </h3>
+                        <pre class="font-mono text-sm">MAIN:
+MOV R0, #50H       ; 入口参数地址
+LCALL SUM          ; 调用求和子程序
+SJMP $
+
+SUM:
+PUSH ACC           ; 保护现场
+PUSH B
+MOV A, @R0
+MOV B, #10
+MUL AB             ; 计算50H单元数据×10
+POP B              ; 恢复现场
+POP ACC
+RET</pre>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 单片机简单程序设计实例 -->
+            <section id="sec6" class="bg-white rounded-xl shadow-lg overflow-hidden transform hover:shadow-xl transition-all-300">
+                <div class="bg-primary text-white p-4">
+                    <h2 class="text-2xl font-bold flex items-center">
+                        <i class="fa fa-cogs mr-2"></i>六、单片机简单程序设计实例
+                    </h2>
+                </div>
+                <div class="p-6">
+                    <p class="mb-6 text-lg">
+                        综合应用多种程序设计方法实现具体功能。
+                    </p>
+
+                    <div class="bg-neutral rounded-lg p-6 mb-6">
+                        <h3 class="text-xl font-semibold text-primary mb-4 flex items-center">
+                            <i class="fa fa-lightbulb-o mr-2"></i>实例1：LED流水灯（查表法）
+                        </h3>
+                        <div class="bg-gray-800 text-white rounded-lg p-4 overflow-x-auto mb-4">
+                            <pre class="font-mono text-sm">ORG 0000H
+MOV DPTR, #LED_TAB  ; 流水灯模式表
+MOV R2, #0         ; 初始偏移量
+LOOP:
+MOV A, R2
+MOVC A, @A+DPTR    ; 查表
+MOV P2, A
+LCALL DELAY        ; 调用延时子程序
+INC R2
+CJNE R2, #8, LOOP  ; 循环8次
+SJMP LOOP
+
+LED_TAB:
+DB 0FEH, 0FDH, 0FBH, 0F7H  ; 流水灯模式
+DB 0EFH, 0DFH, 0BFH, 7FH
+
+DELAY:
+MOV R7, #20        ; 延时子程序
+D1: MOV R6, #250
+D2: DJNZ R6, D2
+DJNZ R7, D1
+RET</pre>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div class="bg-white rounded-lg p-4 shadow-md">
+                                <h4 class="font-semibold mb-2">程序功能</h4>
+                                <p>控制8个LED循环点亮，形成流水灯效果。</p>
+                            </div>
+                            <div class="bg-white rounded-lg p-4 shadow-md">
+                                <h4 class="font-semibold mb-2">技术要点</h4>
+                                <ul class="space-y-1">
+                                    <li>查表法实现多种显示模式</li>
+                                    <li>子程序实现延时控制</li>
+                                    <li>循环结构实现重复显示</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-neutral rounded-lg p-6">
+                        <h3 class="text-xl font-semibold text-primary mb-4 flex items-center">
+                            <i class="fa fa-keyboard-o mr-2"></i>实例2：按键控制数码管显示
+                        </h3>
+                        <div class="bg-gray-800 text-white rounded-lg p-4 overflow-x-auto mb-4">
+                            <pre class="font-mono text-sm">ORG 0000H
+MOV P1, #0FFH      ; 初始化按键端口
+MOV 30H, #0        ; 显示数值初始化为0
+LOOP:
+JB P1.0, DISP      ; 检测按键是否按下
+ACALL DELAY        ; 消抖
+JB P1.0, DISP
+INC 30H            ; 数值加1
+CJNE 30H, #10, DISP
+MOV 30H, #0
+
+DISP:
+MOV A, 30H
+MOV DPTR, #SEG_TAB
+MOVC A, @A+DPTR
+MOV P0, A
+SJMP LOOP
+
+SEG_TAB:
+DB 0C0H, 0F9H, 0A4H, 0B0H  ; 0-3的段码</pre>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div class="bg-white rounded-lg p-4 shadow-md">
+                                <h4 class="font-semibold mb-2">程序功能</h4>
+                                <p>通过按键调整数码管显示的数字（0-9循环）。</p>
+                            </div>
+                            <div class="bg-white rounded-lg p-4 shadow-md">
+                                <h4 class="font-semibold mb-2">技术要点</h4>
+                                <ul class="space-y-1">
+                                    <li>按键检测与消抖处理</li>
+                                    <li>分支结构实现数值循环</li>
+                                    <li>查表法实现数码管段码转换</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 本章总结 -->
+            <section id="sec7" class="bg-white rounded-xl shadow-lg overflow-hidden transform hover:shadow-xl transition-all-300">
+                <div class="bg-primary text-white p-4">
+                    <h2 class="text-2xl font-bold flex items-center">
+                        <i class="fa fa-bookmark mr-2"></i>七、本章总结
+                    </h2>
+                </div>
+                <div class="p-6">
+                    <p class="mb-4 text-lg">
+                        本章系统讲解了51单片机汇编语言程序设计的核心方法：
+                    </p>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                        <div class="bg-neutral rounded-lg p-4">
+                            <h3 class="text-xl font-semibold text-primary mb-3 flex items-center">
+                                <i class="fa fa-check-square-o mr-2"></i>核心知识点
+                            </h3>
+                            <ul class="space-y-3">
+                                <li class="flex items-start">
+                                    <i class="fa fa-angle-right text-secondary mt-1 mr-2"></i>
+                                    <span>顺序程序是基础，分支和循环实现逻辑控制，查表提升效率，子程序增强复用性。</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <i class="fa fa-angle-right text-secondary mt-1 mr-2"></i>
+                                    <span>参数传递需根据场景选择合适方法，堆栈使用时注意溢出问题。</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <i class="fa fa-angle-right text-secondary mt-1 mr-2"></i>
+                                    <span>实际编程中需结合硬件特性，合理分配资源，确保程序可靠性。</span>
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="bg-neutral rounded-lg p-4">
+                            <h3 class="text-xl font-semibold text-primary mb-3 flex items-center">
+                                <i class="fa fa-lightbulb-o mr-2"></i>学习建议
+                            </h3>
+                            <ul class="space-y-3">
+                                <li class="flex items-start">
+                                    <i class="fa fa-angle-right text-secondary mt-1 mr-2"></i>
+                                    <span>通过实例练习，掌握从需求分析到代码实现的完整流程。</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <i class="fa fa-angle-right text-secondary mt-1 mr-2"></i>
+                                    <span>熟悉各类指令的使用场景，培养代码优化意识。</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <i class="fa fa-angle-right text-secondary mt-1 mr-2"></i>
+                                    <span>多进行程序调试，理解指令执行流程和寄存器状态变化。</span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="bg-secondary bg-opacity-10 rounded-lg p-5 border border-secondary border-opacity-30">
+                        <h3 class="text-xl font-semibold text-primary mb-3 flex items-center">
+                            <i class="fa fa-rocket mr-2"></i>进阶学习
+                        </h3>
+                        <p class="text-gray-700">
+                            掌握本章内容后，可进一步学习中断系统、定时器/计数器、串行通信等高级功能，以及复杂程序的模块化设计方法。
+                        </p>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <!-- 页脚 -->
+    <footer class="bg-primary text-white py-8">
+        <div class="container mx-auto px-4">
+            <div class="flex flex-col md:flex-row justify-between items-center">
+                <div class="mb-4 md:mb-0">
+                    <div class="flex items-center space-x-2">
+                        <i class="fa fa-microchip text-xl"></i>
+                        <h2 class="text-xl font-bold">51单片机汇编语言</h2>
+                    </div>
+                    <p class="mt-2 text-white/80">单片机课程QQ群：370743825</p>
+                </div>
+                <div class="flex space-x-6">
+                    <a href="#sec1" class="text-white/80 hover:text-white transition-all-300">顺序程序</a>
+                    <a href="#sec2" class="text-white/80 hover:text-white transition-all-300">分支程序</a>
+                    <a href="#sec3" class="text-white/80 hover:text-white transition-all-300">循环程序</a>
+                    <a href="#sec4" class="text-white/80 hover:text-white transition-all-300">查表程序</a>
+                    <a href="#sec5" class="text-white/80 hover:text-white transition-all-300">子程序</a>
+                    <a href="#sec6" class="text-white/80 hover:text-white transition-all-300">实例</a>
+                    <a href="#sec7" class="text-white/80 hover:text-white transition-all-300">总结</a>
+                </div>
+            </div>
+            <div class="border-t border-white/20 mt-6 pt-6 text-center text-white/60 text-sm">
+                <p>《单片机技术与应用》课程  &copy; 王老师. 保留所有权利.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // 移动端菜单切换
+        document.getElementById('menu-toggle').addEventListener('click', function() {
+            const mobileMenu = document.getElementById('mobile-menu');
+            mobileMenu.classList.toggle('hidden');
+        });
+
+        // 导航栏滚动效果
+        window.addEventListener('scroll', function() {
+            const navbar = document.getElementById('navbar');
+            if (window.pageYOffset > 50) {
+                navbar.classList.add('py-2');
+                navbar.classList.remove('py-3');
+                navbar.classList.add('shadow-lg');
+            } else {
+                navbar.classList.add('py-3');
+                navbar.classList.remove('py-2');
+                navbar.classList.remove('shadow-lg');
+            }
+        });
+
+        // 平滑滚动
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                
+                const targetId = this.getAttribute('href');
+                const targetElement = document.querySelector(targetId);
+                
+                if (targetElement) {
+                    window.scrollTo({
+                        top: targetElement.offsetTop - 80,
+                        behavior: 'smooth'
+                    });
+                    
+                    // 关闭移动端菜单
+                    document.getElementById('mobile-menu').classList.add('hidden');
+                }
+            });
+        });
+    </script>
+</body>
+</html>
+    

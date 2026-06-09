@@ -1,0 +1,1672 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>《单片机技术与应用》第三章 单片机指令系统知识要点</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#1e40af',
+                        secondary: '#3b82f6',
+                        accent: '#bfdbfe',
+                        dark: '#0f172a',
+                        light: '#f8fafc'
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                        mono: ['Consolas', 'Monaco', 'monospace']
+                    },
+                }
+            }
+        }
+    </script>
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .content-auto {
+                content-visibility: auto;
+            }
+            .text-shadow {
+                text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            }
+            .hover-scale {
+                @apply transition-transform duration-300 hover:scale-105;
+            }
+            .nav-link {
+                @apply relative px-3 py-2 text-gray-700 hover:text-primary transition-colors duration-300;
+            }
+            .nav-link::after {
+                @apply content-[''] absolute bottom-0 left-0 w-0 h-0.5 bg-primary transition-all duration-300;
+            }
+            .nav-link:hover::after {
+                @apply w-full;
+            }
+            .section-title {
+                @apply text-2xl md:text-3xl font-bold text-primary mb-6 border-b-2 border-primary pb-2;
+            }
+            .sub-section-title {
+                @apply text-xl md:text-2xl font-semibold text-secondary mb-4 mt-8;
+            }
+            .topic-card {
+                @apply bg-white rounded-lg shadow-lg p-6 mb-6 hover-scale;
+            }
+            .code-block {
+                @apply bg-gray-800 text-gray-100 p-4 rounded-md font-mono overflow-x-auto;
+            }
+            .scroll-indicator {
+                @apply fixed top-0 left-0 h-1 bg-primary z-50 transition-all duration-150;
+            }
+        }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-800 font-sans">
+    <!-- 滚动指示器 -->
+    <div id="scrollIndicator" class="scroll-indicator"></div>
+
+    <!-- 顶部导航栏 -->
+    <header id="navbar" class="fixed top-0 left-0 right-0 bg-white/90 backdrop-blur-md shadow-sm z-40 transition-all duration-300">
+        <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+            <div class="flex items-center space-x-2">
+                <i class="fa fa-microchip text-primary text-2xl"></i>
+                <h1 class="text-xl font-bold text-primary">单片机指令系统知识要点</h1>
+            </div>
+            <nav class="hidden md:flex items-center space-x-1">
+                <a href="/" class="nav-link">首页</a>
+                <a href="#format" class="nav-link">指令格式</a>
+                <a href="#addressing" class="nav-link">寻址方式</a>
+                <a href="#data-transfer" class="nav-link">数据传送</a>
+                <a href="#arithmetic" class="nav-link">算术运算</a>
+                <a href="#logical" class="nav-link">逻辑运算</a>
+                <a href="#control" class="nav-link">控制转移</a>
+                <a href="#bit-operation" class="nav-link">位操作</a>
+                <a href="#pseudo" class="nav-link">伪指令</a>
+                <a href="#summary" class="nav-link">本章总结</a>
+            </nav>
+            <button id="menuToggle" class="md:hidden text-gray-700 focus:outline-none">
+                <i class="fa fa-bars text-xl"></i>
+            </button>
+        </div>
+        <!-- 移动端导航菜单 -->
+        <div id="mobileMenu" class="md:hidden hidden bg-white border-t border-gray-200 shadow-lg">
+            <div class="container mx-auto px-4 py-2 flex flex-col space-y-2">
+                <a href="/" class="py-2 px-4 hover:bg-gray-100 rounded-md transition-colors">首页</a>
+                <a href="#format" class="py-2 px-4 hover:bg-gray-100 rounded-md transition-colors">指令格式</a>
+                <a href="#addressing" class="py-2 px-4 hover:bg-gray-100 rounded-md transition-colors">寻址方式</a>
+                <a href="#data-transfer" class="py-2 px-4 hover:bg-gray-100 rounded-md transition-colors">数据传送</a>
+                <a href="#arithmetic" class="py-2 px-4 hover:bg-gray-100 rounded-md transition-colors">算术运算</a>
+                <a href="#logical" class="py-2 px-4 hover:bg-gray-100 rounded-md transition-colors">逻辑运算</a>
+                <a href="#control" class="py-2 px-4 hover:bg-gray-100 rounded-md transition-colors">控制转移</a>
+                <a href="#bit-operation" class="py-2 px-4 hover:bg-gray-100 rounded-md transition-colors">位操作</a>
+                <a href="#pseudo" class="py-2 px-4 hover:bg-gray-100 rounded-md transition-colors">伪指令</a>
+                <a href="#summary" class="py-2 px-4 hover:bg-gray-100 rounded-md transition-colors">本章总结</a>
+            </div>
+        </div>
+    </header>
+
+    <!-- 英雄区域 -->
+    <section class="pt-24 pb-12 md:pt-32 md:pb-20 bg-gradient-to-br from-primary/10 to-secondary/10">
+        <div class="container mx-auto px-4">
+            <div class="max-w-4xl mx-auto text-center">
+                <h1 class="text-[clamp(2rem,5vw,3.5rem)] font-bold text-primary mb-4 text-shadow">
+                    《单片机技术与应用》
+                </h1>
+                <h2 class="text-[clamp(1.5rem,3vw,2.5rem)] font-semibold text-dark mb-6">
+                    第三章 单片机指令系统
+                </h2>
+                <p class="text-[clamp(1rem,2vw,1.25rem)] text-gray-600 mb-8 max-w-3xl mx-auto">
+                    详细知识要点梳理，帮助你掌握单片机指令系统的核心概念与应用
+                </p>
+                <div class="flex flex-wrap justify-center gap-4">
+                    <a href="#format" class="px-6 py-3 bg-primary hover:bg-primary/90 text-white rounded-lg shadow-lg hover-scale transition-all">
+                        <i class="fa fa-book mr-2"></i>开始学习
+                    </a>
+                    <a href="#summary" class="px-6 py-3 bg-white hover:bg-gray-100 text-primary border border-primary rounded-lg shadow-md hover-scale transition-all">
+                        <i class="fa fa-list mr-2"></i>章节总结
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 主要内容区域 -->
+    <main class="container mx-auto px-4 py-12">
+        <!-- 指令格式与符号单方 -->
+        <section id="format" class="scroll-mt-24 mb-16">
+            <h2 class="section-title">3.1 指令格式与符号意义</h2>
+            
+            <div class="topic-card">
+                <h3 class="sub-section-title">3.1.1 指令格式</h3>
+                <p class="mb-4">51单片机的指令格式由操作码和操作数两部分组成，操作码指示计算机执行什么操作，操作数指出参与操作的数据来源和操作结果存放的位置。</p>
+                <div class="code-block mb-4">
+                    [标号:] 操作码 [操作数1][,操作数2][,操作数3] [;注释]
+                </div>
+                <ul class="list-disc pl-6 mb-4 space-y-2">
+                    <li><strong>标号：</strong>是用户定义的符号，表示该指令在存储器中的地址，以字母开头，后跟字母、数字或下划线，以冒号结尾。</li>
+                    <li><strong>操作码：</strong>是指令的核心部分，用助记符表示，规定了指令的操作功能。</li>
+                    <li><strong>操作数：</strong>是指令执行的对象，根据指令的不同，操作数可以是0个、1个、2个或3个。</li>
+                    <li><strong>注释：</strong>是为了提高程序的可读性而添加的说明文字，以分号开头。</li>
+                </ul>
+            </div>
+            
+            <div class="topic-card">
+                <h3 class="sub-section-title">3.1.2 常用符号</h3>
+                <p class="mb-4">在51单片机指令系统中，常用的符号有以下几种：</p>
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">符号</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">含义</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200">
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap font-mono">Rn</td>
+                                <td class="px-6 py-4">当前选中的工作寄存器组中的寄存器R0~R7</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap font-mono">direct</td>
+                                <td class="px-6 py-4">8位内部数据存储器单元的地址，可以是内部RAM的单元地址(00H~7FH)或SFR的地址(80H~FFH)</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap font-mono">#data</td>
+                                <td class="px-6 py-4">8位立即数，即包含在指令中的8位常数</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap font-mono">#data16</td>
+                                <td class="px-6 py-4">16位立即数，即包含在指令中的16位常数</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap font-mono">addr16</td>
+                                <td class="px-6 py-4">16位目的地址，用于LCALL和LJMP指令，可指向64KB程序存储器地址空间的任何地方</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap font-mono">addr11</td>
+                                <td class="px-6 py-4">11位目的地址，用于ACALL和AJMP指令，转向地址必须与下一条指令的第一个字节在同一个2KB程序存储器地址空间内</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap font-mono">rel</td>
+                                <td class="px-6 py-4">8位带符号的偏移量字节，用于相对转移指令，范围为-128~+127</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap font-mono">bit</td>
+                                <td class="px-6 py-4">内部RAM或SFR中的直接寻址位</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap font-mono">@</td>
+                                <td class="px-6 py-4">间接寻址寄存器或基址寄存器的前缀</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap font-mono">/</td>
+                                <td class="px-6 py-4">位操作数的取反操作前缀</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap font-mono">()</td>
+                                <td class="px-6 py-4">表示括号内的内容为操作数的地址，该地址中的内容为操作数</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap font-mono">→</td>
+                                <td class="px-6 py-4">表示数据的传送方向，将箭头左边的内容传送到箭头右边的单元中</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- 寻址方式 -->
+        <section id="addressing" class="scroll-mt-24 mb-16">
+            <h2 class="section-title">3.2 寻址方式</h2>
+            
+            <div class="topic-card">
+                <h3 class="sub-section-title">3.2.1 立即寻址</h3>
+                <p class="mb-4">立即寻址是指操作数直接包含在指令中，作为指令的一部分存放在程序存储器中，这种操作数称为立即数。立即数前面必须加"#"号作为前缀。</p>
+                <div class="code-block mb-4">
+                    MOV A, #30H  ; 将立即数30H传送到累加器A中
+                </div>
+                <p class="mb-4">在这个例子中，"#30H"就是一个立即数，指令执行后，累加器A中的内容为30H。</p>
+            </div>
+            
+            <div class="topic-card">
+                <h3 class="sub-section-title">3.2.2 直接寻址</h3>
+                <p class="mb-4">直接寻址是指操作数的地址直接在指令中给出，该地址指出了参与操作的数据所在的字节单元或位单元。直接寻址方式可以访问内部RAM的低128B单元以及所有的特殊功能寄存器(SFR)。</p>
+                <div class="code-block mb-4">
+                    MOV A, 30H  ; 将内部RAM地址为30H的单元中的内容传送到累加器A中
+                </div>
+                <p class="mb-4">在这个例子中，"30H"是内部RAM的地址，指令执行后，累加器A中的内容是内部RAM 30H单元中的内容。</p>
+            </div>
+            
+            <div class="topic-card">
+                <h3 class="sub-section-title">3.2.3 寄存器寻址</h3>
+                <p class="mb-4">寄存器寻址是指操作数存放在寄存器中，指令中给出的是寄存器名。寄存器寻址方式可以访问选定的工作寄存器组中的R0~R7、累加器A、通用寄存器B、数据指针DPTR等。</p>
+                <div class="code-block mb-4">
+                    MOV A, R0  ; 将工作寄存器R0中的内容传送到累加器A中
+                </div>
+                <p class="mb-4">在这个例子中，R0是工作寄存器，指令执行后，累加器A中的内容与R0中的内容相同。</p>
+            </div>
+            
+            <div class="topic-card">
+                <h3 class="sub-section-title">3.2.4 寄存器间接寻址</h3>
+                <p class="mb-4">寄存器间接寻址是指操作数的地址存放在寄存器中，指令中给出的是寄存器名，在寄存器名前加"@"符号表示间接寻址。寄存器间接寻址方式可以访问内部RAM和外部RAM。</p>
+                <div class="code-block mb-4">
+                    MOV R0, #30H  ; 将立即数30H传送到寄存器R0中<br>
+                    MOV A, @R0    ; 将R0所指向的内部RAM单元(30H)中的内容传送到累加器A中
+                </div>
+                <p class="mb-4">在这个例子中，第一条指令将30H传送到R0中，第二条指令以R0中的内容(30H)为地址，将该地址单元中的内容传送到累加器A中。</p>
+            </div>
+            
+            <div class="topic-card">
+                <h3 class="sub-section-title">3.2.5 变址寻址</h3>
+                <p class="mb-4">变址寻址是指以基址寄存器(DPTR或PC)的内容为基地址，以变址寄存器(A)的内容为偏移量，将两者相加形成的16位地址作为操作数的地址。变址寻址方式主要用于访问程序存储器中的常数表格。</p>
+                <div class="code-block mb-4">
+                    MOV DPTR, #1000H  ; 将基地址1000H传送到数据指针DPTR中<br>
+                    MOV A, #05H       ; 将偏移量05H传送到累加器A中<br>
+                    MOVC A, @A+DPTR   ; 将程序存储器中地址为1005H(1000H+05H)单元中的内容传送到累加器A中
+                </div>
+                <p class="mb-4">在这个例子中，基地址是DPTR中的1000H，偏移量是A中的05H，两者相加得到1005H，指令执行后，累加器A中的内容是程序存储器1005H单元中的内容。</p>
+            </div>
+            
+            <div class="topic-card">
+                <h3 class="sub-section-title">3.2.6 相对寻址</h3>
+                <p class="mb-4">相对寻址是指以当前程序计数器PC的内容为基地址，加上指令中给出的相对偏移量rel形成新的PC值，从而实现程序的转移。相对偏移量rel是一个带符号的8位二进制数，范围为-128~+127。</p>
+                <div class="code-block mb-4">
+                    SJMP 08H  ; 相对转移指令，转移的目标地址=当前PC值+2+08H
+                </div>
+                <p class="mb-4">在这个例子中，SJMP是相对转移指令，占用2个字节。假设该指令存放在1000H和1001H单元，则当前PC值为1002H(执行完该指令后PC自动加2)，转移的目标地址为1002H+08H=100AH。</p>
+            </div>
+            
+            <div class="topic-card">
+                <h3 class="sub-section-title">3.2.7 位寻址</h3>
+                <p class="mb-4">位寻址是指对内部RAM的位寻址区(20H~2FH)和某些可位寻址的特殊功能寄存器进行位操作时的寻址方式。位寻址的位地址与直接寻址的字节地址形式上完全一样，主要由操作码来区分。</p>
+                <div class="code-block mb-4">
+                    SETB 20H  ; 将内部RAM位寻址区的20H位置1，即内部RAM 24H单元的D0位
+                </div>
+                <p class="mb-4">在这个例子中，20H是位地址，对应的字节地址是24H，位序号是D0。指令执行后，内部RAM 24H单元的D0位被置为1。</p>
+            </div>
+        </section>
+
+        <!-- 数据传送类指令 -->
+        <section id="data-transfer" class="scroll-mt-24 mb-16">
+            <h2 class="section-title">3.3 数据传送类指令</h2>
+            
+            <div class="topic-card">
+                <h3 class="sub-section-title">3.3.1 概述</h3>
+                <p class="mb-4">数据传送类指令是最基本、最常用的一类指令，用于在单片机内部各功能部件之间以及单片机与外部设备之间进行数据的传送。数据传送类指令一般不影响标志位，只有堆栈操作可以直接修改程序状态字PSW。</p>
+                <p class="mb-4">数据传送类指令的一般格式为：</p>
+                <div class="code-block mb-4">
+                    MOV 目的操作数, 源操作数
+                </div>
+                <p class="mb-4">其功能是将源操作数的内容传送到目的操作数中，源操作数的内容不变。</p>
+            </div>
+            
+            <div class="topic-card">
+                <h3 class="sub-section-title">3.3.2 内部RAM数据传送指令</h3>
+                <p class="mb-4">内部RAM数据传送指令是指在单片机内部RAM之间进行数据传送的指令，包括寄存器寻址、直接寻址、寄存器间接寻址和立即寻址等方式。</p>
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">指令</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">功能</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">字节数</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">周期数</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200">
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap font-mono">MOV A, Rn</td>
+                                <td class="px-6 py-4">将工作寄存器Rn的内容传送到累加器A</td>
+                                <td class="px-6 py-4">1</td>
+                                <td class="px-6 py-4">1</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap font-mono">MOV A, direct</td>
+                                <td class="px-6 py-4">将直接地址单元中的内容传送到累加器A</td>
+                                <td class="px-6 py-4">2</td>
+                                <td class="px-6 py-4">1</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap font-mono">MOV A, @Ri</td>
+                                <td class="px-6 py-4">将Ri所指向的内部RAM单元中的内容传送到累加器A</td>
+                                <td class="px-6 py-4">1</td>
+                                <td class="px-6 py-4">1</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap font-mono">MOV A, #data</td>
+                                <td class="px-6 py-4">将立即数传送到累加器A</td>
+                                <td class="px-6 py-4">2</td>
+                                <td class="px-6 py-4">1</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap font-mono">MOV Rn, A</td>
+                                <td class="px-6 py-4">将累加器A的内容传送到工作寄存器Rn</td>
+                                <td class="px-6 py-4">1</td>
+                                <td class="px-6 py-4">1</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap font-mono">MOV Rn, direct</td>
+                                <td class="px-6 py-4">将直接地址单元中的内容传送到工作寄存器Rn</td>
+                                <td class="px-6 py-4">2</td>
+                                <td class="px-6 py-4">2</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap font-mono">MOV Rn, #data</td>
+                                <td class="px-6 py-4">将立即数传送到工作寄存器Rn</td>
+                                <td class="px-6 py-4">2</td>
+                                <td class="px-6 py-4">1</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap font-mono">MOV direct, A</td>
+                                <td class="px-6 py-4">将累加器A的内容传送到直接地址单元</td>
+                                <td class="px-6 py-4">2</td>
+                                <td class="px-6 py-4">1</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap font-mono">MOV direct, Rn</td>
+                                <td class="px-6 py-4">将工作寄存器Rn的内容传送到直接地址单元</td>
+                                <td class="px-6 py-4">2</td>
+                                <td class="px-6 py-4">2</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap font-mono">MOV direct1, direct2</td>
+                                <td class="px-6 py-4">将一个直接地址单元中的内容传送到另一个直接地址单元</td>
+                                <td class="px-6 py-4">3</td>
+                                <td class="px-6 py-4">2</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap font-mono">MOV direct, @Ri</td>
+                                <td class="px-6 py-4">将Ri所指向的内部RAM单元中的内容传送到直接地址单元</td>
+                                <td class="px-6 py-4">2</td>
+                                <td class="px-6 py-4">2</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap font-mono">MOV direct, #data</td>
+                                <td class="px-6 py-4">将立即数传送到直接地址单元</td>
+                                <td class="px-6 py-4">3</td>
+                                <td class="px-6 py-4">2</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap font-mono">MOV @Ri, A</td>
+                                <td class="px-6 py-4">将累加器A的内容传送到Ri所指向的内部RAM单元</td>
+                                <td class="px-6 py-4">1</td>
+                                <td class="px-6 py-4">1</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap font-mono">MOV @Ri, direct</td>
+                                <td class="px-6 py-4">将直接地址单元中的内容传送到Ri所指向的内部RAM单元</td>
+                                <td class="px-6 py-4">2</td>
+                                <td class="px-6 py-4">2</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap font-mono">MOV @Ri, #data</td>
+                                <td class="px-6 py-4">将立即数传送到Ri所指向的内部RAM单元</td>
+                                <td class="px-6 py-4">2</td>
+                                <td class="px-6 py-4">1</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <div class="topic-card">
+                <h3 class="sub-section-title">3.3.3 外部RAM数据传送指令</h3>
+                <p class="mb-4">外部RAM数据传送指令是指在单片机与外部扩展的RAM之间进行数据传送的指令，只能通过累加器A进行。外部RAM数据传送指令使用MOVX作为操作码。</p>
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">指令</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">功能</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">字节数</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">周期数</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200">
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap font-mono">MOVX A, @Ri</td>
+                                <td class="px-6 py-4">将外部RAM中由Ri所指向的单元中的内容传送到累加器A</td>
+                                <td class="px-6 py-4">1</td>
+                                <td class="px-6 py-4">2</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap font-mono">MOVX A, @DPTR</td>
+                                <td class="px-6 py-4">将外部RAM中由DPTR所指向的单元中的内容传送到累加器A</td>
+                                <td class="px-6 py-4">1</td>
+                                <td class="px-6 py-4">2</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap font-mono">MOVX @Ri, A</td>
+                                <td class="px-6 py-4">将累加器A的内容传送到外部RAM中由Ri所指向的单元</td>
+                                <td class="px-6 py-4">1</td>
+                                <td class="px-6 py-4">2</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap font-mono">MOVX @DPTR, A</td>
+                                <td class="px-6 py-4">将累加器A的内容传送到外部RAM中由DPTR所指向的单元</td>
+                                <td class="px-6 py-4">1</td>
+                                <td class="px-6 py-4">2</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <div class="topic-card">
+                <h3 class="sub-section-title">3.3.4 程序存储器数据传送指令</h3>
+                <p class="mb-4">程序存储器数据传送指令是指从程序存储器中读取数据的指令，主要用于查表操作。程序存储器数据传送指令使用MOVC作为操作码。</p>
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">指令</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">功能</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">字节数</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">周期数</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200">
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap font-mono">MOVC A, @A+DPTR</td>
+                                <td class="px-6 py-4">将A+DPTR所指向的程序存储器单元中的内容传送到累加器A</td>
+                                <td class="px-6 py-4">1</td>
+                                <td class="px-6 py-4">2</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap font-mono">MOVC A, @A+PC</td>
+                                <td class="px-6 py-4">将A+PC所指向的程序存储器单元中的内容传送到累加器A</td>
+                                <td class="px-6 py-4">1</td>
+                                <td class="px-6 py-4">2</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <div class="topic-card">
+                <h3 class="sub-section-title">3.3.5 堆栈操作指令</h3>
+                <p class="mb-4">堆栈是在内部RAM中开辟的一个特殊存储区，用于暂存数据和地址，遵循"先进后出"的原则。堆栈操作指令有两条：PUSH(压栈)和POP(弹栈)。</p>
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">指令</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">功能</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">字节数</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">周期数</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200">
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap font-mono">PUSH direct</td>
+                                <td class="px-6 py-4">将直接地址单元中的内容压入堆栈</td>
+                                <td class="px-6 py-4">2</td>
+                                <td class="px-6 py-4">2</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap font-mono">POP direct</td>
+                                <td class="px-6 py-4">将堆栈顶部的内容弹出到直接地址单元</td>
+                                <td class="px-6 py-4">2</td>
+                                <td class="px-6 py-4">2</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <div class="topic-card">
+                <h3 class="sub-section-title">3.3.6 数据交换指令</h3>
+                <p class="mb-4">数据交换指令是指将两个操作数的内容进行互换的指令，分为字节交换指令和半字节交换指令。</p>
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">指令</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">功能</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">字节数</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">周期数</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200">
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap font-mono">XCH A, Rn</td>
+                                <td class="px-6 py-4">将累加器A的内容与工作寄存器Rn的内容互换</td>
+                                <td class="px-6 py-4">1</td>
+                                <td class="px-6 py-4">1</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap font-mono">XCH A, direct</td>
+                                <td class="px-6 py-4">将累加器A的内容与直接地址单元中的内容互换</td>
+                                <td class="px-6 py-4">2</td>
+                                <td class="px-6 py-4">1</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap font-mono">XCH A, @Ri</td>
+                                <td class="px-6 py-4">将累加器A的内容与Ri所指向的内部RAM单元中的内容互换</td>
+                                <td class="px-6 py-4">1</td>
+                                <td class="px-6 py-4">1</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap font-mono">XCHD A, @Ri</td>
+                                <td class="px-6 py-4">将累加器A的低4位与Ri所指向的内部RAM单元中的低4位互换，高4位不变</td>
+                                <td class="px-6 py-4">1</td>
+                                <td class="px-6 py-4">1</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap font-mono">SWAP A</td>
+                                <td class="px-6 py-4">将累加器A的高4位与低4位互换</td>
+                                <td class="px-6 py-4">1</td>
+                                <td class="px-6 py-4">1</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- 算术运算类指令 -->
+        <section id="arithmetic" class="scroll-mt-24 mb-16">
+            <h2 class="section-title">3.4 算术运算类指令</h2>
+            
+            <div class="topic-card">
+                <h3 class="sub-section-title">3.4.1 概述</h3>
+                <p class="mb-4">算术运算类指令用于实现加、减、乘、除等算术运算，这类指令大多数会对程序状态字PSW中的进位标志CY、辅助进位标志AC、溢出标志OV和奇偶标志P产生影响。</p>
+                <p class="mb-4">51单片机的算术运算类指令包括加法指令、带进位加法指令、带借位减法指令、乘法指令、除法指令、加1指令、减1指令和十进制调整指令等。</p>
+            </div>
+            
+            <div class="topic-card">
+                <h3 class="sub-section-title">3.4.2 加法指令</h3>
+                <p class="mb-4">加法指令用于实现两个操作数的相加，结果存放在累加器A中。加法指令包括不带进位加法指令和带进位加法指令。</p>
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">指令</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">功能</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">影响标志</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">字节数</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">周期数</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200">
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap font-mono">ADD A, Rn</td>
+                                <td class="px-6 py-4">A ← A + Rn</td>
+                                <td class="px-6 py-4">CY, AC, OV, P</td>
+                                <td class="px-6 py-4">1</td>
+                                <td class="px-6 py-4">1</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap font-mono">ADD A, direct</td>
+                                <td class="px-6 py-4">A ← A + direct</td>
+                                <td class="px-6 py-4">CY, AC, OV, P</td>
+                                <td class="px-6 py-4">2</td>
+                                <td class="px-6 py-4">1</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap font-mono">ADD A, @Ri</td>
+                                <td class="px-6 py-4">A ← A + (Ri)</td>
+                                <td class="px-6 py-4">CY, AC, OV, P</td>
+                                <td class="px-6 py-4">1</td>
+                                <td class="px-6 py-4">1</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap font-mono">ADD A, #data</td>
+                                <td class="px-6 py-4">A ← A + #data</td>
+                                <td class="px-6 py-4">CY, AC, OV, P</td>
+                                <td class="px-6 py-4">2</td>
+                                <td class="px-6 py-4">1</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap font-mono">ADDC A, Rn</td>
+                                <td class="px-6 py-4">A ← A + Rn + CY</td>
+                                <td class="px-6 py-4">CY, AC, OV, P</td>
+                                <td class="px-6 py-4">1</td>
+                                <td class="px-6 py-4">1</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap font-mono">ADDC A, direct</td>
+                                <td class="px-6 py-4">A ← A + direct + CY</td>
+                                <td class="px-6 py-4">CY, AC, OV, P</td>
+                                <td class="px-6 py-4">2</td>
+                                <td class="px-6 py-4">1</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap font-mono">ADDC A, @Ri</td>
+                                <td class="px-6 py-4">A ← A + (Ri) + CY</td>
+                                <td class="px-6 py-4">CY, AC, OV, P</td>
+                                <td class="px-6 py-4">1</td>
+                                <td class="px-6 py-4">1</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap font-mono">ADDC A, #data</td>
+                                <td class="px-6 py-4">A ← A + #data + CY</td>
+                                <td class="px-6 py-4">CY, AC, OV, P</td>
+                                <td class="px-6 py-4">2</td>
+                                <td class="px-6 py-4">1</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <div class="topic-card">
+                <h3 class="sub-section-title">3.4.3 减法指令</h3>
+                <p class="mb-4">减法指令用于实现两个操作数的相减，结果存放在累加器A中。51单片机的减法指令只有带借位减法指令。</p>
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">指令</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">功能</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">影响标志</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">字节数</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">周期数</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200">
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap font-mono">SUBB A, Rn</td>
+                                <td class="px-6 py-4">A ← A - Rn - CY</td>
+                                <td class="px-6 py-4">CY, AC, OV, P</td>
+                                <td class="px-6 py-4">1</td>
+                                <td class="px-6 py-4">1</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap font-mono">SUBB A, direct</td>
+                                <td class="px-6 py-4">A ← A - direct - CY</td>
+                                <td class="px-6 py-4">CY, AC, OV, P</td>
+                                <td class="px-6 py-4">2</td>
+                                <td class="px-6 py-4">1</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap font-mono">SUBB A, @Ri</td>
+                                <td class="px-6 py-4">A ← A - (Ri) - CY</td>
+                                <td class="px-6 py-4">CY, AC, OV, P</td>
+                                <td class="px-6 py-4">1</td>
+                                <td class="px-6 py-4">1</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap font-mono">SUBB A, #data</td>
+                                <td class="px-6 py-4">A ← A - #data - CY</td>
+                                <td class="px-6 py-4">CY, AC, OV, P</td>
+                                <td class="px-6 py-4">2</td>
+                                <td class="px-6 py-4">1</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <div class="topic-card">
+                <h3 class="sub-section-title">3.4.4 乘法和除法指令</h3>
+                <p class="mb-4">乘法和除法指令用于实现两个8位无符号数的乘法和除法运算。</p>
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">指令</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">功能</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">影响标志</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">字节数</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">周期数</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200">
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap font-mono">MUL AB</td>
+                                <td class="px-6 py-4">A×B → BA，即A和B中的两个8位无符号数相乘，结果的高8位存放在B中，低8位存放在A中</td>
+                                <td class="px-6 py-4">CY, OV, P</td>
+                                <td class="px-6 py-4">1</td>
+                                <td class="px-6 py-4">4</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap font-mono">DIV AB</td>
+                                <td class="px-6 py-4">A÷B → A余B，即A中的8位无符号数除以B中的8位无符号数，商存放在A中，余数存放在B中</td>
+                                <td class="px-6 py-4">CY, OV, P</td>
+                                <td class="px-6 py-4">1</td>
+                                <td class="px-6 py-4">4</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <div class="topic-card">
+                <h3 class="sub-section-title">3.4.5 加1和减1指令</h3>
+                <p class="mb-4">加1和减1指令用于对操作数进行加1或减1操作，这类指令不影响标志位。</p>
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">指令</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">功能</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">影响标志</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">字节数</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">周期数</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200">
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap font-mono">INC A</td>
+                                <td class="px-6 py-4">A ← A + 1</td>
+                                <td class="px-6 py-4">P</td>
+                                <td class="px-6 py-4">1</td>
+                                <td class="px-6 py-4">1</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap font-mono">INC Rn</td>
+                                <td class="px-6 py-4">Rn ← Rn + 1</td>
+                                <td class="px-6 py-4">无</td>
+                                <td class="px-6 py-4">1</td>
+                                <td class="px-6 py-4">1</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap font-mono">INC direct</td>
+                                <td class="px-6 py-4">direct ← direct + 1</td>
+                                <td class="px-6 py-4">无</td>
+                                <td class="px-6 py-4">2</td>
+                                <td class="px-6 py-4">1</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap font-mono">INC @Ri</td>
+                                <td class="px-6 py-4">(Ri) ← (Ri) + 1</td>
+                                <td class="px-6 py-4">无</td>
+                                <td class="px-6 py-4">1</td>
+                                <td class="px-6 py-4">1</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap font-mono">INC DPTR</td>
+                                <td class="px-6 py-4">DPTR ← DPTR + 1</td>
+                                <td class="px-6 py-4">无</td>
+                                <td class="px-6 py-4">1</td>
+                                <td class="px-6 py-4">2</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap font-mono">DEC A</td>
+                                <td class="px-6 py-4">A ← A - 1</td>
+                                <td class="px-6 py-4">P</td>
+                                <td class="px-6 py-4">1</td>
+                                <td class="px-6 py-4">1</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap font-mono">DEC Rn</td>
+                                <td class="px-6 py-4">Rn ← Rn - 1</td>
+                                <td class="px-6 py-4">无</td>
+                                <td class="px-6 py-4">1</td>
+                                <td class="px-6 py-4">1</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap font-mono">DEC direct</td>
+                                <td class="px-6 py-4">direct ← direct - 1</td>
+                                <td class="px-6 py-4">无</td>
+                                <td class="px-6 py-4">2</td>
+                                <td class="px-6 py-4">1</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap font-mono">DEC @Ri</td>
+                                <td class="px-6 py-4">(Ri) ← (Ri) - 1</td>
+                                <td class="px-6 py-4">无</td>
+                                <td class="px-6 py-4">1</td>
+                                <td class="px-6 py-4">1</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <div class="topic-card">
+                <h3 class="sub-section-title">3.4.6 十进制调整指令</h3>
+                <p class="mb-4">十进制调整指令用于对BCD码的加法运算结果进行调整，使其成为正确的BCD码。</p>
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">指令</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">功能</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">影响标志</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">字节数</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">周期数</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200">
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap font-mono">DA A</td>
+                                <td class="px-6 py-4">对累加器A中的内容进行十进制调整</td>
+                                <td class="px-6 py-4">CY, AC, P</td>
+                                <td class="px-6 py-4">1</td>
+                                <td class="px-6 py-4">1</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- 逻辑运算类指令 -->
+        <section id="logical" class="scroll-mt-24 mb-16">
+            <h2 class="section-title">3.5 逻辑运算类指令</h2>
+            
+            <div class="topic-card">
+                <h3 class="sub-section-title">3.5.1 概述</h3>
+                <p class="mb-4">逻辑运算类指令用于对两个操作数按位进行逻辑运算，包括与、或、异或、取反、清零等操作。这类指令一般不影响进位标志CY、辅助进位标志AC和溢出标志OV，仅在涉及累加器A时影响奇偶标志P。</p>
+            </div>
+            
+            <div class="topic-card">
+                <h3 class="sub-section-title">3.5.2 逻辑与指令</h3>
+                <p class="mb-4">逻辑与指令用于对两个操作数按位进行逻辑与运算，结果存放在累加器A中。</p>
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">指令</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">功能</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">影响标志</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">字节数</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">周期数</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200">
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap font-mono">ANL A, Rn</td>
+                                <td class="px-6 py-4">A ← A ∧ Rn</td>
+                                <td class="px-6 py-4">P</td>
+                                <td class="px-6 py-4">1</td>
+                                <td class="px-6 py-4">1</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap font-mono">ANL A, direct</td>
+                                <td class="px-6 py-4">A ← A ∧ direct</td>
+                                <td class="px-6 py-4">P</td>
+                                <td class="px-6 py-4">2</td>
+                                <td class="px-6 py-4">1</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap font-mono">ANL A, @Ri</td>
+                                <td class="px-6 py-4">A ← A ∧ (Ri)</td>
+                                <td class="px-6 py-4">P</td>
+                                <td class="px-6 py-4">1</td>
+                                <td class="px-6 py-4">1</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap font-mono">ANL A, #data</td>
+                                <td class="px-6 py-4">A ← A ∧ #data</td>
+                                <td class="px-6 py-4">P</td>
+                                <td class="px-6 py-4">2</td>
+                                <td class="px-6 py-4">1</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap font-mono">ANL direct, A</td>
+                                <td class="px-6 py-4">direct ← direct ∧ A</td>
+                                <td class="px-6 py-4">无</td>
+                                <td class="px-6 py-4">2</td>
+                                <td class="px-6 py-4">1</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap font-mono">ANL direct, #data</td>
+                                <td class="px-6 py-4">direct ← direct ∧ #data</td>
+                                <td class="px-6 py-4">无</td>
+                                <td class="px-6 py-4">3</td>
+                                <td class="px-6 py-4">2</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <div class="topic-card">
+                <h3 class="sub-section-title">3.5.3 逻辑或指令</h3>
+                <p class="mb-4">逻辑或指令用于对两个操作数按位进行逻辑或运算，结果存放在累加器A中。</p>
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">指令</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">功能</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">影响标志</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">字节数</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">周期数</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200">
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap font-mono">ORL A, Rn</td>
+                                <td class="px-6 py-4">A ← A ∨ Rn</td>
+                                <td class="px-6 py-4">P</td>
+                                <td class="px-6 py-4">1<td class="px-6 py-4">1</td>
+                                <td class="px-6 py-4">1</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap font-mono">ORL A, direct</td>
+                                <td class="px-6 py-4">A ← A ∨ direct</td>
+                                <td class="px-6 py-4">P</td>
+                                <td class="px-6 py-4">2</td>
+                                <td class="px-6 py-4">1</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap font-mono">ORL A, @Ri</td>
+                                <td class="px-6 py-4">A ← A ∨ (Ri)</td>
+                                <td class="px-6 py-4">P</td>
+                                <td class="px-6 py-4">1</td>
+                                <td class="px-6 py-4">1</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap font-mono">ORL A, #data</td>
+                                <td class="px-6 py-4">A ← A ∨ #data</td>
+                                <td class="px-6 py-4">P</td>
+                                <td class="px-6 py-4">2</td>
+                                <td class="px-6 py-4">1</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap font-mono">ORL direct, A</td>
+                                <td class="px-6 py-4">direct ← direct ∨ A</td>
+                                <td class="px-6 py-4">无</td>
+                                <td class="px-6 py-4">2</td>
+                                <td class="px-6 py-4">1</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap font-mono">ORL direct, #data</td>
+                                <td class="px-6 py-4">direct ← direct ∨ #data</td>
+                                <td class="px-6 py-4">无</td>
+                                <td class="px-6 py-4">3</td>
+                                <td class="px-6 py-4">2</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <div class="topic-card">
+                <h3 class="sub-section-title">3.5.4 逻辑异或指令</h3>
+                <p class="mb-4">逻辑异或指令用于对两个操作数按位进行逻辑异或运算，结果存放在累加器A中。</p>
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">指令</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">功能</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">影响标志</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">字节数</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">周期数</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200">
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap font-mono">XRL A, Rn</td>
+                                <td class="px-6 py-4">A ← A ⊕ Rn</td>
+                                <td class="px-6 py-4">P</td>
+                                <td class="px-6 py-4">1</td>
+                                <td class="px-6 py-4">1</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap font-mono">XRL A, direct</td>
+                                <td class="px-6 py-4">A ← A ⊕ direct</td>
+                                <td class="px-6 py-4">P</td>
+                                <td class="px-6 py-4">2</td>
+                                <td class="px-6 py-4">1</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap font-mono">XRL A, @Ri</td>
+                                <td class="px-6 py-4">A ← A ⊕ (Ri)</td>
+                                <td class="px-6 py-4">P</td>
+                                <td class="px-6 py-4">1</td>
+                                <td class="px-6 py-4">1</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap font-mono">XRL A, #data</td>
+                                <td class="px-6 py-4">A ← A ⊕ #data</td>
+                                <td class="px-6 py-4">P</td>
+                                <td class="px-6 py-4">2</td>
+                                <td class="px-6 py-4">1</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap font-mono">XRL direct, A</td>
+                                <td class="px-6 py-4">direct ← direct ⊕ A</td>
+                                <td class="px-6 py-4">无</td>
+                                <td class="px-6 py-4">2</td>
+                                <td class="px-6 py-4">1</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap font-mono">XRL direct, #data</td>
+                                <td class="px-6 py-4">direct ← direct ⊕ #data</td>
+                                <td class="px-6 py-4">无</td>
+                                <td class="px-6 py-4">3</td>
+                                <td class="px-6 py-4">2</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <div class="topic-card">
+                <h3 class="sub-section-title">3.5.5 取反和清零指令</h3>
+                <p class="mb-4">取反和清零指令用于对累加器A中的内容进行按位取反或清零操作。</p>
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">指令</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">功能</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">影响标志</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">字节数</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">周期数</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200">
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap font-mono">CPL A</td>
+                                <td class="px-6 py-4">A ← /A，即对累加器A中的内容按位取反</td>
+                                <td class="px-6 py-4">P</td>
+                                <td class="px-6 py-4">1</td>
+                                <td class="px-6 py-4">1</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap font-mono">CLR A</td>
+                                <td class="px-6 py-4">A ← 0，即对累加器A中的内容清零</td>
+                                <td class="px-6 py-4">P</td>
+                                <td class="px-6 py-4">1</td>
+                                <td class="px-6 py-4">1</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <div class="topic-card">
+                <h3 class="sub-section-title">3.5.6 循环移位指令</h3>
+                <p class="mb-4">循环移位指令用于对累加器A中的内容进行循环移位操作，包括左移、右移、带进位左移和带进位右移。</p>
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">指令</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">功能</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">影响标志</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">字节数</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">周期数</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200">
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap font-mono">RL A</td>
+                                <td class="px-6 py-4">将累加器A中的内容循环左移一位</td>
+                                <td class="px-6 py-4">无</td>
+                                <td class="px-6 py-4">1</td>
+                                <td class="px-6 py-4">1</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap font-mono">RR A</td>
+                                <td class="px-6 py-4">将累加器A中的内容循环右移一位</td>
+                                <td class="px-6 py-4">无</td>
+                                <td class="px-6 py-4">1</td>
+                                <td class="px-6 py-4">1</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap font-mono">RLC A</td>
+                                <td class="px-6 py-4">将累加器A中的内容带进位标志CY循环左移一位</td>
+                                <td class="px-6 py-4">CY, P</td>
+                                <td class="px-6 py-4">1</td>
+                                <td class="px-6 py-4">1</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap font-mono">RRC A</td>
+                                <td class="px-6 py-4">将累加器A中的内容带进位标志CY循环右移一位</td>
+                                <td class="px-6 py-4">CY, P</td>
+                                <td class="px-6 py-4">1</td>
+                                <td class="px-6 py-4">1</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- 控制转移类指令 -->
+        <section id="control" class="scroll-mt-24 mb-16">
+            <h2 class="section-title">3.6 控制转移类指令</h2>
+            
+            <div class="topic-card">
+                <h3 class="sub-section-title">3.6.1 概述</h3>
+                <p class="mb-4">控制转移类指令用于改变程序的执行顺序，实现程序的分支、循环、子程序调用等功能。这类指令通过修改程序计数器PC的值来实现程序的转移。</p>
+                <p class="mb-4">51单片机的控制转移类指令包括无条件转移指令、条件转移指令、子程序调用和返回指令以及中断指令等。</p>
+            </div>
+            
+            <div class="topic-card">
+                <h3 class="sub-section-title">3.6.2 无条件转移指令</h3>
+                <p class="mb-4">无条件转移指令用于直接将程序执行流程转移到指定的目标地址，包括长转移指令、绝对转移指令、短转移指令和间接转移指令。</p>
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">指令</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">功能</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">转移范围</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">字节数</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">周期数</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200">
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap font-mono">LJMP addr16</td>
+                                <td class="px-6 py-4">PC ← addr16，长转移指令</td>
+                                <td class="px-6 py-4">64KB范围内</td>
+                                <td class="px-6 py-4">3</td>
+                                <td class="px-6 py-4">2</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap font-mono">AJMP addr11</td>
+                                <td class="px-6 py-4">PC ← PC+2，PC10~PC0 ← addr11，绝对转移指令</td>
+                                <td class="px-6 py-4">当前PC所在的2KB范围内</td>
+                                <td class="px-6 py-4">2</td>
+                                <td class="px-6 py-4">2</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap font-mono">SJMP rel</td>
+                                <td class="px-6 py-4">PC ← PC+2+rel，短转移指令</td>
+                                <td class="px-6 py-4">-128~+127范围内</td>
+                                <td class="px-6 py-4">2</td>
+                                <td class="px-6 py-4">2</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap font-mono">JMP @A+DPTR</td>
+                                <td class="px-6 py-4">PC ← A+DPTR，间接转移指令</td>
+                                <td class="px-6 py-4">64KB范围内</td>
+                                <td class="px-6 py-4">1</td>
+                                <td class="px-6 py-4">2</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <div class="topic-card">
+                <h3 class="sub-section-title">3.6.3 条件转移指令</h3>
+                <p class="mb-4">条件转移指令用于在满足特定条件时将程序执行流程转移到指定的目标地址，否则继续执行下一条指令。条件转移指令包括累加器判零转移指令、比较不相等转移指令和减1不为零转移指令。</p>
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">指令</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">功能</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">转移条件</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">字节数</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">周期数</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200">
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap font-mono">JZ rel</td>
+                                <td class="px-6 py-4">若A=0，则PC ← PC+2+rel；否则PC ← PC+2</td>
+                                <td class="px-6 py-4">A=0</td>
+                                <td class="px-6 py-4">2</td>
+                                <td class="px-6 py-4">2</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap font-mono">JNZ rel</td>
+                                <td class="px-6 py-4">若A≠0，则PC ← PC+2+rel；否则PC ← PC+2</td>
+                                <td class="px-6 py-4">A≠0</td>
+                                <td class="px-6 py-4">2</td>
+                                <td class="px-6 py-4">2</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap font-mono">CJNE A, direct, rel</td>
+                                <td class="px-6 py-4">若A≠(direct)，则PC ← PC+3+rel；否则PC ← PC+3</td>
+                                <td class="px-6 py-4">A≠(direct)</td>
+                                <td class="px-6 py-4">3</td>
+                                <td class="px-6 py-4">2</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap font-mono">CJNE A, #data, rel</td>
+                                <td class="px-6 py-4">若A≠#data，则PC ← PC+3+rel；否则PC ← PC+3</td>
+                                <td class="px-6 py-4">A≠#data</td>
+                                <td class="px-6 py-4">3</td>
+                                <td class="px-6 py-4">2</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap font-mono">CJNE Rn, #data, rel</td>
+                                <td class="px-6 py-4">若Rn≠#data，则PC ← PC+3+rel；否则PC ← PC+3</td>
+                                <td class="px-6 py-4">Rn≠#data</td>
+                                <td class="px-6 py-4">3</td>
+                                <td class="px-6 py-4">2</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap font-mono">CJNE @Ri, #data, rel</td>
+                                <td class="px-6 py-4">若(Ri)≠#data，则PC ← PC+3+rel；否则PC ← PC+3</td>
+                                <td class="px-6 py-4">(Ri)≠#data</td>
+                                <td class="px-6 py-4">3</td>
+                                <td class="px-6 py-4">2</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap font-mono">DJNZ Rn, rel</td>
+                                <td class="px-6 py-4">Rn ← Rn-1，若Rn≠0，则PC ← PC+2+rel；否则PC ← PC+2</td>
+                                <td class="px-6 py-4">Rn≠0</td>
+                                <td class="px-6 py-4">2</td>
+                                <td class="px-6 py-4">2</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap font-mono">DJNZ direct, rel</td>
+                                <td class="px-6 py-4">(direct) ← (direct)-1，若(direct)≠0，则PC ← PC+3+rel；否则PC ← PC+3</td>
+                                <td class="px-6 py-4">(direct)≠0</td>
+                                <td class="px-6 py-4">3</td>
+                                <td class="px-6 py-4">2</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <div class="topic-card">
+                <h3 class="sub-section-title">3.6.4 子程序调用和返回指令</h3>
+                <p class="mb-4">子程序调用和返回指令用于实现子程序的调用和返回，包括长调用指令、绝对调用指令、子程序返回指令和中断返回指令。</p>
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">指令</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">功能</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">调用范围</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">字节数</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">周期数</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200">
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap font-mono">LCALL addr16</td>
+                                <td class="px-6 py-4">长调用指令，调用64KB范围内的子程序</td>
+                                <td class="px-6 py-4">64KB范围内</td>
+                                <td class="px-6 py-4">3</td>
+                                <td class="px-6 py-4">2</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap font-mono">ACALL addr11</td>
+                                <td class="px-6 py-4">绝对调用指令，调用当前PC所在的2KB范围内的子程序</td>
+                                <td class="px-6 py-4">当前PC所在的2KB范围内</td>
+                                <td class="px-6 py-4">2</td>
+                                <td class="px-6 py-4">2</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap font-mono">RET</td>
+                                <td class="px-6 py-4">子程序返回指令，从子程序返回主程序</td>
+                                <td class="px-6 py-4">无</td>
+                                <td class="px-6 py-4">1</td>
+                                <td class="px-6 py-4">2</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap font-mono">RETI</td>
+                                <td class="px-6 py-4">中断返回指令，从中断服务程序返回主程序</td>
+                                <td class="px-6 py-4">无</td>
+                                <td class="px-6 py-4">1</td>
+                                <td class="px-6 py-4">2</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <div class="topic-card">
+                <h3 class="sub-section-title">3.6.5 空操作指令</h3>
+                <p class="mb-4">空操作指令不执行任何操作，只是消耗一个机器周期的时间，常用于产生延时。</p>
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">指令</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">功能</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">字节数</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">周期数</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200">
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap font-mono">NOP</td>
+                                <td class="px-6 py-4">PC ← PC+1，空操作</td>
+                                <td class="px-6 py-4">1</td>
+                                <td class="px-6 py-4">1</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- 位操作类指令 -->
+        <section id="bit-operation" class="scroll-mt-24 mb-16">
+            <h2 class="section-title">3.7 位操作类指令</h2>
+            
+            <div class="topic-card">
+                <h3 class="sub-section-title">3.7.1 概述</h3>
+                <p class="mb-4">位操作类指令用于对单个二进制位进行操作，包括位数据传送指令、位逻辑运算指令和位控制转移指令。位操作类指令的操作对象是内部RAM中的位寻址区(20H~2FH)和特殊功能寄存器中的可位寻址位。</p>
+            </div>
+            
+            <div class="topic-card">
+                <h3 class="sub-section-title">3.7.2 位数据传送指令</h3>
+                <p class="mb-4">位数据传送指令用于在两个位地址之间进行数据传送。</p>
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">指令</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">功能</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">影响标志</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">字节数</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">周期数</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200">
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap font-mono">MOV C, bit</td>
+                                <td class="px-6 py-4">将位地址bit中的内容传送到进位标志CY</td>
+                                <td class="px-6 py-4">CY</td>
+                                <td class="px-6 py-4">2</td>
+                                <td class="px-6 py-4">1</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap font-mono">MOV bit, C</td>
+                                <td class="px-6 py-4">将进位标志CY中的内容传送到位地址bit</td>
+                                <td class="px-6 py-4">无</td>
+                                <td class="px-6 py-4">2</td>
+                                <td class="px-6 py-4">2</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <div class="topic-card">
+                <h3 class="sub-section-title">3.7.3 位逻辑运算指令</h3>
+                <p class="mb-4">位逻辑运算指令用于对单个二进制位进行逻辑运算，包括位清零、置位、取反、与和或等操作。</p>
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">指令</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">功能</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">影响标志</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">字节数</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">周期数</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200">
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap font-mono">CLR C</td>
+                                <td class="px-6 py-4">将进位标志CY清零</td>
+                                <td class="px-6 py-4">CY</td>
+                                <td class="px-6 py-4">1</td>
+                                <td class="px-6 py-4">1</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap font-mono">CLR bit</td>
+                                <td class="px-6 py-4">将位地址bit中的内容清零</td>
+                                <td class="px-6 py-4">无</td>
+                                <td class="px-6 py-4">2</td>
+                                <td class="px-6 py-4">1</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap font-mono">SETB C</td>
+                                <td class="px-6 py-4">将进位标志CY置1</td>
+                                <td class="px-6 py-4">CY</td>
+                                <td class="px-6 py-4">1</td>
+                                <td class="px-6 py-4">1</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap font-mono">SETB bit</td>
+                                <td class="px-6 py-4">将位地址bit中的内容置1</td>
+                                <td class="px-6 py-4">无</td>
+                                <td class="px-6 py-4">2</td>
+                                <td class="px-6 py-4">1</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap font-mono">CPL C</td>
+                                <td class="px-6 py-4">将进位标志CY中的内容取反</td>
+                                <td class="px-6 py-4">CY</td>
+                                <td class="px-6 py-4">1</td>
+                                <td class="px-6 py-4">1</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap font-mono">CPL bit</td>
+                                <td class="px-6 py-4">将位地址bit中的内容取反</td>
+                                <td class="px-6 py-4">无</td>
+                                <td class="px-6 py-4">2</td>
+                                <td class="px-6 py-4">1</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap font-mono">ANL C, bit</td>
+                                <td class="px-6 py-4">将进位标志CY中的内容与位地址bit中的内容进行逻辑与运算，结果存放在CY中</td>
+                                <td class="px-6 py-4">CY
+                                <td class="px-6 py-4 whitespace-nowrap font-mono">ANL C, bit</td>
+                                <td class="px-6 py-4">将进位标志CY中的内容与位地址bit中的内容进行逻辑与运算，结果存放在CY中</td>
+                                <td class="px-6 py-4">CY</td>
+                                <td class="px-6 py-4">2</td>
+                                <td class="px-6 py-4">2</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap font-mono">ANL C, /bit</td>
+                                <td class="px-6 py-4">将进位标志CY中的内容与位地址bit中的内容的反码进行逻辑与运算，结果存放在CY中</td>
+                                <td class="px-6 py-4">CY</td>
+                                <td class="px-6 py-4">2</td>
+                                <td class="px-6 py-4">2</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap font-mono">ORL C, bit</td>
+                                <td class="px-6 py-4">将进位标志CY中的内容与位地址bit中的内容进行逻辑或运算，结果存放在CY中</td>
+                                <td class="px-6 py-4">CY</td>
+                                <td class="px-6 py-4">2</td>
+                                <td class="px-6 py-4">2</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap font-mono">ORL C, /bit</td>
+                                <td class="px-6 py-4">将进位标志CY中的内容与位地址bit中的内容的反码进行逻辑或运算，结果存放在CY中</td>
+                                <td class="px-6 py-4">CY</td>
+                                <td class="px-6 py-4">2</td>
+                                <td class="px-6 py-4">2</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <div class="topic-card">
+                <h3 class="sub-section-title">3.7.4 位控制转移指令</h3>
+                <p class="mb-4">位控制转移指令用于根据位的状态来决定程序的执行流程，包括条件转移指令和无条件转移指令。</p>
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">指令</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">功能</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">转移条件</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">字节数</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">周期数</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200">
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap font-mono">JC rel</td>
+                                <td class="px-6 py-4">若CY=1，则PC ← PC+2+rel；否则PC ← PC+2</td>
+                                <td class="px-6 py-4">CY=1</td>
+                                <td class="px-6 py-4">2</td>
+                                <td class="px-6 py-4">2</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap font-mono">JNC rel</td>
+                                <td class="px-6 py-4">若CY=0，则PC ← PC+2+rel；否则PC ← PC+2</td>
+                                <td class="px-6 py-4">CY=0</td>
+                                <td class="px-6 py-4">2</td>
+                                <td class="px-6 py-4">2</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap font-mono">JB bit, rel</td>
+                                <td class="px-6 py-4">若bit=1，则PC ← PC+3+rel；否则PC ← PC+3</td>
+                                <td class="px-6 py-4">bit=1</td>
+                                <td class="px-6 py-4">3</td>
+                                <td class="px-6 py-4">2</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap font-mono">JNB bit, rel</td>
+                                <td class="px-6 py-4">若bit=0，则PC ← PC+3+rel；否则PC ← PC+3</td>
+                                <td class="px-6 py-4">bit=0</td>
+                                <td class="px-6 py-4">3</td>
+                                <td class="px-6 py-4">2</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap font-mono">JBC bit, rel</td>
+                                <td class="px-6 py-4">若bit=1，则PC ← PC+3+rel，同时将bit清零；否则PC ← PC+3</td>
+                                <td class="px-6 py-4">bit=1</td>
+                                <td class="px-6 py-4">3</td>
+                                <td class="px-6 py-4">2</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- 伪指令 -->
+        <section id="pseudo" class="scroll-mt-24 mb-16">
+            <h2 class="section-title">3.8 伪指令</h2>
+            
+            <div class="topic-card">
+                <h3 class="sub-section-title">3.8.1 概述</h3>
+                <p class="mb-4">伪指令是一种特殊的指令，它不属于单片机的指令系统，不产生可执行的目标代码，只是在汇编过程中起辅助作用，用于指导汇编程序如何进行汇编工作。</p>
+                <p class="mb-4">51单片机汇编语言中常用的伪指令有以下几种：</p>
+            </div>
+            
+            <div class="topic-card">
+                <h3 class="sub-section-title">3.8.2 常用伪指令</h3>
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">伪指令</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">功能</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200">
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap font-mono">ORG addr16</td>
+                                <td class="px-6 py-4">规定程序块或数据块的起始地址。例如：ORG 1000H，表示下面的程序或数据从1000H地址开始存放。</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap font-mono">END</td>
+                                <td class="px-6 py-4">标志汇编源程序的结束，汇编程序遇到END就停止汇编。一个源程序只能有一个END命令，且必须放在整个程序的最后。</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap font-mono">EQU</td>
+                                <td class="px-6 py-4">给一个符号名赋值。例如：COUNT EQU 30H，表示COUNT代表30H这个地址或数值。</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap font-mono">DATA</td>
+                                <td class="px-6 py-4">将一个内部RAM单元地址赋给一个符号名。例如：TEMP DATA 40H，表示TEMP代表内部RAM的40H单元。</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap font-mono">DB</td>
+                                <td class="px-6 py-4">定义字节数据。例如：DB 30H, 40H, 50H，表示在程序存储器中连续存放30H、40H、50H这三个字节数据。</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap font-mono">DW</td>
+                                <td class="px-6 py-4">定义字数据（双字节）。例如：DW 1234H, 5678H，表示在程序存储器中连续存放1234H、5678H这两个字数据，每个字占两个字节，高字节在前，低字节在后。</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap font-mono">DS</td>
+                                <td class="px-6 py-4">定义存储空间。例如：DS 10H，表示从当前地址开始保留16个字节的存储空间。</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap font-mono">BIT</td>
+                                <td class="px-6 py-4">将一个位地址赋给一个符号名。例如：FLAG BIT 20H，表示FLAG代表位地址20H。</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- 本章总结 -->
+        <section id="summary" class="scroll-mt-24 mb-16">
+            <h2 class="section-title">3.9 本章总结</h2>
+            
+            <div class="topic-card">
+                <h3 class="sub-section-title">3.9.1 重点内容回顾</h3>
+                <ol class="list-decimal pl-6 mb-4 space-y-2">
+                    <li>51单片机的指令格式由操作码和操作数两部分组成，操作码指示计算机执行什么操作，操作数指出参与操作的数据来源和操作结果存放的位置。</li>
+                    <li>51单片机有7种寻址方式，分别是立即寻址、直接寻址、寄存器寻址、寄存器间接寻址、变址寻址、相对寻址和位寻址。</li>
+                    <li>数据传送类指令是最基本、最常用的一类指令，用于在单片机内部各功能部件之间以及单片机与外部设备之间进行数据的传送。</li>
+                    <li>算术运算类指令用于实现加、减、乘、除等算术运算，这类指令大多数会对程序状态字PSW中的进位标志CY、辅助进位标志AC、溢出标志OV和奇偶标志P产生影响。</li>
+                    <li>逻辑运算类指令用于对两个操作数按位进行逻辑运算，包括与、或、异或、取反、清零等操作。</li>
+                    <li>控制转移类指令用于改变程序的执行顺序，实现程序的分支、循环、子程序调用等功能。</li>
+                    <li>位操作类指令用于对单个二进制位进行操作，包括位数据传送指令、位逻辑运算指令和位控制转移指令。</li>
+                    <li>伪指令是一种特殊的指令，它不属于单片机的指令系统，不产生可执行的目标代码，只是在汇编过程中起辅助作用。</li>
+                </ol>
+            </div>
+            
+            <div class="topic-card">
+                <h3 class="sub-section-title">3.9.2 学习难点</h3>
+                <ul class="list-disc pl-6 mb-4 space-y-2">
+                    <li>各种寻址方式的区别和应用场景。</li>
+                    <li>算术运算和逻辑运算指令对标志位的影响。</li>
+                    <li>控制转移类指令的使用，特别是条件转移指令和子程序调用与返回指令。</li>
+                    <li>位操作类指令的灵活应用，特别是在控制系统中对位的操作。</li>
+                    <li>伪指令与真实指令的区别，以及伪指令在汇编过程中的作用。</li>
+                </ul>
+            </div>
+            
+            <div class="topic-card">
+                <h3 class="sub-section-title">3.9.3 应用与实践</h3>
+                <p class="mb-4">单片机指令系统是单片机编程的基础，掌握好指令系统对于开发单片机应用系统至关重要。在实际应用中，要根据具体的任务需求，灵活选择合适的指令，合理组合，以实现预期的功能。</p>
+                <p class="mb-4">例如，在控制系统中，常常需要使用位操作指令来控制各种外设的状态；在数据处理中，需要使用算术运算和逻辑运算指令来进行数据的处理和转换；在程序结构设计中，需要使用控制转移指令来实现程序的分支和循环等。</p>
+                <p>通过本章的学习，应熟练掌握51单片机的指令系统，能够编写简单的汇编语言程序，并为后续的单片机应用系统开发打下坚实的基础。</p>
+            </div>
+        </section>
+
+        <!-- 页脚 -->
+        <footer class="bg-dark text-white py-12">
+            <div class="container mx-auto px-4">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    <div>
+                        <h3 class="text-xl font-bold mb-4">关于本教程</h3>
+                        <p class="text-gray-300 mb-4">
+                            本教程是《单片机技术与应用》课程的配套学习资源，旨在帮助学生更好地理解和掌握51单片机的指令系统。
+                        </p>
+                        <div class="flex space-x-4">
+                            <a href="#" class="text-gray-300 hover:text-white transition-colors">
+                                <i class="fa fa-book"></i> 更多教程
+                            </a>
+                            <a href="#" class="text-gray-300 hover:text-white transition-colors">
+                                <i class="fa fa-question-circle"></i> 常见问题
+                            </a>
+                        </div>
+                    </div>
+                    <div>
+                        <h3 class="text-xl font-bold mb-4">课程资源</h3>
+                        <ul class="space-y-2">
+                            <li><a href="#" class="text-gray-300 hover:text-white transition-colors">教学大纲</a></li>
+                            <li><a href="#" class="text-gray-300 hover:text-white transition-colors">实验指导</a></li>
+                            <li><a href="#" class="text-gray-300 hover:text-white transition-colors">习题解答</a></li>
+                            <li><a href="#" class="text-gray-300 hover:text-white transition-colors">教学视频</a></li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h3 class="text-xl font-bold mb-4">联系我们</h3>
+                        <p class="text-gray-300 mb-4">
+                            如有任何疑问或建议，请随时联系。
+                        </p>
+                        <div class="flex space-x-4">
+                            <a href="#" class="text-gray-300 hover:text-white transition-colors">
+                                <i class="fa fa-envelope"></i> 单片机课程QQ群：370743825
+                            </a>
+                            <a href="#" class="text-gray-300 hover:text-white transition-colors">
+                                <i class="fa fa-phone"></i> QQ:50394113
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <div class="border-t border-gray-700 mt-8 pt-8 text-center text-gray-400">
+                    <p> 《单片机技术与应用》课程  &copy; 王老师. 保留所有权利.</p>
+                </div>
+            </div>
+        </footer>
+
+        <!-- 返回顶部按钮 -->
+        

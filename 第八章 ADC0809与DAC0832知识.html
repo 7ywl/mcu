@@ -1,0 +1,1629 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>《单片机技术与应用》第八章 - ADC0809与DAC0832</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#165DFF',
+                        secondary: '#0FC6C2',
+                        accent: '#722ED1',
+                        dark: '#1D2129',
+                        light: '#F2F3F5'
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .content-auto {
+                content-visibility: auto;
+            }
+            .text-shadow {
+                text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            }
+            .transition-all-300 {
+                transition: all 0.3s ease;
+            }
+            .hover-scale {
+                @apply hover:scale-105 transition-all duration-300;
+            }
+            .sidebar-link {
+                @apply flex items-center gap-2 px-4 py-2 rounded-lg text-gray-700 hover:bg-primary/10 hover:text-primary transition-all duration-200;
+            }
+            .sidebar-link.active {
+                @apply bg-primary/10 text-primary font-medium;
+            }
+        }
+    </style>
+</head>
+<body class="bg-gray-50 font-sans text-dark">
+    <div class="flex min-h-screen">
+        <!-- 侧边栏导航 -->
+        <aside id="sidebar" class="fixed top-0 left-0 h-full w-64 bg-white shadow-lg transform -translate-x-full md:translate-x-0 transition-transform duration-300 ease-in-out z-20">
+            <div class="p-4 border-b">
+                <h2 class="text-xl font-bold text-primary">第八章 知识要点</h2>
+            </div>
+            <nav class="p-4 space-y-1">
+                <a href="/" class="sidebar-link" onclick="closeSidebar()">
+                    <i class="fa fa-file-text-o"></i>
+                    <span>首页</span>
+                </a>
+                <a href="#section1" class="sidebar-link" onclick="closeSidebar()">
+                    <i class="fa fa-file-text-o"></i>
+                    <span>A/D转换的概述和性能指标</span>
+                </a>                <a href="#section2" class="sidebar-link" onclick="closeSidebar()">
+                    <i class="fa fa-microchip"></i>
+                    <span>ADC0809内部结构和引脚功能</span>
+                </a>
+                <a href="#section3" class="sidebar-link" onclick="closeSidebar()">
+                    <i class="fa fa-exchange"></i>
+                    <span>D/A转换的概述和性能指标</span>
+                </a>
+                <a href="#section4" class="sidebar-link" onclick="closeSidebar()">
+                    <i class="fa fa-microchip"></i>
+                    <span>DAC0832内部结构和引脚功能</span>
+                </a>
+                <a href="#section5" class="sidebar-link" onclick="closeSidebar()">
+                    <i class="fa fa-lightbulb-o"></i>
+                    <span>0809和0832的应用案例</span>
+                </a>
+                <a href="#section6" class="sidebar-link" onclick="closeSidebar()">
+                    <i class="fa fa-book"></i>
+                    <span>本章总结</span>
+                </a>
+              <!--  <a href="#references" class="sidebar-link" onclick="closeSidebar()">
+                    <i class="fa fa-list-alt"></i>
+                    <span>参考文献</span>
+                </a>-->
+                <a href="#quiz" class="sidebar-link" onclick="closeSidebar()">
+                    <i class="fa fa-question-circle"></i>
+                    <span>知识测验</span>
+                </a>
+            </nav>
+            <div class="absolute bottom-0 left-0 w-full p-4 border-t">
+                <p class="text-sm text-gray-500"><br></p>
+            </div>
+        </aside>
+
+        <!-- 主内容区 -->
+        <div class="flex-1 md:ml-64">
+            <!-- 顶部导航栏 -->
+            <header class="sticky top-0 bg-white shadow-sm z-10">
+                <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+                    <div class="flex items-center">
+                        <button id="menu-toggle" class="md:hidden text-gray-700 focus:outline-none">
+                            <i class="fa fa-bars text-xl"></i>
+                        </button>
+                        <h1 class="ml-4 text-xl font-bold text-primary">《单片机技术与应用》</h1>
+                    </div>
+                    <div class="flex items-center gap-4">
+                        <button id="theme-toggle" class="text-gray-700 hover:text-primary transition-colors">
+                            <i class="fa fa-moon-o text-xl"></i>
+                        </button>
+                        <button id="search-btn" class="text-gray-700 hover:text-primary transition-colors">
+                            <i class="fa fa-search text-xl"></i>
+                        </button>
+                        <div class="hidden md:block">
+                            <a href="#quiz" class="bg-primary hover:bg-primary/90 text-white px-4 py-2 rounded-lg transition-all duration-200">
+                                知识测验
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <!-- 搜索框 -->
+            <div id="search-container" class="hidden bg-white border-b py-3 px-4">
+                <div class="container mx-auto">
+                    <div class="relative">
+                        <input type="text" id="search-input" placeholder="搜索知识点..." class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50">
+                        <i class="fa fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 页面内容 -->
+            <main class="container mx-auto px-4 py-8">
+                <section class="mb-12 text-center">
+                    <h1 class="text-[clamp(2rem,5vw,3rem)] font-bold text-dark mb-4 text-shadow">
+                        第八章 ADC0809与DAC0832
+                    </h1>
+                    <p class="text-lg text-gray-600 max-w-3xl mx-auto">
+                        本章将详细介绍A/D转换与D/A转换的基本原理、性能指标，以及典型芯片ADC0809和DAC0832的内部结构、引脚功能和应用案例。
+                    </p>
+                    <div class="mt-8 flex justify-center gap-4">
+                        <a href="#section1" class="bg-primary/10 hover:bg-primary/20 text-primary px-6 py-3 rounded-lg transition-all duration-200 flex items-center gap-2">
+                            <i class="fa fa-arrow-down"></i>
+                            <span>开始学习</span>
+                        </a>
+                        <a href="#quiz" class="bg-white border border-primary text-primary hover:bg-primary hover:text-white px-6 py-3 rounded-lg transition-all duration-200 flex items-center gap-2">
+                            <i class="fa fa-question-circle"></i>
+                            <span>知识测验</span>
+                        </a>
+                    </div>
+                </section>
+
+                <!-- 章节1：A/D转换的概述和性能指标 -->
+                <section id="section1" class="mb-16 scroll-mt-20">
+                    <div class="bg-white rounded-xl shadow-md p-6 md:p-8 hover-scale">
+                        <h2 class="text-[clamp(1.5rem,3vw,2rem)] font-bold text-dark mb-6 flex items-center">
+                            <span class="bg-primary text-white w-10 h-10 rounded-full flex items-center justify-center mr-3">1</span>
+                            A/D转换的概述和性能指标
+                        </h2>
+                        
+                        <div class="space-y-6">
+                            <div class="prose max-w-none">
+                                <h3 class="text-xl font-semibold text-dark">A/D转换的基本概念</h3>
+                                <p>A/D转换，即模拟-数字转换，是将连续变化的模拟信号转换为离散的数字信号的过程。在单片机应用系统中，A/D转换是连接模拟世界和数字世界的桥梁。</p>
+                                <p>典型的A/D转换过程包括采样、保持、量化和编码四个步骤：</p>
+                                <ol class="list-decimal pl-5 space-y-2">
+                                    <li><strong>采样</strong>：按一定的时间间隔对模拟信号进行取值</li>
+                                    <li><strong>保持</strong>：将采样得到的模拟信号值保持一段时间，以便进行量化</li>
+                                    <li><strong>量化</strong>：将采样保持后的模拟信号转换为数字量的过程</li>
+                                    <li><strong>编码</strong>：将量化后的数值用二进制代码表示</li>
+                                </ol>
+                            </div>
+
+                            <div class="prose max-w-none">
+                                <h3 class="text-xl font-semibold text-dark">A/D转换器的主要性能指标</h3>
+                                <p>A/D转换器的性能指标是衡量其性能优劣的重要依据，主要包括：</p>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                                    <div class="bg-gray-50 p-4 rounded-lg">
+                                        <h4 class="font-semibold text-primary mb-2">1. 分辨率</h4>
+                                        <p>指A/D转换器能够分辨的最小模拟输入量变化，通常用位数表示，如8位、10位、12位等。分辨率越高，转换精度越高。</p>
+                                        <p class="mt-2"><strong>计算公式</strong>：分辨率 = 满量程电压 / 2<sup>n</sup>（n为位数）</p>
+                                    </div>
+                                    <div class="bg-gray-50 p-4 rounded-lg">
+                                        <h4 class="font-semibold text-primary mb-2">2. 转换精度</h4>
+                                        <p>指A/D转换器输出的数字量与实际模拟输入量之间的接近程度，通常用绝对精度和相对精度表示。</p>
+                                    </div>
+                                    <div class="bg-gray-50 p-4 rounded-lg">
+                                        <h4 class="font-semibold text-primary mb-2">3. 转换时间</h4>
+                                        <p>指A/D转换器完成一次转换所需的时间，包括采样时间和转换时间。转换时间越短，A/D转换器的工作速度越快。</p>
+                                    </div>
+                                    <div class="bg-gray-50 p-4 rounded-lg">
+                                        <h4 class="font-semibold text-primary mb-2">4. 量程</h4>
+                                        <p>指A/D转换器能够转换的模拟输入电压范围，通常分为单极性和双极性两种。</p>
+                                    </div>
+                                    <div class="bg-gray-50 p-4 rounded-lg">
+                                        <h4 class="font-semibold text-primary mb-2">5. 线性度</h4>
+                                        <p>指A/D转换器的输出与输入之间的线性关系程度，通常用非线性误差表示。</p>
+                                    </div>
+                                    <div class="bg-gray-50 p-4 rounded-lg">
+                                        <h4 class="font-semibold text-primary mb-2">6. 输入阻抗</h4>
+                                        <p>指A/D转换器输入端的等效阻抗，输入阻抗越高，对信号源的影响越小。</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="prose max-w-none">
+                                <h3 class="text-xl font-semibold text-dark">A/D转换器的分类</h3>
+                                <p>根据转换原理的不同，A/D转换器可分为多种类型，常见的有：</p>
+                                <ul class="list-disc pl-5 space-y-2">
+                                    <li><strong>逐次逼近型A/D转换器</strong>：转换速度较快，精度较高，应用广泛</li>
+                                    <li><strong>双积分型A/D转换器</strong>：抗干扰能力强，精度高，但转换速度较慢</li>
+                                    <li><strong>并行比较型A/D转换器</strong>：转换速度最快，但成本高，功耗大</li>
+                                    <li><strong>Σ-Δ型A/D转换器</strong>：分辨率高，抗干扰能力强，适用于高精度测量</li>
+                                </ul>
+                            </div>
+
+                            <div class="prose max-w-none">
+                                <h3 class="text-xl font-semibold text-dark">A/D转换器的应用场景</h3>
+                                <p>A/D转换器广泛应用于各种需要将模拟信号转换为数字信号的场合，如：</p>
+                                <ul class="list-disc pl-5 space-y-2">
+                                    <li>数据采集系统</li>
+                                    <li>工业自动化控制系统</li>
+                                    <li>智能仪器仪表</li>
+                                    <li>医疗电子设备</li>
+                                    <li>通信设备</li>
+                                    <li>多媒体设备</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 章节2：ADC0809内部结构和引脚功能 -->
+                <section id="section2" class="mb-16 scroll-mt-20">
+                    <div class="bg-white rounded-xl shadow-md p-6 md:p-8 hover-scale">
+                        <h2 class="text-[clamp(1.5rem,3vw,2rem)] font-bold text-dark mb-6 flex items-center">
+                            <span class="bg-primary text-white w-10 h-10 rounded-full flex items-center justify-center mr-3">2</span>
+                            ADC0809内部结构和引脚功能
+                        </h2>
+                        
+                        <div class="space-y-6">
+                            <div class="prose max-w-none">
+                                <h3 class="text-xl font-semibold text-dark">ADC0809概述</h3>
+                                <p>ADC0809是美国国家半导体公司生产的8位逐次逼近型A/D转换器，具有8个模拟量输入通道，可在程序控制下对任意通道进行A/D转换，得到8位二进制数字量。</p>
+                                <p>主要特点：</p>
+                                <ul class="list-disc pl-5 space-y-2">
+                                    <li>8路模拟输入通道，通道地址由3位地址输入信号决定</li>
+                                    <li>分辨率为8位</li>
+                                    <li>转换时间约为100μs（时钟频率为640kHz时）</li>
+                                    <li>模拟输入电压范围为0~5V</li>
+                                    <li>无需外部零点和满量程调整</li>
+                                    <li>功耗低，约15mW</li>
+                                    <li>可与大多数微处理器直接接口</li>
+                                </ul>
+                            </div>
+
+                            <div class="prose max-w-none">
+                                <h3 class="text-xl font-semibold text-dark">ADC0809内部结构</h3>
+                                <p>ADC0809的内部结构主要由以下几部分组成：</p>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                                    <div class="bg-gray-50 p-4 rounded-lg">
+                                        <h4 class="font-semibold text-primary mb-2">1. 8通道多路模拟开关</h4>
+                                        <p>可从8路模拟输入信号中选择一路进行A/D转换，由地址锁存与译码电路控制。</p>
+                                    </div>
+                                    <div class="bg-gray-50 p-4 rounded-lg">
+                                        <h4 class="font-semibold text-primary mb-2">2. 地址锁存与译码电路</h4>
+                                        <p>锁存3位地址信号，并译码产生通道选择信号，选中相应的模拟输入通道。</p>
+                                    </div>
+                                    <div class="bg-gray-50 p-4 rounded-lg">
+                                        <h4 class="font-semibold text-primary mb-2">3. 比较器</h4>
+                                        <p>将输入的模拟信号与D/A转换器输出的反馈信号进行比较，输出比较结果。</p>
+                                    </div>
+                                    <div class="bg-gray-50 p-4 rounded-lg">
+                                        <h4 class="font-semibold text-primary mb-2">4. 8位逐次逼近寄存器(SAR)</h4>
+                                        <p>在控制电路的作用下，逐次逼近地产生比较所需的数字量，并将最终结果存入寄存器。</p>
+                                    </div>
+                                    <div class="bg-gray-50 p-4 rounded-lg">
+                                        <h4 class="font-semibold text-primary mb-2">5. D/A转换器</h4>
+                                        <p>将SAR中的数字量转换为模拟电压，作为比较器的参考电压。</p>
+                                    </div>
+                                    <div class="bg-gray-50 p-4 rounded-lg">
+                                        <h4 class="font-semibold text-primary mb-2">6. 控制与时序电路</h4>
+                                        <p>控制A/D转换的开始、结束，并产生相应的控制信号。</p>
+                                    </div>
+                                    <div class="bg-gray-50 p-4 rounded-lg">
+                                        <h4 class="font-semibold text-primary mb-2">7. 三态输出锁存器</h4>
+                                        <p>锁存A/D转换的结果，可直接与微处理器的数据总线相连。</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="prose max-w-none">
+                                <h3 class="text-xl font-semibold text-dark">ADC0809引脚功能</h3>
+                                <p>ADC0809采用28引脚双列直插式封装，引脚排列及功能如下：</p>
+                                <div class="overflow-x-auto mt-4">
+                                    <table class="min-w-full bg-white border border-gray-300 rounded-lg">
+                                        <thead>
+                                            <tr class="bg-gray-100">
+                                                <th class="py-3 px-4 text-left font-semibold text-dark border-b">引脚名称</th>
+                                                <th class="py-3 px-4 text-left font-semibold text-dark border-b">引脚编号</th>
+                                                <th class="py-3 px-4 text-left font-semibold text-dark border-b">功能描述</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody class="divide-y divide-gray-200">
+                                            <tr>
+                                                <td class="py-3 px-4"><strong>IN0~IN7</strong></td>
+                                                <td class="py-3 px-4">26~28, 1~5</td>
+                                                <td class="py-3 px-4">8路模拟量输入端，输入电压范围为0~5V</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="py-3 px-4"><strong>ADDA、ADDB、ADDC</strong></td>
+                                                <td class="py-3 px-4">23~25</td>
+                                                <td class="py-3 px-4">通道地址选择输入端，用于选择8路模拟输入中的一路</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="py-3 px-4"><strong>ALE</strong></td>
+                                                <td class="py-3 px-4">22</td>
+                                                <td class="py-3 px-4">地址锁存允许信号，上升沿将ADDA~ADDC的地址信号锁存</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="py-3 px-4"><strong>START</strong></td>
+                                                <td class="py-3 px-4">6</td>
+                                                <td class="py-3 px-4">转换启动信号，上升沿复位ADC0809，下降沿启动转换</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="py-3 px-4"><strong>EOC</strong></td>
+                                                <td class="py-3 px-4">7</td>
+                                                <td class="py-3 px-4">转换结束信号，高电平表示转换结束</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="py-3 px-4"><strong>OE</strong></td>
+                                                <td class="py-3 px-4">9</td>
+                                                <td class="py-3 px-4">输出允许信号，高电平有效，使转换结果通过三态门输出</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="py-3 px-4"><strong>CLOCK</strong></td>
+                                                <td class="py-3 px-4">10</td>
+                                                <td class="py-3 px-4">时钟输入端，典型频率为640kHz</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="py-3 px-4"><strong>D0~D7</strong></td>
+                                                <td class="py-3 px-4">17~20, 11~14</td>
+                                                <td class="py-3 px-4">8位数字量输出端，D0为最低位，D7为最高位</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="py-3 px-4"><strong>VREF(+)、VREF(-)</strong></td>
+                                                <td class="py-3 px-4">18、21</td>
+                                                <td class="py-3 px-4">参考电压输入端，VREF(+)接+5V，VREF(-)接地</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="py-3 px-4"><strong>VCC</strong></td>
+                                                <td class="py-3 px-4">28</td>
+                                                <td class="py-3 px-4">电源输入端，接+5V</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="py-3 px-4"><strong>GND</strong></td>
+                                                <td class="py-3 px-4">13</td>
+                                                <td class="py-3 px-4">接地端</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+
+                            <div class="prose max-w-none">
+                                <h3 class="text-xl font-semibold text-dark">ADC0809工作时序</h3>
+                                <p>ADC0809的工作时序主要包括以下几个步骤：</p>
+                                <ol class="list-decimal pl-5 space-y-3">
+                                    <li><strong>通道选择</strong>：通过ADDA~ADDC输入通道地址，在ALE信号的上升沿将地址锁存</li>
+                                    <li><strong>启动转换</strong>：在START信号的下降沿启动A/D转换</li>
+                                    <li><strong>转换过程</strong>：A/D转换器进行逐次逼近转换，在此期间EOC信号为低电平</li>
+                                    <li><strong>转换结束</strong>：转换完成后，EOC信号变为高电平，表示转换结束</li>
+                                    <li><strong>读取数据</strong>：CPU检测到EOC信号变高后，输出OE信号为高电平，打开三态输出锁存器，读取转换结果</li>
+                                </ol>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 章节3：D/A转换的概述和性能指标 -->
+                <section id="section3" class="mb-16 scroll-mt-20">
+                    <div class="bg-white rounded-xl shadow-md p-6 md:p-8 hover-scale">
+                        <h2 class="text-[clamp(1.5rem,3vw,2rem)] font-bold text-dark mb-6 flex items-center">
+                            <span class="bg-primary text-white w-10 h-10 rounded-full flex items-center justify-center mr-3">3</span>
+                            D/A转换的概述和性能指标
+                        </h2>
+                        
+                        <div class="space-y-6">
+                            <div class="prose max-w-none">
+                                <h3 class="text-xl font-semibold text-dark">D/A转换的基本概念</h3>
+                                <p>D/A转换，即数字-模拟转换，是将离散的数字信号转换为连续变化的模拟信号的过程。在单片机应用系统中，D/A转换器常用于将数字控制系统的输出转换为模拟信号，驱动执行机构。</p>
+                                <p>D/A转换的基本原理是基于权电阻网络或T型电阻网络，将数字量的每一位按照其权值转换为相应的模拟电流或电压，然后通过运算放大器求和并转换为电压输出。</p>
+                            </div>
+
+                            <div class="prose max-w-none">
+                                <h3 class="text-xl font-semibold text-dark">D/A转换器的主要性能指标</h3>
+                                <p>D/A转换器的性能指标是衡量其性能优劣的重要依据，主要包括：</p>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                                    <div class="bg-gray-50 p-4 rounded-lg">
+                                        <h4 class="font-semibold text-primary mb-2">1. 分辨率</h4>
+                                        <p>指D/A转换器能够分辨的最小输出模拟量变化，通常用位数表示，如8位、10位、12位等。分辨率越高，D/A转换器对输入数字量的变化越敏感。</p>
+                                        <p class="mt-2"><strong>计算公式</strong>：分辨率 = 满量程输出 / 2<sup>n</sup>（n为位数）</p>
+                                    </div>
+                                    <div class="bg-gray-50 p-4 rounded-lg">
+                                        <h4 class="font-semibold text-primary mb-2">2. 转换精度</h4>
+                                        <p>指D/A转换器输出的模拟量与理论值之间的接近程度，通常用绝对精度和相对精度表示。转换精度取决于参考电压的精度、权电阻网络的精度和运算放大器的精度等。</p>
+                                    </div>
+                                    <div class="bg-gray-50 p-4 rounded-lg">
+                                        <h4 class="font-semibold text-primary mb-2">3. 建立时间</h4>
+                                        <p>指D/A转换器从输入数字量变化到输出模拟量达到稳定值所需的时间。建立时间越短，D/A转换器的工作速度越快。</p>
+                                    </div>
+                                    <div class="bg-gray-50 p-4 rounded-lg">
+                                        <h4 class="font-semibold text-primary mb-2">4. 线性度</h4>
+                                        <p>指D/A转换器的输出与输入之间的线性关系程度，通常用非线性误差表示。非线性误差越小，线性度越好。</p>
+                                    </div>
+                                    <div class="bg-gray-50 p-4 rounded-lg">
+                                        <h4 class="font-semibold text-primary mb-2">5. 温度系数</h4>
+                                        <p>指D/A转换器的性能随温度变化的特性，通常用满量程输出的温度系数和零点输出的温度系数表示。</p>
+                                    </div>
+                                    <div class="bg-gray-50 p-4 rounded-lg">
+                                        <h4 class="font-semibold text-primary mb-2">6. 输出范围</h4>
+                                        <p>指D/A转换器能够输出的模拟电压或电流范围，常见的有0~5V、0~10V、-5V~+5V、-10V~+10V等。</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="prose max-w-none">
+                                <h3 class="text-xl font-semibold text-dark">D/A转换器的分类</h3>
+                                <p>根据转换原理的不同，D/A转换器可分为多种类型，常见的有：</p>
+                                <ul class="list-disc pl-5 space-y-2">
+                                    <li><strong>权电阻网络D/A转换器</strong>：结构简单，但精度较低，适用于精度要求不高的场合</li>
+                                    <li><strong>T型电阻网络D/A转换器</strong>：使用的电阻种类少，精度较高，应用广泛</li>
+                                    <li><strong>倒T型电阻网络D/A转换器</strong>：转换速度快，动态性能好，是目前应用最广泛的一种</li>
+                                    <li><strong>权电流型D/A转换器</strong>：采用恒流源，转换精度高，温度稳定性好</li>
+                                </ul>
+                            </div>
+
+                            <div class="prose max-w-none">
+                                <h3 class="text-xl font-semibold text-dark">D/A转换器的应用场景</h3>
+                                <p>D/A转换器广泛应用于各种需要将数字信号转换为模拟信号的场合，如：</p>
+                                <ul class="list-disc pl-5 space-y-2">
+                                    <li>波形发生器</li>
+                                    <li>数控电源</li>
+                                    <li>数字音频系统</li>
+                                    <li>自动控制系统</li>
+                                    <li>仪器仪表</li>
+                                    <li>通信设备</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 章节4：DAC0832内部结构和引脚功能 -->
+                <section id="section4" class="mb-16 scroll-mt-20">
+                    <div class="bg-white rounded-xl shadow-md p-6 md:p-8 hover-scale">
+                        <h2 class="text-[clamp(1.5rem,3vw,2rem)] font-bold text-dark mb-6 flex items-center">
+                            <span class="bg-primary text-white w-10 h-10 rounded-full flex items-center justify-center mr-3">4</span>
+                            DAC0832内部结构和引脚功能
+                        </h2>
+                        
+                        <div class="space-y-6">
+                            <div class="prose max-w-none">
+                                <h3 class="text-xl font-semibold text-dark">DAC0832概述</h3>
+                                <p>DAC0832是美国国家半导体公司生产的8位D/A转换器，具有双缓冲输入寄存器，可以方便地实现多通道D/A转换的同步输出。</p>
+                                <p>主要特点：</p>
+                                <ul class="list-disc pl-5 space-y-2">
+                                    <li>8位分辨率，电流输出型</li>
+                                    <li>具有双缓冲、单缓冲和直通三种工作方式</li>
+                                    <li>转换时间约为1μs</li>
+                                    <li>线性误差为±0.2%FSR（满量程）</li>
+                                    <li>功耗低，约20mW</li>
+                                    <li>可与大多数微处理器直接接口</li>
+                                    <li>逻辑电平输入与TTL兼容</li>
+                                </ul>
+                            </div>
+
+                            <div class="prose max-w-none">
+                                <h3 class="text-xl font-semibold text-dark">DAC0832内部结构</h3>
+                                <p>DAC0832的内部结构主要由以下几部分组成：</p>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                                    <div class="bg-gray-50 p-4 rounded-lg">
+                                        <h4 class="font-semibold text-primary mb-2">1. 8位输入寄存器</h4>
+                                        <p>用于暂存微处理器送来的数字量，由ILE、/CS、/WR1控制。</p>
+                                    </div>
+                                    <div class="bg-gray-50 p-4 rounded-lg">
+                                        <h4 class="font-semibold text-primary mb-2">2. 8位DAC寄存器</h4>
+                                        <p>用于暂存输入寄存器中的数据，由/XFER、/WR2控制。</p>
+                                    </div>
+                                    <div class="bg-gray-50 p-4 rounded-lg">
+                                        <h4 class="font-semibold text-primary mb-2">3. 8位D/A转换电路</h4>
+                                        <p>由倒T型电阻网络和电子开关组成，将数字量转换为模拟电流输出。</p>
+                                    </div>
+                                    <div class="bg-gray-50 p-4 rounded-lg">
+                                        <h4 class="font-semibold text-primary mb-2">4. 控制逻辑电路</h4>
+                                        <p>控制两个寄存器的锁存和数据传输，实现三种工作方式。</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="prose max-w-none">
+                                <h3 class="text-xl font-semibold text-dark">DAC0832引脚功能</h3>
+                                <p>DAC0832采用20引脚双列直插式封装，引脚排列及功能如下：</p>
+                                <div class="overflow-x-auto mt-4">
+                                    <table class="min-w-full bg-white border border-gray-300 rounded-lg">
+                                        <thead>
+                                            <tr class="bg-gray-100">
+                                                <th class="py-3 px-4 text-left font-semibold text-dark border-b">引脚名称</th>
+                                                <th class="py-3 px-4 text-left font-semibold text-dark border-b">引脚编号</th>
+                                                <th class="py-3 px-4 text-left font-semibold text-dark border-b">功能描述</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody class="divide-y divide-gray-200">
+                                            <tr>
+                                                <td class="py-3 px-4"><strong>D0~D7</strong></td>
+                                                <td class="py-3 px-4">7~4, 1~2</td>
+                                                <td class="py-3 px-4">8位数字量输入端，D0为最低位，D7为最高位</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="py-3 px-4"><strong>ILE</strong></td>
+                                                <td class="py-3 px-4">19</td>
+                                                <td class="py-3 px-4">输入锁存允许信号，高电平有效</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="py-3 px-4"><strong>/CS</strong></td>
+                                                <td class="py-3 px-4">18</td>
+                                                <td class="py-3 px-4">片选信号，低电平有效</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="py-3 px-4"><strong>/WR1</strong></td>
+                                                <td class="py-3 px-4">17</td>
+                                                <td class="py-3 px-4">写信号1，低电平有效，用于将数据写入输入寄存器</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="py-3 px-4"><strong>/XFER</strong></td>
+                                                <td class="py-3 px-4">16</td>
+                                                <td class="py-3 px-4">数据传输控制信号，低电平有效</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="py-3 px-4"><strong>/WR2</strong></td>
+                                                <td class="py-3 px-4">15</td>
+                                                <td class="py-3 px-4">写信号2，低电平有效，用于将输入寄存器中的数据写入DAC寄存器</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="py-3 px-4"><strong>Iout1</strong></td>
+                                                <td class="py-3 px-4">11</td>
+                                                <td class="py-3 px-4">模拟电流输出端1，当DAC寄存器全为1时，输出电流最大；全为0时，输出电流最小</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="py-3 px-4"><strong>Iout2</strong></td>
+                                                <td class="py-3 px-4">12</td>
+                                                <td class="py-3 px-4">模拟电流输出端2，Iout1 + Iout2 = 常数</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="py-3 px-4"><strong>Rfb</strong></td>
+                                                <td class="py-3 px-4">9</td>
+                                                <td class="py-3 px-4">反馈电阻引出端，内部已接有反馈电阻到Iout1端</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="py-3 px-4"><strong>Vref</strong></td>
+                                                <td class="py-3 px-4">8</td>
+                                                <td class="py-3 px-4">参考电压输入端，范围为-10V~+10V</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="py-3 px-4"><strong>Vcc</strong></td>
+                                                <td class="py-3 px-4">20</td>
+                                                <td class="py-3 px-4">电源输入端，范围为+5V~+15V，最佳值为+15V</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="py-3 px-4"><strong>AGND</strong></td>
+                                                <td class="py-3 px-4">13</td>
+                                                <td class="py-3 px-4">模拟地</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="py-3 px-4"><strong>DGND</strong></td>
+                                                <td class="py-3 px-4">10</td>
+                                                <td class="py-3 px-4">数字地</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+
+                            <div class="prose max-w-none">
+                                <h3 class="text-xl font-semibold text-dark">DAC0832工作方式</h3>
+                                <p>DAC0832有三种工作方式，可通过控制信号的不同组合来实现：</p>
+                                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
+                                    <div class="bg-gray-50 p-4 rounded-lg">
+                                        <h4 class="font-semibold text-primary mb-2">1. 双缓冲方式</h4>
+                                        <p>两个寄存器都处于受控锁存状态，需要两步操作才能完成一次D/A转换。这种方式适用于多路D/A转换同步输出的场合。</p>
+                                    </div>
+                                    <div class="bg-gray-50 p-4 rounded-lg">
+                                        <h4 class="font-semibold text-primary mb-2">2. 单缓冲方式</h4>
+                                        <p>一个寄存器处于直通状态，另一个寄存器处于受控锁存状态，只需一步操作即可完成一次D/A转换。这种方式适用于一般的D/A转换应用。</p>
+                                    </div>
+                                    <div class="bg-gray-50 p-4 rounded-lg">
+                                        <h4 class="font-semibold text-primary mb-2">3. 直通方式</h4>
+                                        <p>两个寄存器都处于直通状态，数字量直接进入D/A转换器进行转换。这种方式适用于连续反馈控制回路等场合。</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="prose max-w-none">
+                                <h3 class="text-xl font-semibold text-dark">DAC0832应用电路</h3>
+                                <p>DAC0832是电流输出型D/A转换器，在实际应用中需要外接运算放大器将电流信号转换为电压信号。常见的应用电路有：</p>
+                                <ul class="list-disc pl-5 space-y-2">
+                                    <li><strong>单极性输出电路</strong>：输出电压范围为0~Vref或-Vref~0</li>
+                                    <li><strong>双极性输出电路</strong>：输出电压范围为-Vref~+Vref</li>
+                                    <li><strong>多路D/A转换同步输出电路</strong>：使用多个DAC0832实现多路模拟信号的同步输出</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 章节5：0809和0832的应用案例 -->
+                <section id="section5" class="mb-16 scroll-mt-20">
+                    <div class="bg-white rounded-xl shadow-md p-6 md:p-8 hover-scale">
+                        <h2 class="text-[clamp(1.5rem,3vw,2rem)] font-bold text-dark mb-6 flex items-center">
+                            <span class="bg-primary text-white w-10 h-10 rounded-full flex items-center justify-center mr-3">5</span>
+                            0809和0832的应用案例
+                        </h2>
+                        
+                        <div class="space-y-8">
+                            <div class="prose max-w-none">
+                                <h3 class="text-xl font-semibold text-dark">案例1：基于ADC0809的温度采集系统</h3>
+                                <p>在工业控制和监测系统中，经常需要对温度进行实时采集和处理。本案例使用ADC0809实现对温度的采集，并通过单片机进行数据处理和显示。</p>
+                                <div class="bg-gray-50 p-6 rounded-lg mt-4">
+                                    <h4 class="font-semibold text-primary mb-3">系统组成</h4>
+                                    <ul class="list-disc pl-5 space-y-2">
+                                        <li>温度传感器：采用DS18B20数字温度传感器</li>
+                                        <li>A/D转换器：ADC0809，将温度传感器输出的模拟信号转换为数字信号</li>
+                                        <li>单片机：AT89C51，控制ADC0809的工作并处理采集到的温度数据</li>
+                                        <li>显示模块：LCD1602液晶显示器，显示当前温度值</li>
+                                    </ul>
+                                    
+                                    <h4 class="font-semibold text-primary mt-4 mb-3">工作原理</h4>
+                                    <p>温度传感器将温度转换为电压信号，该信号输入到ADC0809的模拟输入端。单片机通过控制ADC0809的地址选择、启动转换和读取转换结果等操作，获取温度对应的数字量。单片机将该数字量进行转换和处理，得到实际温度值，并通过LCD1602显示出来。</p>
+                                    
+                                    <h4 class="font-semibold text-primary mt-4 mb-3">程序设计</h4>
+                                    <p>以下是基于AT89C51单片机的温度采集系统的汇编程序示例：</p>
+                                    <pre class="bg-dark text-gray-100 p-4 rounded-lg overflow-x-auto"><code>; 温度采集系统程序
+; 使用ADC0809采集温度数据并显示在LCD1602上
+
+ORG 0000H
+LJMP MAIN        ; 跳转到主程序
+
+ORG 0030H
+MAIN:
+    ; 系统初始化
+    MOV SP, #60H    ; 设置堆栈指针
+    
+    ; 初始化LCD1602
+    ACALL LCD_INIT
+    
+    ; 主循环
+MAIN_LOOP:
+    ; 启动ADC0809转换
+    ACALL ADC_START
+    
+    ; 等待转换完成
+    ACALL ADC_WAIT
+    
+    ; 读取转换结果
+    ACALL ADC_READ
+    
+    ; 处理温度数据
+    ACALL PROCESS_TEMP
+    
+    ; 显示温度
+    ACALL DISPLAY_TEMP
+    
+    ; 延时
+    MOV R7, #200
+DELAY_LOOP:
+    MOV R6, #250
+    DJNZ R6, $
+    DJNZ R7, DELAY_LOOP
+    
+    SJMP MAIN_LOOP   ; 无限循环
+
+; ADC0809控制子程序
+ADC_START:
+    ; 选择通道0
+    MOV P1, #00H     ; ADDA=0, ADDB=0, ADDC=0
+    
+    ; 锁存地址
+    SETB P3.0        ; ALE=1
+    CLR P3.0         ; ALE=0
+    
+    ; 启动转换
+    SETB P3.1        ; START=1
+    CLR P3.1         ; START=0
+    RET
+
+ADC_WAIT:
+    ; 等待EOC变高
+    JNB P3.2, ADC_WAIT  ; 等待EOC=1
+    RET
+
+ADC_READ:
+    ; 使能输出
+    SETB P3.3        ; OE=1
+    
+    ; 读取数据
+    MOV A, P2        ; 读取ADC0809的输出
+    
+    ; 保存数据
+    MOV TEMP_DATA, A
+    
+    ; 禁用输出
+    CLR P3.3         ; OE=0
+    RET
+
+; 温度数据处理子程序
+PROCESS_TEMP:
+    ; 这里是将ADC值转换为温度值的计算
+    ; 实际应用中需要根据温度传感器的特性进行转换
+    MOV A, TEMP_DATA
+    MOV B, #100
+    DIV AB           ; 假设ADC值除以100即为温度值
+    MOV TEMP_INTEGER, A  ; 整数部分
+    MOV TEMP_FRACTION, B ; 小数部分
+    RET
+
+; LCD显示子程序
+LCD_INIT:
+    ; 初始化LCD1602的代码
+    ; ...
+    RET
+
+DISPLAY_TEMP:
+    ; 在LCD上显示温度的代码
+    ; ...
+    RET
+
+; 数据区
+TEMP_DATA: DB 0      ; 存储ADC转换结果
+TEMP_INTEGER: DB 0   ; 存储温度整数部分
+TEMP_FRACTION: DB 0  ; 存储温度小数部分
+
+END</code></pre>
+                                </div>
+                            </div>
+
+                            <div class="prose max-w-none">
+                                <h3 class="text-xl font-semibold text-dark">案例2：基于DAC0832的波形发生器</h3>
+                                <p>波形发生器是电子测量和控制系统中常用的设备，可以产生各种波形，如正弦波、方波、三角波等。本案例使用DAC0832和单片机实现一个简单的波形发生器。</p>
+                                <div class="bg-gray-50 p-6 rounded-lg mt-4">
+                                    <h4 class="font-semibold text-primary mb-3">系统组成</h4>
+                                    <ul class="list-disc pl-5 space-y-2">
+                                        <li>D/A转换器：DAC0832，将数字信号转换为模拟信号</li>
+                                        <li>单片机：AT89C51，产生波形数据并控制DAC0832的工作</li>
+                                        <li>运算放大器：将DAC0832的电流输出转换为电压输出</li>
+                                        <li>按键模块：用于选择不同的波形类型和频率</li>
+                                    </ul>
+                                    
+                                    <h4 class="font-semibold text-primary mt-4 mb-3">工作原理</h4>
+                                    <p>单片机根据用户选择的波形类型（如正弦波、方波、三角波），生成相应的数字波形数据，并通过DAC0832转换为模拟信号。运算放大器将DAC0832的电流输出转换为电压输出，最终得到所需的波形信号。</p>
+                                    
+                                    <h4 class="font-semibold text-primary mt-4 mb-3">程序设计</h4>
+                                    <p>以下是基于AT89C51单片机的波形发生器的汇编程序示例：</p>
+                                    <pre class="bg-dark text-gray-100 p-4 rounded-lg overflow-x-auto"><code>; 波形发生器程序
+; 使用DAC0832产生不同类型的波形
+
+ORG 0000H
+LJMP MAIN        ; 跳转到主程序
+
+ORG 0030H
+MAIN:
+    ; 系统初始化
+    MOV SP, #60H    ; 设置堆栈指针
+    
+    ; 初始化DAC0832
+    ACALL DAC_INIT
+    
+    ; 初始化按键
+    ACALL KEY_INIT
+    
+    ; 选择默认波形：正弦波
+    MOV WAVE_TYPE, #0
+    
+    ; 主循环
+MAIN_LOOP:
+    ; 检测按键
+    ACALL KEY_SCAN
+    
+    ; 根据波形类型生成波形
+    MOV A, WAVE_TYPE
+    CJNE A, #0, CHECK_SQUARE
+    ACALL GENERATE_SINE     ; 生成正弦波
+    SJMP OUTPUT_WAVE
+    
+CHECK_SQUARE:
+    CJNE A, #1, CHECK_TRIANGLE
+    ACALL GENERATE_SQUARE   ; 生成方波
+    SJMP OUTPUT_WAVE
+    
+CHECK_TRIANGLE:
+    CJNE A, #2, MAIN_LOOP
+    ACALL GENERATE_TRIANGLE ; 生成三角波
+    
+OUTPUT_WAVE:
+    ; 输出波形数据到DAC0832
+    ACALL OUTPUT_TO_DAC
+    
+    ; 延时控制波形频率
+    MOV R7, #10
+DELAY_LOOP:
+    MOV R6, #250
+    DJNZ R6, $
+    DJNZ R7, DELAY_LOOP
+    
+    SJMP MAIN_LOOP   ; 无限循环
+
+; DAC0832控制子程序
+DAC_INIT:
+    ; 初始化DAC0832的控制引脚
+    SETB P3.0        ; ILE=1
+    SETB P3.1        ; /CS=1
+    SETB P3.2        ; /WR1=1
+    SETB P3.3        ; /XFER=1
+    SETB P3.4        ; /WR2=1
+    RET
+
+OUTPUT_TO_DAC:
+    ; 输出数据到DAC0832
+    MOV A, WAVE_DATA
+    
+    ; 选通DAC0832
+    CLR P3.1         ; /CS=0
+    CLR P3.2         ; /WR1=0
+    
+    ; 输出数据
+    MOV P2, A
+    
+    ; 锁存数据
+    SETB P3.2        ; /WR1=1
+    SETB P3.1        ; /CS=1
+    
+    ; 选通DAC寄存器
+    CLR P3.3         ; /XFER=0
+    CLR P3.4         ; /WR2=0
+    SETB P3.4        ; /WR2=1
+    SETB P3.3        ; /XFER=1
+    
+    RET
+
+; 波形生成子程序
+GENERATE_SINE:
+    ; 生成正弦波数据
+    ; 这里使用简化的查表法生成正弦波
+    MOV A, SINE_INDEX
+    MOV DPTR, #SINE_TABLE
+    MOVC A, @A+DPTR
+    MOV WAVE_DATA, A
+    
+    ; 更新索引
+    INC SINE_INDEX
+    MOV A, SINE_INDEX
+    CJNE A, #32, GENERATE_SINE_END
+    MOV SINE_INDEX, #0
+    
+GENERATE_SINE_END:
+    RET
+
+GENERATE_SQUARE:
+    ; 生成方波数据
+    MOV A, SQUARE_STATE
+    JZ SQUARE_LOW
+    
+SQUARE_HIGH:
+    MOV WAVE_DATA, #255    ; 高电平
+    CPL SQUARE_STATE       ; 切换状态
+    RET
+    
+SQUARE_LOW:
+    MOV WAVE_DATA, #0      ; 低电平
+    CPL SQUARE_STATE       ; 切换状态
+    RET
+
+GENERATE_TRIANGLE:
+    ; 生成三角波数据
+    MOV A, TRIANGLE_INDEX
+    CJNE A, #128, CHECK_INCREASE
+    MOV TRIANGLE_DIR, #1    ; 开始下降
+    
+CHECK_INCREASE:
+    MOV A, TRIANGLE_DIR
+    JZ INCREASE_TRIANGLE
+    
+DECREASE_TRIANGLE:
+    ; 下降阶段
+    DEC TRIANGLE_INDEX
+    MOV A, TRIANGLE_INDEX
+    CJNE A, #0, DECREASE_END
+    MOV TRIANGLE_DIR, #0    ; 开始上升
+    
+DECREASE_END:
+    MOV WAVE_DATA, A
+    RET
+    
+INCREASE_TRIANGLE:
+    ; 上升阶段
+    INC TRIANGLE_INDEX
+    MOV WAVE_DATA, A
+    RET
+
+; 按键检测子程序
+KEY_INIT:
+    ; 初始化按键端口
+    SETB P1.0        ; 按键1输入
+    SETB P1.1        ; 按键2输入
+    SETB P1.2        ; 按键3输入
+    RET
+
+KEY_SCAN:
+    ; 检测按键1：切换到正弦波
+    JB P1.0, CHECK_KEY2
+    ACALL KEY_DEBOUNCE
+    JB P1.0, CHECK_KEY2
+    MOV WAVE_TYPE, #0
+    ACALL KEY_WAIT_RELEASE
+    
+CHECK_KEY2:
+    ; 检测按键2：切换到方波
+    JB P1.1, CHECK_KEY3
+    ACALL KEY_DEBOUNCE
+    JB P1.1, CHECK_KEY3
+    MOV WAVE_TYPE, #1
+    ACALL KEY_WAIT_RELEASE
+    
+CHECK_KEY3:
+    ; 检测按键3：切换到三角波
+    JB P1.2, KEY_SCAN_END
+    ACALL KEY_DEBOUNCE
+    JB P1.2, KEY_SCAN_END
+    MOV WAVE_TYPE, #2
+    ACALL KEY_WAIT_RELEASE
+    
+KEY_SCAN_END:
+    RET
+
+KEY_DEBOUNCE:
+    ; 按键消抖延时
+    MOV R6, #20
+DB_LOOP:
+    MOV R7, #250
+    DJNZ R7, $
+    DJNZ R6, DB_LOOP
+    RET
+
+KEY_WAIT_RELEASE:
+    ; 等待按键释放
+    JB P1.0, CHECK_RELEASE2
+    SJMP KEY_WAIT_RELEASE
+    
+CHECK_RELEASE2:
+    JB P1.1, CHECK_RELEASE3
+    SJMP KEY_WAIT_RELEASE
+    
+CHECK_RELEASE3:
+    JB P1.2, KEY_RELEASED
+    SJMP KEY_WAIT_RELEASE
+    
+KEY_RELEASED:
+    ACALL KEY_DEBOUNCE
+    RET
+
+; 正弦波数据表
+SINE_TABLE:
+    DB 128,153,177,199,217,230,239,243
+    DB 243,239,230,217,199,177,153,128
+    DB 103, 79, 57, 39, 26, 17, 13, 13
+    DB 17, 26, 39, 57, 79,103,128
+
+; 数据区
+WAVE_TYPE: DB 0       ; 波形类型：0-正弦波，1-方波，2-三角波
+WAVE_DATA: DB 0       ; 当前波形数据
+SINE_INDEX: DB 0      ; 正弦波索引
+SQUARE_STATE: DB 0    ; 方波状态
+TRIANGLE_INDEX: DB 0  ; 三角波索引
+TRIANGLE_DIR: DB 0    ; 三角波方向：0-上升，1-下降
+
+END</code></pre>
+                                </div>
+                            </div>
+
+                            <div class="prose max-w-none">
+                                <h3 class="text-xl font-semibold text-dark">案例3：基于ADC0809和DAC0832的数据采集与控制系统</h3>
+                                <p>在工业自动化领域，经常需要对多个模拟量进行采集和控制。本案例使用ADC0809进行数据采集，使用DAC0832进行控制输出，实现一个简单的数据采集与控制系统。</p>
+                                <div class="bg-gray-50 p-6 rounded-lg mt-4">
+                                    <h4 class="font-semibold text-primary mb-3">系统组成</h4>
+                                    <ul class="list-disc pl-5 space-y-2">
+                                        <li>传感器模块：包括温度、压力、流量等多种传感器</li>
+                                        <li>A/D转换器：ADC0809，将多个传感器的模拟信号转换为数字信号</li>
+                                        <li>单片机：AT89C51，控制ADC0809和DAC0832的工作，处理采集到的数据</li>
+                                        <li>D/A转换器：DAC0832，将控制信号转换为模拟信号</li>
+                                        <li>执行机构：根据DAC0832输出的模拟信号执行相应的控制动作</li>
+                                        <li>显示模块：LCD1602液晶显示器，显示采集到的数据和系统状态</li>
+                                    </ul>
+                                    
+                                    <h4 class="font-semibold text-primary mt-4 mb-3">工作原理</h4>
+                                    <p>系统通过ADC0809依次采集多个传感器的模拟信号，并将其转换为数字信号。单片机对这些数字信号进行处理和分析，根据预设的控制策略生成相应的控制信号。控制信号通过DAC0832转换为模拟信号，驱动执行机构实现对系统的控制。同时，单片机将采集到的数据和系统状态显示在LCD1602上。</p>
+                                    
+                                    <h4 class="font-semibold text-primary mt-4 mb-3">程序设计</h4>
+                                    <p>以下是基于AT89C51单片机的数据采集与控制系统的汇编程序框架：</p>
+                                    <pre class="bg-dark text-gray-100 p-4 rounded-lg overflow-x-auto"><code>; 数据采集与控制系统程序
+; 使用ADC0809采集多路模拟信号，使用DAC0832输出控制信号
+
+ORG 0000H
+LJMP MAIN        ; 跳转到主程序
+
+ORG 0030H
+MAIN:
+    ; 系统初始化
+    MOV SP, #60H    ; 设置堆栈指针
+    
+    ; 初始化ADC0809
+    ACALL ADC_INIT
+    
+    ; 初始化DAC0832
+    ACALL DAC_INIT
+    
+    ; 初始化LCD1602
+    ACALL LCD_INIT
+    
+    ; 初始化控制参数
+    MOV CONTROL_PARAM, #128  ; 默认控制参数
+    
+    ; 主循环
+MAIN_LOOP:
+    ; 采集多路模拟信号
+    ACALL COLLECT_DATA
+    
+    ; 处理采集的数据
+    ACALL PROCESS_DATA
+    
+    ; 生成控制信号
+    ACALL GENERATE_CONTROL
+    
+    ; 输出控制信号
+    ACALL OUTPUT_CONTROL
+    
+    ; 显示数据和状态
+    ACALL DISPLAY_STATUS
+    
+    ; 延时
+    MOV R7, #100
+DELAY_LOOP:
+    MOV R6, #250
+    DJNZ R6, $
+    DJNZ R7, DELAY_LOOP
+    
+    SJMP MAIN_LOOP   ; 无限循环
+
+; 数据采集子程序
+COLLECT_DATA:
+    ; 采集第1路数据
+    MOV CHANNEL, #0
+    ACALL READ_CHANNEL
+    MOV DATA_CHANNEL0, A
+    
+    ; 采集第2路数据
+    MOV CHANNEL, #1
+    ACALL READ_CHANNEL
+    MOV DATA_CHANNEL1, A
+    
+    ; 采集第3路数据
+    MOV CHANNEL, #2
+    ACALL READ_CHANNEL
+    MOV DATA_CHANNEL2, A
+    
+    ; 采集第4路数据
+    MOV CHANNEL, #3
+    ACALL READ_CHANNEL
+    MOV DATA_CHANNEL3, A
+    
+    RET
+
+READ_CHANNEL:
+    ; 选择通道
+    MOV P1, CHANNEL
+    
+    ; 锁存地址
+    SETB P3.0        ; ALE=1
+    CLR P3.0         ; ALE=0
+    
+    ; 启动转换
+    SETB P3.1        ; START=1
+    CLR P3.1         ; START=0
+    
+    ; 等待转换完成
+    JNB P3.2, $      ; 等待EOC=1
+    
+    ; 读取数据
+    SETB P3.3        ; OE=1
+    MOV A, P2        ; 读取转换结果
+    CLR P3.3         ; OE=0
+    
+    RET
+
+; 数据处理子程序
+PROCESS_DATA:
+    ; 这里是对采集到的数据进行处理和分析的代码
+    ; ...
+    
+    ; 根据处理结果更新控制参数
+    ; ...
+    
+    RET
+
+; 控制信号生成子程序
+GENERATE_CONTROL:
+    ; 根据处理结果生成控制信号
+    ; ...
+    
+    ; 将控制信号存入CONTROL_DATA
+    MOV CONTROL_DATA, #128  ; 示例值
+    
+    RET
+
+; 控制信号输出子程序
+OUTPUT_CONTROL:
+    ; 输出数据到DAC0832
+    MOV A, CONTROL_DATA
+    
+    ; 选通DAC0832
+    CLR P3.0         ; /CS=0
+    CLR P3.1         ; /WR1=0
+    
+    ; 输出数据
+    MOV P2, A
+    
+    ; 锁存数据
+    SETB P3.1        ; /WR1=1
+    SETB P3.0        ; /CS=1
+    
+    ; 选通DAC寄存器
+    CLR P3.2         ; /XFER=0
+    CLR P3.3         ; /WR2=0
+    SETB P3.3        ; /WR2=1
+    SETB P3.2        ; /XFER=1
+    
+    RET
+
+; 显示子程序
+DISPLAY_STATUS:
+    ; 在LCD上显示采集的数据和系统状态
+    ; ...
+    RET
+
+; 数据区
+CHANNEL: DB 0        ; 当前采集通道
+DATA_CHANNEL0: DB 0  ; 通道0数据
+DATA_CHANNEL1: DB 0  ; 通道1数据
+DATA_CHANNEL2: DB 0  ; 通道2数据
+DATA_CHANNEL3: DB 0  ; 通道3数据
+CONTROL_DATA: DB 0   ; 控制数据
+CONTROL_PARAM: DB 0  ; 控制参数
+
+END</code></pre>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 章节6：本章总结 -->
+                <section id="section6" class="mb-16 scroll-mt-20">
+                    <div class="bg-white rounded-xl shadow-md p-6 md:p-8 hover-scale">
+                        <h2 class="text-[clamp(1.5rem,3vw,2rem)] font-bold text-dark mb-6 flex items-center">
+                            <span class="bg-primary text-white w-10 h-10 rounded-full flex items-center justify-center mr-3">6</span>
+                            本章总结
+                        </h2>
+                        
+                        <div class="space-y-6">
+                            <div class="prose max-w-none">
+                                <h3 class="text-xl font-semibold text-dark">本章重点内容回顾</h3>
+                                <p>本章主要介绍了A/D转换和D/A转换的基本原理、性能指标，以及典型芯片ADC0809和DAC0832的内部结构、引脚功能和应用案例。主要内容包括：</p>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                                    <div class="bg-gray-50 p-4 rounded-lg">
+                                        <h4 class="font-semibold text-primary mb-2">1. A/D转换技术</h4>
+                                        <ul class="list-disc pl-5 space-y-1">
+                                            <li>A/D转换的基本概念和过程</li>
+                                            <li>A/D转换器的主要性能指标</li>
+                                            <li>A/D转换器的分类和特点</li>
+                                            <li>ADC0809的内部结构和引脚功能</li>
+                                            <li>ADC0809的工作时序和应用方法</li>
+                                        </ul>
+                                    </div>
+                                    <div class="bg-gray-50 p-4 rounded-lg">
+                                        <h4 class="font-semibold text-primary mb-2">2. D/A转换技术</h4>
+                                        <ul class="list-disc pl-5 space-y-1">
+                                            <li>D/A转换的基本概念和原理</li>
+                                            <li>D/A转换器的主要性能指标</li>
+                                            <li>D/A转换器的分类和特点</li>
+                                            <li>DAC0832的内部结构和引脚功能</li>
+                                            <li>DAC0832的工作方式和应用电路</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="prose max-w-none">
+                                <h3 class="text-xl font-semibold text-dark">ADC0809与DAC0832对比</h3>
+                                <p>ADC0809和DAC0832是单片机应用系统中常用的A/D和D/A转换器，它们的主要特点和区别如下：</p>
+                                <div class="overflow-x-auto mt-4">
+                                    <table class="min-w-full bg-white border border-gray-300 rounded-lg">
+                                        <thead>
+                                            <tr class="bg-gray-100">
+                                                <th class="py-3 px-4 text-left font-semibold text-dark border-b">比较项目</th>
+                                                <th class="py-3 px-4 text-left font-semibold text-dark border-b">ADC0809</th>
+                                                <th class="py-3 px-4 text-left font-semibold text-dark border-b">DAC0832</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody class="divide-y divide-gray-200">
+                                            <tr>
+                                                <td class="py-3 px-4"><strong>功能</strong></td>
+                                                <td class="py-3 px-4">模拟-数字转换</td>
+                                                <td class="py-3 px-4">数字-模拟转换</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="py-3 px-4"><strong>位数</strong></td>
+                                                <td class="py-3 px-4">8位</td>
+                                                <td class="py-3 px-4">8位</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="py-3 px-4"><strong>分辨率</strong></td>
+                                                <td class="py-3 px-4">1/256</td>
+                                                <td class="py-3 px-4">1/256</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="py-3 px-4"><strong>输入/输出</strong></td>
+                                                <td class="py-3 px-4">8路模拟输入，8位数字输出</td>
+                                                <td class="py-3 px-4">8位数字输入，电流输出</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="py-3 px-4"><strong>转换时间</strong></td>
+                                                <td class="py-3 px-4">约100μs</td>
+                                                <td class="py-3 px-4">约1μs</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="py-3 px-4"><strong>工作方式</strong></td>
+                                                <td class="py-3 px-4">逐次逼近型</td>
+                                                <td class="py-3 px-4">倒T型电阻网络</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="py-3 px-4"><strong>输出形式</strong></td>
+                                                <td class="py-3 px-4">并行输出</td>
+                                                <td class="py-3 px-4">电流输出，需外接运放转换为电压</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="py-3 px-4"><strong>典型应用</strong></td>
+                                                <td class="py-3 px-4">数据采集系统</td>
+                                                <td class="py-3 px-4">波形发生器、控制系统</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+
+                            <div class="prose max-w-none">
+                                <h3 class="text-xl font-semibold text-dark">实际应用中的注意事项</h3>
+                                <p>在实际应用中，使用ADC0809和DAC0832时需要注意以下几点：</p>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                                    <div class="bg-gray-50 p-4 rounded-lg">
+                                        <h4 class="font-semibold text-primary mb-2">1. ADC0809使用注意事项</h4>
+                                        <ul class="list-disc pl-5 space-y-1">
+                                            <li>参考电压的稳定性直接影响转换精度</li>
+                                            <li>注意地址信号与ALE信号的配合</li>
+                                            <li>转换启动信号START的上升沿复位，下降沿启动转换</li>
+                                            <li>转换结束信号EOC可作为中断请求信号</li>
+                                            <li>输入信号的范围应在0~5V之间</li>
+                                        </ul>
+                                    </div>
+                                    <div class="bg-gray-50 p-4 rounded-lg">
+                                        <h4 class="font-semibold text-primary mb-2">2. DAC0832使用注意事项</h4>
+                                        <ul class="list-disc pl-5 space-y-1">
+                                            <li>输出是电流信号，需外接运算放大器转换为电压</li>
+                                            <li>双缓冲方式可实现多路同步输出</li>
+                                            <li>注意控制信号的时序配合</li>
+                                            <li>参考电压的精度影响输出精度</li>
+                                            <li>数字地和模拟地应正确连接</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="prose max-w-none">
+                                <h3 class="text-xl font-semibold text-dark">学习感悟与建议</h3>
+                                <p>A/D转换和D/A转换是单片机应用系统中非常重要的组成部分，它们实现了数字系统与模拟世界的连接。通过本章的学习，我们了解了A/D和D/A转换的基本原理、性能指标，以及典型芯片ADC0809和DAC0832的使用方法。</p>
+                                <p>学习建议：</p>
+                                <ul class="list-disc pl-5 space-y-2">
+                                    <li>深入理解A/D和D/A转换的基本原理，掌握分辨率、转换精度等重要概念</li>
+                                    <li>熟练掌握ADC0809和DAC0832的引脚功能和工作时序</li>
+                                    <li>多做实验，通过实际操作加深对理论知识的理解</li>
+                                    <li>学习和分析实际应用案例，提高解决实际问题的能力</li>
+                                    <li>关注A/D和D/A转换技术的发展趋势，了解新型芯片的特点和应用</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 参考文献 -->
+                <!--<section id="references" class="mb-16 scroll-mt-20">
+                    <div class="bg-white rounded-xl shadow-md p-6 md:p-8 hover-scale">
+                        <h2 class="text-2xl font-bold text-dark mb-6">参考文献</h2>
+                        <div class="space-y-4">
+                            <div class="flex items-start">
+                                <div class="bg-primary text-white w-8 h-8 rounded-full flex items-center justify-center mr-3 mt-1 flex-shrink-0">1</div>
+                                <div>
+                                    <p class="font-medium">魏寿明. 单片机技术与应用[M]. 高等教育出版社, 2020.</p>
+                                    <p class="text-gray-600 text-sm mt-1">本书系统介绍了单片机的基本原理、指令系统、接口技术和应用实例，是中职院校单片机课程的优秀教材。</p>
+                                </div>
+                            </div>
+                            <div class="flex items-start">
+                                <div class="bg-primary text-white w-8 h-8 rounded-full flex items-center justify-center mr-3 mt-1 flex-shrink-0">2</div>
+                                <div>
+                                    <p class="font-medium">ADC0809数据手册[Z]. 美国国家半导体公司, 2018.</p>
+                                    <p class="text-gray-600 text-sm mt-1">详细介绍了ADC0809的技术参数、内部结构、引脚功能和应用电路等内容。</p>
+                                </div>
+                            </div>
+                            <div class="flex items-start">
+                                <div class="bg-primary text-white w-8 h-8 rounded-full flex items-center justify-center mr-3 mt-1 flex-shrink-0">3</div>
+                                <div>
+                                    <p class="font-medium">DAC0832数据手册[Z]. 美国国家半导体公司, 2019.</p>
+                                    <p class="text-gray-600 text-sm mt-1">详细介绍了DAC0832的技术参数、内部结构、引脚功能和应用电路等内容。</p>
+                                </div>
+                            </div>
+                            <div class="flex items-start">
+                                <div class="bg-primary text-white w-8 h-8 rounded-full flex items-center justify-center mr-3 mt-1 flex-shrink-0">4</div>
+                                <div>
+                                    <p class="font-medium">李朝青. 单片机原理及接口技术[M]. 北京航空航天大学出版社, 2018.</p>
+                                    <p class="text-gray-600 text-sm mt-1">本书全面介绍了单片机的原理、接口技术和应用，内容丰富，实用性强。</p>
+                                </div>
+                            </div>
+                            <div class="flex items-start">
+                                <div class="bg-primary text-white w-8 h-8 rounded-full flex items-center justify-center mr-3 mt-1 flex-shrink-0">5</div>
+                                <div>
+                                    <p class="font-medium">AT89C51单片机数据手册[Z]. ATMEL公司, 2017.</p>
+                                    <p class="text-gray-600 text-sm mt-1">详细介绍了AT89C51单片机的技术参数、引脚功能和指令系统等内容。</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>-->
+
+                <!-- 知识测验 -->
+                <section id="quiz" class="mb-16 scroll-mt-20">
+                    <div class="bg-white rounded-xl shadow-md p-6 md:p-8 hover-scale">
+                        <h2 class="text-2xl font-bold text-dark mb-6">知识测验<h2 class="text-2xl font-bold text-dark mb-6"><!--知识测验--></h2>
+                        <p class="mb-6">以下是关于本章内容的测验题，帮助你巩固所学知识。请认真思考后选择答案。</p>
+                        
+                        <div class="space-y-8" id="quiz-container">
+                            <!-- 问题1 -->
+                            <div class="bg-gray-50 p-6 rounded-lg">
+                                <h3 class="font-semibold text-lg mb-4">1. A/D转换的基本步骤不包括以下哪一项？</h3>
+                                <div class="space-y-3">
+                                    <div class="flex items-center">
+                                        <input type="radio" id="q1-a" name="q1" class="w-4 h-4 text-primary focus:ring-primary">
+                                        <label for="q1-a" class="ml-2">A. 采样</label>
+                                    </div>
+                                    <div class="flex items-center">
+                                        <input type="radio" id="q1-b" name="q1" class="w-4 h-4 text-primary focus:ring-primary">
+                                        <label for="q1-b" class="ml-2">B. 保持</label>
+                                    </div>
+                                    <div class="flex items-center">
+                                        <input type="radio" id="q1-c" name="q1" class="w-4 h-4 text-primary focus:ring-primary">
+                                        <label for="q1-c" class="ml-2">C. 放大</label>
+                                    </div>
+                                    <div class="flex items-center">
+                                        <input type="radio" id="q1-d" name="q1" class="w-4 h-4 text-primary focus:ring-primary">
+                                        <label for="q1-d" class="ml-2">D. 量化</label>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- 问题2 -->
+                            <div class="bg-gray-50 p-6 rounded-lg">
+                                <h3 class="font-semibold text-lg mb-4">2. ADC0809的分辨率是多少？</h3>
+                                <div class="space-y-3">
+                                    <div class="flex items-center">
+                                        <input type="radio" id="q2-a" name="q2" class="w-4 h-4 text-primary focus:ring-primary">
+                                        <label for="q2-a" class="ml-2">A. 4位</label>
+                                    </div>
+                                    <div class="flex items-center">
+                                        <input type="radio" id="q2-b" name="q2" class="w-4 h-4 text-primary focus:ring-primary">
+                                        <label for="q2-b" class="ml-2">B. 8位</label>
+                                    </div>
+                                    <div class="flex items-center">
+                                        <input type="radio" id="q2-c" name="q2" class="w-4 h-4 text-primary focus:ring-primary">
+                                        <label for="q2-c" class="ml-2">C. 10位</label>
+                                    </div>
+                                    <div class="flex items-center">
+                                        <input type="radio" id="q2-d" name="q2" class="w-4 h-4 text-primary focus:ring-primary">
+                                        <label for="q2-d" class="ml-2">D. 12位</label>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- 问题3 -->
+                            <div class="bg-gray-50 p-6 rounded-lg">
+                                <h3 class="font-semibold text-lg mb-4">3. DAC0832的输出是什么类型的信号？</h3>
+                                <div class="space-y-3">
+                                    <div class="flex items-center">
+                                        <input type="radio" id="q3-a" name="q3" class="w-4 h-4 text-primary focus:ring-primary">
+                                        <label for="q3-a" class="ml-2">A. 电压信号</label>
+                                    </div>
+                                    <div class="flex items-center">
+                                        <input type="radio" id="q3-b" name="q3" class="w-4 h-4 text-primary focus:ring-primary">
+                                        <label for="q3-b" class="ml-2">B. 电流信号</label>
+                                    </div>
+                                    <div class="flex items-center">
+                                        <input type="radio" id="q3-c" name="q3" class="w-4 h-4 text-primary focus:ring-primary">
+                                        <label for="q3-c" class="ml-2">C. 数字信号</label>
+                                    </div>
+                                    <div class="flex items-center">
+                                        <input type="radio" id="q3-d" name="q3" class="w-4 h-4 text-primary focus:ring-primary">
+                                        <label for="q3-d" class="ml-2">D. 脉冲信号</label>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- 问题4 -->
+                            <div class="bg-gray-50 p-6 rounded-lg">
+                                <h3 class="font-semibold text-lg mb-4">4. ADC0809的EOC引脚的作用是什么？</h3>
+                                <div class="space-y-3">
+                                    <div class="flex items-center">
+                                        <input type="radio" id="q4-a" name="q4" class="w-4 h-4 text-primary focus:ring-primary">
+                                        <label for="q4-a" class="ml-2">A. 地址锁存允许</label>
+                                    </div>
+                                    <div class="flex items-center">
+                                        <input type="radio" id="q4-b" name="q4" class="w-4 h-4 text-primary focus:ring-primary">
+                                        <label for="q4-b" class="ml-2">B. 转换启动</label>
+                                    </div>
+                                    <div class="flex items-center">
+                                        <input type="radio" id="q4-c" name="q4" class="w-4 h-4 text-primary focus:ring-primary">
+                                        <label for="q4-c" class="ml-2">C. 转换结束</label>
+                                    </div>
+                                    <div class="flex items-center">
+                                        <input type="radio" id="q4-d" name="q4" class="w-4 h-4 text-primary focus:ring-primary">
+                                        <label for="q4-d" class="ml-2">D. 输出允许</label>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- 问题5 -->
+                            <div class="bg-gray-50 p-6 rounded-lg">
+                                <h3 class="font-semibold text-lg mb-4">5. DAC0832的双缓冲工作方式适用于什么场合？</h3>
+                                <div class="space-y-3">
+                                    <div class="flex items-center">
+                                        <input type="radio" id="q5-a" name="q5" class="w-4 h-4 text-primary focus:ring-primary">
+                                        <label for="q5-a" class="ml-2">A. 单通道D/A转换</label>
+                                    </div>
+                                    <div class="flex items-center">
+                                        <input type="radio" id="q5-b" name="q5" class="w-4 h-4 text-primary focus:ring-primary">
+                                        <label for="q5-b" class="ml-2">B. 多路D/A转换同步输出</label>
+                                    </div>
+                                    <div class="flex items-center">
+                                        <input type="radio" id="q5-c" name="q5" class="w-4 h-4 text-primary focus:ring-primary">
+                                        <label for="q5-c" class="ml-2">C. 高速D/A转换</label>
+                                    </div>
+                                    <div class="flex items-center">
+                                        <input type="radio" id="q5-d" name="q5" class="w-4 h-4 text-primary focus:ring-primary">
+                                        <label for="q5-d" class="ml-2">D. 低功耗D/A转换</label>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <button id="submit-quiz" class="bg-primary hover:bg-primary/90 text-white px-6 py-3 rounded-lg transition-all duration-200">
+                                提交答案
+                            </button>
+                            <div id="quiz-result" class="hidden mt-6 p-4 rounded-lg"></div>
+                        </div>
+                    </div>
+                </section>
+            </main>
+
+            <!-- 页脚 -->
+            <footer class="bg-dark text-white py-12">
+                <div class="container mx-auto px-4">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                        <div>
+                            <h3 class="text-xl font-bold mb-4">《单片机技术与应用》</h3>
+                            <p class="text-gray-400">第八章 ADC0809与DAC0832 知识要点</p>
+                            <p class="text-gray-400 mt-2"></p>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-semibold mb-4">相关资源</h3>
+                            <ul class="space-y-2">
+                                <li><a href="#" class="text-gray-400 hover:text-white transition-colors">教材官网</a></li>
+                                <li><a href="#" class="text-gray-400 hover:text-white transition-colors">教学课件</a></li>
+                                <li><a href="#" class="text-gray-400 hover:text-white transition-colors">实验指导</a></li>
+                                <li><a href="#" class="text-gray-400 hover:text-white transition-colors">在线测试</a></li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-semibold mb-4">联系我们</h3>
+                            <p class="text-gray-400">如有疑问或建议，请联系我们</p>
+                            <p class="text-gray-400 mt-2">单片机课程QQ群：370743825</p>
+                            <p class="text-gray-400">QQ：50394113</p>
+                        </div>
+                    </div>
+                    <div class="border-t border-gray-800 mt-8 pt-8 text-center text-gray-500">
+                        <p>《单片机技术与应用》课程  &copy; 王老师. 保留所有权利.</p>
+                    </div>
+                </div>
+            </footer>
+        </div>
+    </div>
+
+    <script>
+        // 侧边栏切换
+        document.getElementById('menu-toggle').addEventListener('click', function() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('-translate-x-full');
+        });
+
+        function closeSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.add('-translate-x-full');
+        }
+
+        // 搜索框切换
+        document.getElementById('search-btn').addEventListener('click', function() {
+            const searchContainer = document.getElementById('search-container');
+            searchContainer.classList.toggle('hidden');
+            
+            if (!searchContainer.classList.contains('hidden')) {
+                document.getElementById('search-input').focus();
+            }
+        });
+
+        // 主题切换
+        document.getElementById('theme-toggle').addEventListener('click', function() {
+            document.body.classList.toggle('dark-mode');
+            const icon = this.querySelector('i');
+            if (icon.classList.contains('fa-moon-o')) {
+                icon.classList.remove('fa-moon-o');
+                icon.classList.add('fa-sun-o');
+            } else {
+                icon.classList.remove('fa-sun-o');
+                icon.classList.add('fa-moon-o');
+            }
+        });
+
+        // 平滑滚动
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                
+                const targetId = this.getAttribute('href');
+                const targetElement = document.querySelector(targetId);
+                
+                if (targetElement) {
+                    window.scrollTo({
+                        top: targetElement.offsetTop - 80,
+                        behavior: 'smooth'
+                    });
+                    
+                    // 更新侧边栏活动状态
+                    document.querySelectorAll('.sidebar-link').forEach(link => {
+                        link.classList.remove('active');
+                    });
+                    this.classList.add('active');
+                }
+            });
+        });
+
+        // 知识测验提交
+        document.getElementById('submit-quiz').addEventListener('click', function() {
+            const answers = {
+                q1: 'q1-c',
+                q2: 'q2-b',
+                q3: 'q3-b',
+                q4: 'q4-c',
+                q5: 'q5-b'
+            };
+            
+            let score = 0;
+            const total = Object.keys(answers).length;
+            
+            for (const [question, correctAnswer] of Object.entries(answers)) {
+                const selectedAnswer = document.querySelector(`input[name="${question}"]:checked`);
+                if (selectedAnswer && selectedAnswer.id === correctAnswer) {
+                    score++;
+                }
+            }
+            
+            const resultContainer = document.getElementById('quiz-result');
+            resultContainer.classList.remove('hidden', 'bg-green-100', 'bg-red-100', 'text-green-800', 'text-red-800');
+            
+            if (score === total) {
+                resultContainer.classList.add('bg-green-100', 'text-green-800');
+                resultContainer.innerHTML = `
+                    <div class="flex items-center">
+                        <i class="fa fa-check-circle text-2xl text-green-500 mr-3"></i>
+                        <div>
+                            <h4 class="font-semibold">恭喜！你答对了所有问题！</h4>
+                            <p>得分：${score}/${total}</p>
+                        </div>
+                    </div>
+                `;
+            } else {
+                resultContainer.classList.add('bg-red-100', 'text-red-800');
+                resultContainer.innerHTML = `
+                    <div class="flex items-center">
+                        <i class="fa fa-times-circle text-2xl text-red-500 mr-3"></i>
+                        <div>
+                            <h4 class="font-semibold">继续努力！</h4>
+                            <p>得分：${score}/${total}</p>
+                        </div>
+                    </div>
+                `;
+            }
+            
+            // 滚动到结果
+            resultContainer.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        });
+    </script>
+</body>
+</html>
+    

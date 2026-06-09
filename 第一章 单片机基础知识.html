@@ -1,0 +1,1450 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>《单片机技术与应用》第一章 单片机基础</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: '#165DFF',
+            secondary: '#FF7D00',
+            neutral: {
+              100: '#F5F7FA',
+              200: '#E4E7ED',
+              300: '#C0C6CF',
+              400: '#909399',
+              500: '#606266',
+              600: '#303133',
+              700: '#1E1E1E',
+            }
+          },
+          fontFamily: {
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+          },
+        },
+      }
+    }
+  </script>
+  <style type="text/tailwindcss">
+    @layer utilities {
+      .content-auto {
+        content-visibility: auto;
+      }
+      .text-shadow {
+        text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      }
+      .card-hover {
+        transition: all 0.3s ease;
+      }
+      .card-hover:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+      }
+      .section-padding {
+        padding-top: clamp(2rem, 5vw, 4rem);
+        padding-bottom: clamp(2rem, 5vw, 4rem);
+      }
+      .fade-in {
+        animation: fadeIn 0.8s ease-in-out;
+      }
+      @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
+    }
+  </style>
+</head>
+<body class="bg-neutral-100 text-neutral-700 font-sans">
+  <!-- 导航栏 -->
+  <header class="sticky top-0 z-50 bg-white shadow-md transition-all duration-300" id="navbar">
+    <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+      <div class="flex items-center space-x-2">
+        <i class="fa fa-microchip text-primary text-2xl"></i>
+        <h1 class="text-xl md:text-2xl font-bold text-neutral-700">单片机技术与应用</h1>
+      </div>
+      <nav class="hidden md:flex items-center space-x-8">
+        <a href="/" class="text-neutral-600 hover:text-primary transition-colors font-medium">首页</a>
+        <a href="#overview" class="text-neutral-600 hover:text-primary transition-colors font-medium">单片机概述</a>
+        <a href="#number-system" class="text-neutral-600 hover:text-primary transition-colors font-medium">数制及转换</a>
+        <a href="#binary-operation" class="text-neutral-600 hover:text-primary transition-colors font-medium">二进制运算</a>
+        <a href="#data-unit" class="text-neutral-600 hover:text-primary transition-colors font-medium">数据单位与存储</a>
+        <a href="#signed-number" class="text-neutral-600 hover:text-primary transition-colors font-medium">带符号数</a>
+        <a href="#bcd-ascii" class="text-neutral-600 hover:text-primary transition-colors font-medium">BCD码和ASCII码</a>
+        <a href="#summary" class="text-neutral-600 hover:text-primary transition-colors font-medium">本章总结</a>
+      </nav>
+      <button class="md:hidden text-neutral-600 focus:outline-none" id="menu-toggle">
+        <i class="fa fa-bars text-xl"></i>
+      </button>
+    </div>
+    <!-- 移动端菜单 -->
+    <div class="md:hidden hidden bg-white border-t border-neutral-200" id="mobile-menu">
+      <div class="container mx-auto px-4 py-3 flex flex-col space-y-4">
+        <a href="/" class="text-neutral-600 hover:text-primary transition-colors py-2 font-medium">首页</a>
+        
+        <a href="#overview" class="text-neutral-600 hover:text-primary transition-colors py-2 font-medium">单片机概述</a>
+        <a href="#number-system" class="text-neutral-600 hover:text-primary transition-colors py-2 font-medium">数制及转换</a>
+        <a href="#binary-operation" class="text-neutral-600 hover:text-primary transition-colors py-2 font-medium">二进制运算</a>
+        <a href="#data-unit" class="text-neutral-600 hover:text-primary transition-colors py-2 font-medium">数据单位与存储</a>
+        <a href="#signed-number" class="text-neutral-600 hover:text-primary transition-colors py-2 font-medium">带符号数</a>
+        <a href="#bcd-ascii" class="text-neutral-600 hover:text-primary transition-colors py-2 font-medium">BCD码和ASCII码</a>
+        <a href="#summary" class="text-neutral-600 hover:text-primary transition-colors py-2 font-medium">本章总结</a>
+      </div>
+    </div>
+  </header>
+
+  <!-- 封面 -->
+  <section class="relative bg-gradient-to-br from-primary to-primary/80 text-white py-16 md:py-24 overflow-hidden">
+    <div class="absolute inset-0 opacity-10">
+      <div class="absolute top-0 left-0 w-full h-full bg-[url('https://picsum.photos/id/1/1200/800')] bg-cover bg-center"></div>
+    </div>
+    <div class="container mx-auto px-4 relative z-10">
+      <div class="max-w-3xl mx-auto text-center fade-in">
+        <h1 class="text-[clamp(2rem,5vw,3.5rem)] font-bold mb-4 leading-tight text-shadow">单片机技术与应用</h1>
+        <h2 class="text-[clamp(1.5rem,3vw,2.5rem)] font-medium mb-8 text-white/90">第一章 单片机基础</h2>
+        <div class="flex justify-center items-center space-x-4 mb-8">
+          <span class="px-4 py-2 bg-white/20 rounded-full backdrop-blur-sm">单片机技术与应用</span>
+          <span class="px-4 py-2 bg-white/20 rounded-full backdrop-blur-sm">王老师 整理</span>
+        </div>
+        <a href="#overview" class="inline-block px-8 py-3 bg-white text-primary font-bold rounded-lg shadow-lg hover:shadow-xl transition-all transform hover:-translate-y-1">
+          开始学习 <i class="fa fa-arrow-down ml-2"></i>
+        </a>
+      </div>
+    </div>
+    <div class="absolute bottom-0 left-0 w-full h-16 bg-gradient-to-t from-neutral-100 to-transparent"></div>
+  </section>
+
+  <!-- 章节内容 -->
+  <main class="container mx-auto px-4 py-12">
+    <!-- 单片机概述 -->
+    <section id="overview" class="mb-20 scroll-mt-24">
+      <div class="bg-white rounded-xl shadow-lg overflow-hidden card-hover">
+        <div class="bg-primary text-white p-6 md:p-8">
+          <h2 class="text-[clamp(1.5rem,3vw,2rem)] font-bold flex items-center">
+            <span class="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center mr-4">1.1</span>
+            单片机概述
+          </h2>
+        </div>
+        <div class="p-6 md:p-8">
+          <div class="flex flex-col md:flex-row gap-8">
+            <div class="md:w-2/3">
+              <h3 class="text-xl font-bold mb-4 text-neutral-700">1.1.1 单片机的基本概念</h3>
+              <p class="mb-4 text-neutral-600 leading-relaxed">
+                单片机（Microcontroller Unit，MCU），又称微控制器，是将中央处理器（CPU）、存储器（RAM、ROM）、输入/输出接口（I/O口）、定时器/计数器、串行通信接口等功能部件集成在一块芯片上的微型计算机系统。
+              </p>
+              <p class="mb-6 text-neutral-600 leading-relaxed">
+                单片机具有体积小、功耗低、控制功能强、扩展灵活、微型化和使用方便等优点，广泛应用于工业控制、智能仪器仪表、家用电器、汽车电子、通信设备等领域。
+              </p>
+
+              <h3 class="text-xl font-bold mb-4 text-neutral-700">1.1.2 单片机的发展历程</h3>
+              <div class="space-y-4 mb-6">
+                <div class="flex items-start">
+                  <div class="bg-primary/10 text-primary rounded-full w-6 h-6 flex items-center justify-center flex-shrink-0 mt-1 mr-3">1</div>
+                  <div>
+                    <h4 class="font-bold text-neutral-700">第一阶段（1974-1978年）：初级单片机阶段</h4>
+                    <p class="text-neutral-600">以Intel 8048为代表，采用8位CPU，寻址范围有限，片内资源较少。</p>
+                  </div>
+                </div>
+                <div class="flex items-start">
+                  <div class="bg-primary/10 text-primary rounded-full w-6 h-6 flex items-center justify-center flex-shrink-0 mt-1 mr-3">2</div>
+                  <div>
+                    <h4 class="font-bold text-neutral-700">第二阶段（1978-1983年）：高性能单片机阶段</h4>
+                    <p class="text-neutral-600">以Intel 8051为代表，具有丰富的片内资源，如定时器、串行口等，成为工业控制领域的主流产品。</p>
+                  </div>
+                </div>
+                <div class="flex items-start">
+                  <div class="bg-primary/10 text-primary rounded-full w-6 h-6 flex items-center justify-center flex-shrink-0 mt-1 mr-3">3</div>
+                  <div>
+                    <h4 class="font-bold text-neutral-700">第三阶段（1983-1990年）：16位单片机阶段</h4>
+                    <p class="text-neutral-600">以Intel 8096为代表，性能有了显著提升，但由于价格较高，应用范围有限。</p>
+                  </div>
+                </div>
+                <div class="flex items-start">
+                  <div class="bg-primary/10 text-primary rounded-full w-6 h-6 flex items-center justify-center flex-shrink-0 mt-1 mr-3">4</div>
+                  <div>
+                    <h4 class="font-bold text-neutral-700">第四阶段（1990年至今）：微控制器全面发展阶段</h4>
+                    <p class="text-neutral-600">以8位、16位、32位单片机并行发展为特点，片内资源更加丰富，集成了A/D、D/A转换器、PWM输出、USB接口等功能。</p>
+                  </div>
+                </div>
+              </div>
+
+              <h3 class="text-xl font-bold mb-4 text-neutral-700">1.1.3 单片机的应用领域</h3>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                <div class="bg-neutral-50 p-4 rounded-lg border border-neutral-200">
+                  <h4 class="font-bold text-primary mb-2 flex items-center">
+                    <i class="fa fa-industry mr-2"></i> 工业控制
+                  </h4>
+                  <p class="text-neutral-600">过程控制、数据采集、工业机器人、自动化生产线等。</p>
+                </div>
+                <div class="bg-neutral-50 p-4 rounded-lg border border-neutral-200">
+                  <h4 class="font-bold text-primary mb-2 flex items-center">
+                    <i class="fa fa-home mr-2"></i> 家用电器
+                  </h4>
+                  <p class="text-neutral-600">冰箱、空调、洗衣机、微波炉、智能灯具等。</p>
+                </div>
+                <div class="bg-neutral-50 p-4 rounded-lg border border-neutral-200">
+                  <h4 class="font-bold text-primary mb-2 flex items-center">
+                    <i class="fa fa-medkit mr-2"></i> 医疗设备
+                  </h4>
+                  <p class="text-neutral-600">心电图仪、血压计、血糖仪、输液泵等。</p>
+                </div>
+                <div class="bg-neutral-50 p-4 rounded-lg border border-neutral-200">
+                  <h4 class="font-bold text-primary mb-2 flex items-center">
+                    <i class="fa fa-car mr-2"></i> 汽车电子
+                  </h4>
+                  <p class="text-neutral-600">发动机控制系统、ABS防抱死系统、车载娱乐系统等。</p>
+                </div>
+                <div class="bg-neutral-50 p-4 rounded-lg border border-neutral-200">
+                  <h4 class="font-bold text-primary mb-2 flex items-center">
+                    <i class="fa fa-television mr-2"></i> 智能仪器仪表
+                  </h4>
+                  <p class="text-neutral-600">数字万用表、示波器、温度控制器、流量仪等。</p>
+                </div>
+                <div class="bg-neutral-50 p-4 rounded-lg border border-neutral-200">
+                  <h4 class="font-bold text-primary mb-2 flex items-center">
+                    <i class="fa fa-wifi mr-2"></i> 通信设备
+                  </h4>
+                  <p class="text-neutral-600">调制解调器、路由器、交换机、无线通信模块等。</p>
+                </div>
+              </div>
+
+              <h3 class="text-xl font-bold mb-4 text-neutral-700">1.1.4 单片机的特点</h3>
+              <ul class="list-disc pl-5 space-y-2 mb-6 text-neutral-600">
+                <li>体积小、重量轻、功耗低，适合嵌入式应用</li>
+                <li>可靠性高，抗干扰能力强，适应恶劣环境</li>
+                <li>控制功能强，指令系统中均有丰富的位操作指令</li>
+                <li>扩展灵活，可根据需要扩展各种外围设备</li>
+                <li>性价比高，适合大批量生产和应用</li>
+              </ul>
+
+              <h3 class="text-xl font-bold mb-4 text-neutral-700">1.1.5 单片机的分类</h3>
+              <div class="overflow-x-auto mb-6">
+                <table class="min-w-full bg-white border border-neutral-200 rounded-lg overflow-hidden">
+                  <thead class="bg-neutral-50">
+                    <tr>
+                      <th class="py-3 px-4 text-left font-bold text-neutral-700 border-b">分类方式</th>
+                      <th class="py-3 px-4 text-left font-bold text-neutral-700 border-b">类别</th>
+                      <th class="py-3 px-4 text-left font-bold text-neutral-700 border-b">特点及代表产品</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td class="py-3 px-4 border-b">按位数分</td>
+                      <td class="py-3 px-4 border-b">4位单片机</td>
+                      <td class="py-3 px-4 border-b">
+                        <p class="text-neutral-600">控制功能简单，主要用于简单的家电控制。</p>
+                        <p class="text-neutral-500">代表产品：东芝TMP47C系列。</p>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td class="py-3 px-4 border-b"></td>
+                      <td class="py-3 px-4 border-b">8位单片机</td>
+                      <td class="py-3 px-4 border-b">
+                        <p class="text-neutral-600">应用广泛，性能价格比高，适合一般控制应用。</p>
+                        <p class="text-neutral-500">代表产品：Intel 8051系列、Atmel AVR系列、Microchip PIC系列。</p>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td class="py-3 px-4 border-b"></td>
+                      <td class="py-3 px-4 border-b">16位单片机</td>
+                      <td class="py-3 px-4 border-b">
+                        <p class="text-neutral-600">性能较高，运算速度快，适合复杂控制应用。</p>
+                        <p class="text-neutral-500">代表产品：Intel 8096系列、Motorola MC68HC16系列。</p>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td class="py-3 px-4 border-b"></td>
+                      <td class="py-3 px-4 border-b">32位单片机</td>
+                      <td class="py-3 px-4 border-b">
+                        <p class="text-neutral-600">高性能、高集成度，适合高端应用。</p>
+                        <p class="text-neutral-500">代表产品：ARM Cortex-M系列、STM32系列。</p>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td class="py-3 px-4 border-b">按用途分</td>
+                      <td class="py-3 px-4 border-b">通用型单片机</td>
+                      <td class="py-3 px-4 border-b">
+                        <p class="text-neutral-600">适合各种应用场合，资源分配比较均衡。</p>
+                        <p class="text-neutral-500">代表产品：8051系列、PIC系列。</p>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td class="py-3 px-4 border-b"></td>
+                      <td class="py-3 px-4 border-b">专用型单片机</td>
+                      <td class="py-3 px-4 border-b">
+                        <p class="text-neutral-600">针对特定应用领域设计，资源优化配置。</p>
+                        <p class="text-neutral-500">代表产品：家电控制专用单片机、汽车电子专用单片机。</p>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+            <div class="md:w-1/3">
+              <div class="bg-neutral-50 p-6 rounded-xl sticky top-24">
+                <h3 class="text-lg font-bold mb-4 text-neutral-700 border-b pb-3">本章导航</h3>
+                <nav class="space-y-2">
+                  <a href="#overview" class="block py-2 px-4 text-neutral-600 hover:bg-primary/10 hover:text-primary rounded-lg transition-colors">
+                    <i class="fa fa-bookmark-o mr-2"></i> 1.1 单片机概述
+                  </a>
+                  <a href="#number-system" class="block py-2 px-4 text-neutral-600 hover:bg-primary/10 hover:text-primary rounded-lg transition-colors">
+                    <i class="fa fa-calculator mr-2"></i> 1.2 单片机中的数制及转换
+                  </a>
+                  <a href="#binary-operation" class="block py-2 px-4 text-neutral-600 hover:bg-primary/10 hover:text-primary rounded-lg transition-colors">
+                    <i class="fa fa-arithmetic mr-2"></i> 1.3 二进制运算
+                  </a>
+                  <a href="#data-unit" class="block py-2 px-4 text-neutral-600 hover:bg-primary/10 hover:text-primary rounded-lg transition-colors">
+                    <i class="fa fa-database mr-2"></i> 1.4 单片机中的数据单位，存储容量
+                  </a>
+                  <a href="#signed-number" class="block py-2 px-4 text-neutral-600 hover:bg-primary/10 hover:text-primary rounded-lg transition-colors">
+                    <i class="fa fa-plus-minus mr-2"></i> 1.5 带符号数
+                  </a>
+                  <a href="#bcd-ascii" class="block py-2 px-4 text-neutral-600 hover:bg-primary/10 hover:text-primary rounded-lg transition-colors">
+                    <i class="fa fa-code mr-2"></i> 1.6 BCD码和ASCII码
+                  </a>
+                  <a href="#summary" class="block py-2 px-4 text-neutral-600 hover:bg-primary/10 hover:text-primary rounded-lg transition-colors">
+                    <i class="fa fa-summary mr-2"></i> 1.7 本章总结
+                  </a>
+                </nav>
+                <div class="mt-8 pt-6 border-t border-neutral-200">
+                  <h3 class="text-lg font-bold mb-4 text-neutral-700">学习资源</h3>
+                  <div class="space-y-3">
+                    <a href="#" class="flex items-center p-3 bg-white border border-neutral-200 rounded-lg hover:border-primary hover:bg-primary/5 transition-colors">
+                      <i class="fa fa-file-pdf-o text-red-500 text-xl mr-3"></i>
+                      <div>
+                        <p class="font-medium text-neutral-700">第一章课件</p>
+                        <p class="text-sm text-neutral-500">PPT格式 (2.4MB)</p>
+                      </div>
+                    </a>
+                    <a href="#" class="flex items-center p-3 bg-white border border-neutral-200 rounded-lg hover:border-primary hover:bg-primary/5 transition-colors">
+                      <i class="fa fa-file-text-o text-blue-500 text-xl mr-3"></i>
+                      <div>
+                        <p class="font-medium text-neutral-700">课后习题答案</p>
+                        <p class="text-sm text-neutral-500">DOC格式 (1.1MB)</p>
+                      </div>
+                    </a>
+                    <a href="#" class="flex items-center p-3 bg-white border border-neutral-200 rounded-lg hover:border-primary hover:bg-primary/5 transition-colors">
+                      <i class="fa fa-youtube-play text-red-600 text-xl mr-3"></i>
+                      <div>
+                        <p class="font-medium text-neutral-700">教学视频</p>
+                        <p class="text-sm text-neutral-500">在线观看 (45分钟)</p>
+                      </div>
+                    </a>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 数制及转换 -->
+    <section id="number-system" class="mb-20 scroll-mt-24">
+      <div class="bg-white rounded-xl shadow-lg overflow-hidden card-hover">
+        <div class="bg-primary text-white p-6 md:p-8">
+          <h2 class="text-[clamp(1.5rem,3vw,2rem)] font-bold flex items-center">
+            <span class="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center mr-4">1.2</span>
+            单片机中的数制及转换
+          </h2>
+        </div>
+        <div class="p-6 md:p-8">
+          <h3 class="text-xl font-bold mb-4 text-neutral-700">1.2.1 常用数制及其表示方法</h3>
+          <div class="overflow-x-auto mb-6">
+            <table class="min-w-full bg-white border border-neutral-200 rounded-lg overflow-hidden">
+              <thead class="bg-neutral-50">
+                <tr>
+                  <th class="py-3 px-4 text-left font-bold text-neutral-700 border-b">数制</th>
+                  <th class="py-3 px-4 text-left font-bold text-neutral-700 border-b">基数</th>
+                  <th class="py-3 px-4 text-left font-bold text-neutral-700 border-b">数码</th>
+                  <th class="py-3 px-4 text-left font-bold text-neutral-700 border-b">位权</th>
+                  <th class="py-3 px-4 text-left font-bold text-neutral-700 border-b">表示方法</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td class="py-3 px-4 border-b">十进制</td>
+                  <td class="py-3 px-4 border-b">10</td>
+                  <td class="py-3 px-4 border-b">0、1、2、3、4、5、6、7、8、9</td>
+                  <td class="py-3 px-4 border-b">10^n</td>
+                  <td class="py-3 px-4 border-b">后缀D或省略，如25D或25</td>
+                </tr>
+                <tr>
+                  <td class="py-3 px-4 border-b">二进制</td>
+                  <td class="py-3 px-4 border-b">2</td>
+                  <td class="py-3 px-4 border-b">0、1</td>
+                  <td class="py-3 px-4 border-b">2^n</td>
+                  <td class="py-3 px-4 border-b">后缀B，如1011B</td>
+                </tr>
+                <tr>
+                  <td class="py-3 px-4 border-b">八进制</td>
+                  <td class="py-3 px-4 border-b">8</td>
+                  <td class="py-3 px-4 border-b">0、1、2、3、4、5、6、7</td>
+                  <td class="py-3 px-4 border-b">8^n</td>
+                  <td class="py-3 px-4 border-b">后缀Q，如37Q</td>
+                </tr>
+                <tr>
+                  <td class="py-3 px-4 border-b">十六进制</td>
+                  <td class="py-3 px-4 border-b">16</td>
+                  <td class="py-3 px-4 border-b">0、1、2、3、4、5、6、7、8、9、A、B、C、D、E、F</td>
+                  <td class="py-3 px-4 border-b">16^n</td>
+                  <td class="py-3 px-4 border-b">后缀H，如1FH</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <h3 class="text-xl font-bold mb-4 text-neutral-700">1.2.2 不同数制间的转换</h3>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+            <div>
+              <h4 class="font-bold text-primary mb-3 flex items-center">
+                <i class="fa fa-exchange mr-2"></i> 非十进制数转十进制数
+              </h4>
+              <p class="text-neutral-600 mb-3">方法：按位权展开相加。</p>
+              <div class="bg-neutral-50 p-4 rounded-lg border border-neutral-200 mb-4">
+                <h5 class="font-medium text-neutral-700 mb-2">例1：二进制转十进制</h5>
+                <p class="text-neutral-600">将二进制数1011B转换为十进制数。</p>
+                <p class="text-neutral-700 mt-2">1011B = 1×2³ + 0×2² + 1×2¹ + 1×2⁰ = 8 + 0 + 2 + 1 = 11D</p>
+              </div>
+              <div class="bg-neutral-50 p-4 rounded-lg border border-neutral-200">
+                <h5 class="font-medium text-neutral-700 mb-2">例2：十六进制转十进制</h5>
+                <p class="text-neutral-600">将十六进制数2AH转换为十进制数。</p>
+                <p class="text-neutral-700 mt-2">2AH = 2×16¹ + 10×16⁰ = 32 + 10 = 42D</p>
+              </div>
+            </div>
+            <div>
+              <h4 class="font-bold text-primary mb-3 flex items-center">
+                <i class="fa fa-exchange mr-2"></i> 十进制数转非十进制数
+              </h4>
+              <p class="text-neutral-600 mb-3">方法：整数部分采用除基取余法，小数部分采用乘基取整法。</p>
+              <div class="bg-neutral-50 p-4 rounded-lg border border-neutral-200 mb-4">
+                <h5 class="font-medium text-neutral-700 mb-2">例1：十进制转二进制</h5>
+                <p class="text-neutral-600">将十进制数25D转换为二进制数。</p>
+                <div class="mt-2">
+                  <pre class="text-neutral-700">25 ÷ 2 = 12 ... 1 (LSB)
+12 ÷ 2 = 6  ... 0
+6 ÷ 2 = 3   ... 0
+3 ÷ 2 = 1   ... 1
+1 ÷ 2 = 0   ... 1 (MSB)</pre>
+                  <p class="mt-2">结果：25D = 11001B</p>
+                </div>
+              </div>
+              <div class="bg-neutral-50 p-4 rounded-lg border border-neutral-200">
+                <h5 class="font-medium text-neutral-700 mb-2">例2：十进制转十六进制</h5>
+                <p class="text-neutral-600">将十进制数39D转换为十六进制数。</p>
+                <div class="mt-2">
+                  <pre class="text-neutral-700">39 ÷ 16 = 2 ... 7 (LSB)
+2 ÷ 16 = 0  ... 2 (MSB)</pre>
+                  <p class="mt-2">结果：39D = 27H</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+            <div>
+              <h4 class="font-bold text-primary mb-3 flex items-center">
+                <i class="fa fa-exchange mr-2"></i> 二进制与八进制、十六进制的转换
+              </h4>
+              <div class="bg-neutral-50 p-4 rounded-lg border border-neutral-200 mb-4">
+                <h5 class="font-medium text-neutral-700 mb-2">二进制 ↔ 八进制</h5>
+                <p class="text-neutral-600 mb-2">二进制转八进制：每3位二进制数对应1位八进制数。</p>
+                <p class="text-neutral-700">例：1101011B = 001 101 011 = 153Q</p>
+                <p class="text-neutral-600 mt-2 mb-2">八进制转二进制：每1位八进制数对应3位二进制数。</p>
+                <p class="text-neutral-700">例：72Q = 111 010 = 111010B</p>
+              </div>
+              <div class="bg-neutral-50 p-4 rounded-lg border border-neutral-200">
+                <h5 class="font-medium text-neutral-700 mb-2">二进制 ↔ 十六进制</h5>
+                <p class="text-neutral-600 mb-2">二进制转十六进制：每4位二进制数对应1位十六进制数。</p>
+                <p class="text-neutral-700">例：11011010B = 1101 1010 = DAH</p>
+                <p class="text-neutral-600 mt-2 mb-2">十六进制转二进制：每1位十六进制数对应4位二进制数。</p>
+                <p class="text-neutral-700">例：3FH = 0011 1111 = 111111B</p>
+              </div>
+            </div>
+            <div>
+              <h4 class="font-bold text-primary mb-3 flex items-center">
+                <i class="fa fa-table mr-2"></i> 常用进制转换表
+              </h4>
+              <div class="overflow-x-auto">
+                <table class="min-w-full bg-white border border-neutral-200 rounded-lg overflow-hidden">
+                  <thead class="bg-neutral-50">
+                    <tr>
+                      <th class="py-3 px-4 text-left font-bold text-neutral-700 border-b">十进制</th>
+                      <th class="py-3 px-4 text-left font-bold text-neutral-700 border-b">二进制</th>
+                      <th class="py-3 px-4 text-left font-bold text-neutral-700 border-b">八进制</th>
+                      <th class="py-3 px-4 text-left font-bold text-neutral-700 border-b">十六进制</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td class="py-3 px-4 border-b">0</td>
+                      <td class="py-3 px-4 border-b">0000</td>
+                      <td class="py-3 px-4 border-b">0</td>
+                      <td class="py-3 px-4 border-b">0</td>
+                    </tr>
+                    <tr>
+                      <td class="py-3 px-4 border-b">1</td>
+                      <td class="py-3 px-4 border-b">0001</td>
+                      <td class="py-3 px-4 border-b">1</td>
+                      <td class="py-3 px-4 border-b">1</td>
+                    </tr>
+                    <tr>
+                      <td class="py-3 px-4 border-b">2</td>
+                      <td class="py-3 px-4 border-b">0010</td>
+                      <td class="py-3 px-4 border-b">2</td>
+                      <td class="py-3 px-4 border-b">2</td>
+                    </tr>
+                    <tr>
+                      <td class="py-3 px-4 border-b">3</td>
+                      <td class="py-3 px-4 border-b">0011</td>
+                      <td class="py-3 px-4 border-b">3</td>
+                      <td class="py-3 px-4 border-b">3</td>
+                    </tr>
+                    <tr>
+                      <td class="py-3 px-4 border-b">4</td>
+                      <td class="py-3 px-4 border-b">0100</td>
+                      <td class="py-3 px-4 border-b">4</td>
+                      <td class="py-3 px-4 border-b">4</td>
+                    </tr>
+                    <tr>
+                      <td class="py-3 px-4 border-b">5</td>
+                      <td class="py-3 px-4 border-b">0101</td>
+                      <td class="py-3 px-4 border-b">5</td>
+                      <td class="py-3 px-4 border-b">5</td>
+                    </tr>
+                    <tr>
+                      <td class="py-3 px-4 border-b">6</td>
+                      <td class="py-3 px-4 border-b">0110</td>
+                      <td class="py-3 px-4 border-b">6</td>
+                      <td class="py-3 px-4 border-b">6</td>
+                    </tr>
+                    <tr>
+                      <td class="py-3 px-4 border-b">7</td>
+                      <td class="py-3 px-4 border-b">0111</td>
+                      <td class="py-3 px-4 border-b">7</td>
+                      <td class="py-3 px-4 border-b">7</td>
+                    </tr>
+                    <tr>
+                      <td class="py-3 px-4 border-b">8</td>
+                      <td class="py-3 px-4 border-b">1000</td>
+                      <td class="py-3 px-4 border-b">10</td>
+                      <td class="py-3 px-4 border-b">8</td>
+                    </tr>
+                    <tr>
+                      <td class="py-3 px-4 border-b">9</td>
+                      <td class="py-3 px-4 border-b">1001</td>
+                      <td class="py-3 px-4 border-b">11</td>
+                      <td class="py-3 px-4 border-b">9</td>
+                    </tr>
+                    <tr>
+                      <td class="py-3 px-4 border-b">10</td>
+                      <td class="py-3 px-4 border-b">1010</td>
+                      <td class="py-3 px-4 border-b">12</td>
+                      <td class="py-3 px-4 border-b">A</td>
+                    </tr>
+                    <tr>
+                      <td class="py-3 px-4 border-b">11</td>
+                      <td class="py-3 px-4 border-b">1011</td>
+                      <td class="py-3 px-4 border-b">13</td>
+                      <td class="py-3 px-4 border-b">B</td>
+                    </tr>
+                    <tr>
+                      <td class="py-3 px-4 border-b">12</td>
+                      <td class="py-3 px-4 border-b">1100</td>
+                      <td class="py-3 px-4 border-b">14</td>
+                      <td class="py-3 px-4 border-b">C</td>
+                    </tr>
+                    <tr>
+                      <td class="py-3 px-4 border-b">13</td>
+                      <td class="py-3 px-4 border-b">1101</td>
+                      <td class="py-3 px-4 border-b">15</td>
+                      <td class="py-3 px-4 border-b">D</td>
+                    </tr>
+                    <tr>
+                      <td class="py-3 px-4 border-b">14</td>
+                      <td class="py-3 px-4 border-b">1110</td>
+                      <td class="py-3 px-4 border-b">16</td>
+                      <td class="py-3 px-4 border-b">E</td>
+                    </tr>
+                    <tr>
+                      <td class="py-3 px-4 border-b">15</td>
+                      <td class="py-3 px-4 border-b">1111</td>
+                      <td class="py-3 px-4 border-b">17</td>
+                      <td class="py-3 px-4 border-b">F</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <h3 class="text-xl font-bold mb-4 text-neutral-700">1.2.3 单片机中数的表示</h3>
+          <p class="text-neutral-600 mb-4">在单片机中，数据通常以二进制形式存储和处理。为了方便表示和处理，常使用十六进制数。例如：</p>
+          <ul class="list-disc pl-5 space-y-2 mb-6 text-neutral-600">
+            <li>一个字节（8位）可以表示的无符号数范围是0~255（00H~FFH）</li>
+            <li>两个字节（16位）可以表示的无符号数范围是0~65535（0000H~FFFFH）</li>
+            <li>在单片机编程中，常用十六进制数来表示指令、地址和数据</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- 二进制运算 -->
+    <section id="binary-operation" class="mb-20 scroll-mt-24">
+      <div class="bg-white rounded-xl shadow-lg overflow-hidden card-hover">
+        <div class="bg-primary text-white p-6 md:p-8">
+          <h2 class="text-[clamp(1.5rem,3vw,2rem)] font-bold flex items-center">
+            <span class="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center mr-4">1.3</span>
+            二进制运算
+          </h2>
+        </div>
+        <div class="p-6 md:p-8">
+          <h3 class="text-xl font-bold mb-4 text-neutral-700">1.3.1 二进制算术运算</h3>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+            <div>
+              <h4 class="font-bold text-primary mb-3 flex items-center">
+                <i class="fa fa-plus mr-2"></i> 二进制加法
+              </h4>
+              <p class="text-neutral-600 mb-3">二进制加法规则与十进制加法类似，逢二进一。</p>
+              <div class="bg-neutral-50 p-4 rounded-lg border border-neutral-200">
+                <p class="text-neutral-700 mb-2">加法规则：</p>
+                <ul class="list-disc pl-5 space-y-1 text-neutral-600 mb-3">
+                  <li>0 + 0 = 0</li>
+                  <li>0 + 1 = 1</li>
+                  <li>1 + 0 = 1</li>
+                  <li>1 + 1 = 0（进位1）</li>
+                </ul>
+                <p class="text-neutral-700 mb-2">例：计算1011B + 1101B</p>
+                <pre class="text-neutral-700">  1011
++ 1101
+------
+ 11000</pre>
+                <p class="mt-2 text-neutral-600">结果：1011B + 1101B = 11000B</p>
+              </div>
+            </div>
+            <div>
+              <h4 class="font-bold text-primary mb-3 flex items-center">
+                <i class="fa fa-minus mr-2"></i> 二进制减法
+              </h4>
+              <p class="text-neutral-600 mb-3">二进制减法规则与十进制减法类似，借一当二。</p>
+              <div class="bg-neutral-50 p-4 rounded-lg border border-neutral-200">
+                <p class="text-neutral-700 mb-2">减法规则：</p>
+                <ul class="list-disc pl-5 space-y-1 text-neutral-600 mb-3">
+                  <li>0 - 0 = 0</li>
+                  <li>1 - 0 = 1</li>
+                  <li>1 - 1 = 0</li>
+                  <li>0 - 1 = 1（借位1）</li>
+                </ul>
+                <p class="text-neutral-700 mb-2">例：计算1100B - 1011B</p>
+                <pre class="text-neutral-700">  1100
+- 1011
+------
+   0001</pre>
+                <p class="mt-2 text-neutral-600">结果：1100B - 1011B = 0001B</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+            <div>
+              <h4 class="font-bold text-primary mb-3 flex items-center">
+                <i class="fa fa-times mr-2"></i> 二进制乘法
+              </h4>
+              <p class="text-neutral-600 mb-3">二进制乘法规则与十进制乘法类似，采用移位相加的方法。</p>
+              <div class="bg-neutral-50 p-4 rounded-lg border border-neutral-200">
+                <p class="text-neutral-700 mb-2">乘法规则：</p>
+                <ul class="list-disc pl-5 space-y-1 text-neutral-600 mb-3">
+                  <li>0 × 0 = 0</li>
+                  <li>0 × 1 = 0</li>
+                  <li>1 × 0 = 0</li>
+                  <li>1 × 1 = 1</li>
+                </ul>
+                <p class="text-neutral-700 mb-2">例：计算101B × 11B</p>
+                <pre class="text-neutral-700">    101
+  ×  11
+  ------
+    101  (101 × 1)
+  +1010  (101 × 1, shifted left by 1)
+  ------
+   1111</pre>
+                <p class="mt-2 text-neutral-600">结果：101B × 11B = 1111B</p>
+              </div>
+            </div>
+            <div>
+              <h4 class="font-bold text-primary mb-3 flex items-center">
+                <i class="fa fa-divide mr-2"></i> 二进制除法
+              </h4>
+              <p class="text-neutral-600 mb-3">二进制除法规则与十进制除法类似，采用试商的方法。</p>
+              <div class="bg-neutral-50 p-4 rounded-lg border border-neutral-200">
+                <p class="text-neutral-700 mb-2">例：计算1100B ÷ 10B</p>
+                <pre class="text-neutral-700">       110  (商)
+    _______
+10 | 1100
+    -10
+    ----
+     010
+     -10
+     ----
+       00  (余数)</pre>
+                <p class="mt-2 text-neutral-600">结果：1100B ÷ 10B = 110B 余 0B</p>
+              </div>
+            </div>
+          </div>
+
+          <h3 class="text-xl font-bold mb-4 text-neutral-700">1.3.2 二进制逻辑运算</h3>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+            <div>
+              <h4 class="font-bold text-primary mb-3 flex items-center">
+                <i class="fa fa-ban mr-2"></i> 逻辑非（NOT）
+              </h4>
+              <p class="text-neutral-600 mb-3">逻辑非运算对二进制数的每一位取反，即0变1，1变0。</p>
+              <div class="bg-neutral-50 p-4 rounded-lg border border-neutral-200">
+                <p class="text-neutral-700 mb-2">逻辑非运算规则：</p>
+                <table class="min-w-full bg-white border border-neutral-200 rounded-lg overflow-hidden">
+                  <thead class="bg-neutral-50">
+                    <tr>
+                      <th class="py-2 px-4 text-center font-bold text-neutral-700 border-b">A</th>
+                      <th class="py-2 px-4 text-center font-bold text-neutral-700 border-b">NOT A</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td class="py-2 px-4 text-center border-b">0</td>
+                      <td class="py-2 px-4 text-center border-b">1</td>
+                    </tr>
+                    <tr>
+                      <td class="py-2 px-4 text-center">1</td>
+                      <td class="py-2 px-4 text-center">0</td>
+                    </tr>
+                  </tbody>
+                </table>
+                <p class="text-neutral-700 mt-3 mb-2">例：对二进制数1010B进行逻辑非运算</p>
+                <p class="text-neutral-700">NOT 1010B = 0101B</p>
+              </div>
+            </div>
+            <div>
+              <h4 class="font-bold text-primary mb-3 flex items-center">
+                <i class="fa fa-and mr-2"></i> 逻辑与（AND）
+              </h4>
+              <p class="text-neutral-600 mb-3">逻辑与运算对两个二进制数的每一位进行与操作，只有当两个对应位都为1时，结果才为1。</p>
+              <div class="bg-neutral-50 p-4 rounded-lg border border-neutral-200">
+                <p class="text-neutral-700 mb-2">逻辑与运算规则：</p>
+                <table class="min-w-full bg-white border border-neutral-200 rounded-lg overflow-hidden">
+                  <thead class="bg-neutral-50">
+                    <tr>
+                      <th class="py-2 px-4 text-center font-bold text-neutral-700 border-b">A</th>
+                      <th class="py-2 px-4 text-center font-bold text-neutral-700 border-b">B</th>
+                      <th class="py-2 px-4 text-center font-bold text-neutral-700 border-b">A AND B</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td class="py-2 px-4 text-center border-b">0</td>
+                      <td class="py-2 px-4 text-center border-b">0</td>
+                      <td class="py-2 px-4 text-center border-b">0</td>
+                    </tr>
+                    <tr>
+                      <td class="py-2 px-4 text-center border-b">0</td>
+                      <td class="py-2 px-4 text-center border-b">1</td>
+                      <td class="py-2 px-4 text-center border-b">0</td>
+                    </tr>
+                    <tr>
+                      <td class="py-2 px-4 text-center border-b">1</td>
+                      <td class="py-2 px-4 text-center border-b">0</td>
+                      <td class="py-2 px-4 text-center border-b">0</td>
+                    </tr>
+                    <tr>
+                      <td class="py-2 px-4 text-center">1</td>
+                      <td class="py-2 px-4 text-center">1</td>
+                      <td class="py-2 px-4 text-center">1</td>
+                    </tr>
+                  </tbody>
+                </table>
+                <p class="text-neutral-700 mt-3 mb-2">例：计算1011B AND 1101B</p>
+                <pre class="text-neutral-700">  1011
+AND 1101
+------
+  1001</pre>
+                <p class="mt-2 text-neutral-600">结果：1011B AND 1101B = 1001B</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+            <div>
+              <h4 class="font-bold text-primary mb-3 flex items-center">
+                <i class="fa fa-or mr-2"></i> 逻辑或（OR）
+              </h4>
+              <p class="text-neutral-600 mb-3">逻辑或运算对两个二进制数的每一位进行或操作，只要两个对应位中有一个为1，结果就为1。</p>
+              <div class="bg-neutral-50 p-4 rounded-lg border border-neutral-200">
+                <p class="text-neutral-700 mb-2">逻辑或运算规则：</p>
+                <table class="min-w-full bg-white border border-neutral-200 rounded-lg overflow-hidden">
+                  <thead class="bg-neutral-50">
+                    <tr>
+                      <th class="py-2 px-4 text-center font-bold text-neutral-700 border-b">A</th>
+                      <th class="py-2 px-4 text-center font-bold text-neutral-700 border-b">B</th>
+                      <th class="py-2 px-4 text-center font-bold text-neutral-700 border-b">A OR B</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td class="py-2 px-4 text-center border-b">0</td>
+                      <td class="py-2 px-4 text-center border-b">0</td>
+                      <td class="py-2 px-4 text-center border-b">0</td>
+                    </tr>
+                    <tr>
+                      <td class="py-2 px-4 text-center border-b">0</td>
+                      <td class="py-2 px-4 text-center border-b">1</td>
+                      <td class="py-2 px-4 text-center border-b">1</td>
+                    </tr>
+                    <tr>
+                      <td class="py-2 px-4 text-center border-b">1</td>
+                      <td class="py-2 px-4 text-center border-b">0</td>
+                      <td class="py-2 px-4 text-center border-b">1</td>
+                    </tr>
+                    <tr>
+                      <td class="py-2 px-4 text-center">1</td>
+                      <td class="py-2 px-4 text-center">1</td>
+                      <td class="py-2 px-4 text-center">1</td>
+                    </tr>
+                  </tbody>
+                </table>
+                <p class="text-neutral-700 mt-3 mb-2">例：计算1011B OR 1101B</p>
+                <pre class="text-neutral-700">  1011
+ OR 1101
+------
+  1111</pre>
+                <p class="mt-2 text-neutral-600">结果：1011B OR 1101B = 1111B</p>
+              </div>
+            </div>
+            <div>
+              <h4 class="font-bold text-primary mb-3 flex items-center">
+                <i class="fa fa-xor mr-2"></i> 逻辑异或（XOR）
+              </h4>
+              <p class="text-neutral-600 mb-3">逻辑异或运算对两个二进制数的每一位进行异或操作，当两个对应位不同时，结果为1，相同时结果为0。</p>
+              <div class="bg-neutral-50 p-4 rounded-lg border border-neutral-200">
+                <p class="text-neutral-700 mb-2">逻辑异或运算规则：</p>
+                <table class="min-w-full bg-white border border-neutral-200 rounded-lg overflow-hidden">
+                  <thead class="bg-neutral-50">
+                    <tr>
+                      <th class="py-2 px-4 text-center font-bold text-neutral-700 border-b">A</th>
+                      <th class="py-2 px-4 text-center font-bold text-neutral-700 border-b">B</th>
+                      <th class="py-2 px-4 text-center font-bold text-neutral-700 border-b">A XOR B</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td class="py-2 px-4 text-center border-b">0</td>
+                      <td class="py-2 px-4 text-center border-b">0</td>
+                      <td class="py-2 px-4 text-center border-b">0</td>
+                    </tr>
+                    <tr>
+                      <td class="py-2 px-4 text-center border-b">0</td>
+                      <td class="py-2 px-4 text-center border-b">1</td>
+                      <td class="py-2 px-4 text-center border-b">1</td>
+                    </tr>
+                    <tr>
+                      <td class="py-2 px-4 text-center border-b">1</td>
+                      <td class="py-2 px-4 text-center border-b">0</td>
+                      <td class="py-2 px-4 text-center border-b">1</td>
+                    </tr>
+                    <tr>
+                      <td class="py-2 px-4 text-center">1</td>
+                      <td class="py-2 px-4 text-center">1</td>
+                      <td class="py-2 px-4 text-center">0</td>
+                    </tr>
+                  </tbody>
+                </table>
+                <p class="text-neutral-700 mt-3 mb-2">例：计算1011B XOR 1101B</p>
+                <pre class="text-neutral-700">  1011
+XOR 1101
+------
+  0110</pre>
+                <p class="mt-2 text-neutral-600">结果：1011B XOR 1101B = 0110B</p>
+              </div>
+            </div>
+          </div>
+
+          <h3 class="text-xl font-bold mb-4 text-neutral-700">1.3.3 二进制移位运算</h3>
+          <p class="text-neutral-600 mb-4">二进制移位运算是将二进制数的每一位向左或向右移动指定的位数。常见的移位运算有：</p>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+            <div>
+              <h4 class="font-bold text-primary mb-3 flex items-center">
+                <i class="fa fa-arrow-left mr-2"></i> 左移运算（SHL）
+              </h4>
+              <p class="text-neutral-600 mb-3">左移运算是将二进制数的每一位向左移动指定的位数，右边空出的位补0。</p>
+              <div class="bg-neutral-50 p-4 rounded-lg border border-neutral-200">
+                <p class="text-neutral-700 mb-2">例：将二进制数1010B左移2位</p>
+                <pre class="text-neutral-700">原数：  1010B
+左移2位：101000B</pre>
+                <p class="mt-2 text-neutral-600">结果：1010B左移2位后为101000B</p>
+                <p class="text-neutral-700 mt-3 mb-2">在无符号数中，左移n位相当于乘以2ⁿ</p>
+                <p class="text-neutral-700">1010B (10) 左移2位后为101000B (40)，相当于10×2²=40</p>
+              </div>
+            </div>
+            <div>
+              <h4 class="font-bold text-primary mb-3 flex items-center">
+                <i class="fa fa-arrow-right mr-2"></i> 右移运算（SHR）
+              </h4>
+              <p class="text-neutral-600 mb-3">右移运算是将二进制数的每一位向右移动指定的位数，左边空出的位补0（逻辑右移）或补符号位（算术右移）。</p>
+              <div class="bg-neutral-50 p-4 rounded-lg border border-neutral-200">
+                <p class="text-neutral-700 mb-2">例：将二进制数110010B右移3位</p>
+                <pre class="text-neutral-700">原数：    110010B
+右移3位：  000110B</pre>
+                <p class="mt-2 text-neutral-600">结果：110010B右移3位后为000110B</p>
+                <p class="text-neutral-700 mt-3 mb-2">在无符号数中，右移n位相当于除以2ⁿ</p>
+                <p class="text-neutral-700">110010B (50) 右移3位后为000110B (6)，相当于50÷2³≈6</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 数据单位与存储 -->
+    <section id="data-unit" class="mb-20 scroll-mt-24">
+      <div class="bg-white rounded-xl shadow-lg overflow-hidden card-hover">
+        <div class="bg-primary text-white p-6 md:p-8">
+          <h2 class="text-[clamp(1.5rem,3vw,2rem)] font-bold flex items-center">
+            <span class="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center mr-4">1.4</span>
+            单片机中的数据单位，存储容量
+          </h2>
+        </div>
+        <div class="p-6 md:p-8">
+          <h3 class="text-xl font-bold mb-4 text-neutral-700">1.4.1 数据单位</h3>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+            <div>
+              <h4 class="font-bold text-primary mb-3 flex items-center">
+                <i class="fa fa-bitbucket mr-2"></i> 位（bit）
+              </h4>
+              <p class="text-neutral-600 mb-3">位是计算机中最小的数据单位，只有两种状态：0和1。</p>
+              <div class="bg-neutral-50 p-4 rounded-lg border border-neutral-200">
+                <p class="text-neutral-700 mb-2">例如：</p>
+                <p class="text-neutral-600">一个二进制位可以表示为0或1</p>
+              </div>
+            </div>
+            <div>
+              <h4 class="font-bold text-primary mb-3 flex items-center">
+                <i class="fa fa-bytes mr-2"></i> 字节（Byte）
+              </h4>
+              <p class="text-neutral-600 mb-3">字节是计算机中最基本的存储单位，1字节等于8位（8 bit）。</p>
+              <div class="bg-neutral-50 p-4 rounded-lg border border-neutral-200">
+                <p class="text-neutral-700 mb-2">例如：</p>
+                <p class="text-neutral-600">一个字节可以表示为8位二进制数，如01101010B</p>
+                <p class="text-neutral-600 mt-2">一个字节可以存储的无符号整数范围是0~255（00H~FFH）</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+            <div>
+              <h4 class="font-bold text-primary mb-3 flex items-center">
+                <i class="fa fa-word mr-2"></i> 字（Word）
+              </h4>
+              <p class="text-neutral-600 mb-3">字是计算机进行数据处理时一次存取、加工和传送的数据长度。字的位数称为字长。</p>
+              <div class="bg-neutral-50 p-4 rounded-lg border border-neutral-200">
+                <p class="text-neutral-700 mb-2">不同计算机系统的字长不同：</p>
+                <ul class="list-disc pl-5 space-y-1 text-neutral-600">
+                  <li>8位单片机的字长为8位，1个字等于1字节</li>
+                  <li>16位单片机的字长为16位，1个字等于2字节</li>
+                  <li>32位单片机的字长为32位，1个字等于4字节</li>
+                </ul>
+              </div>
+            </div>
+            <div>
+              <h4 class="font-bold text-primary mb-3 flex items-center">
+                <i class="fa fa-double-word mr-2"></i> 双字（Double Word）
+              </h4>
+              <p class="text-neutral-600 mb-3">双字是两个字的长度，即2个字。</p>
+              <div class="bg-neutral-50 p-4 rounded-lg border border-neutral-200">
+                <p class="text-neutral-700 mb-2">不同计算机系统的双字长度不同：</p>
+                <ul class="list-disc pl-5 space-y-1 text-neutral-600">
+                  <li>8位单片机的双字长为16位，等于2字节</li>
+                  <li>16位单片机的双字长为32位，等于4字节</li>
+                  <li>32位单片机的双字长为64位，等于8字节</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          <h3 class="text-xl font-bold mb-4 text-neutral-700">1.4.2 存储容量单位</h3>
+          <p class="text-neutral-600 mb-4">存储容量是指存储器可以容纳的数据量，常用的存储容量单位有：</p>
+          <div class="overflow-x-auto mb-6">
+            <table class="min-w-full bg-white border border-neutral-200 rounded-lg overflow-hidden">
+              <thead class="bg-neutral-50">
+                <tr>
+                  <th class="py-3 px-4 text-left font-bold text-neutral-700 border-b">单位</th>
+                  <th class="py-3 px-4 text-left font-bold text-neutral-700 border-b">英文缩写</th>
+                  <th class="py-3 px-4 text-left font-bold text-neutral-700 border-b">与字节的关系</th>
+                  <th class="py-3 px-4 text-left font-bold text-neutral-700 border-b">说明</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td class="py-3 px-4 border-b">字节</td>
+                  <td class="py-3 px-4 border-b">B</td>
+                  <td class="py-3 px-4 border-b">1B = 8bit</td>
+                  <td class="py-3 px-4 border-b">计算机最基本的存储单位</td>
+                </tr>
+                <tr>
+                  <td class="py-3 px-4 border-b">千字节</td>
+                  <td class="py-3 px-4 border-b">KB</td>
+                  <td class="py-3 px-4 border-b">1KB = 1024B</td>
+                  <td class="py-3 px-4 border-b">常用于表示较小的存储容量</td>
+                </tr>
+                <tr>
+                  <td class="py-3 px-4 border-b">兆字节</td>
+                  <td class="py-3 px-4 border-b">MB</td>
+                  <td class="py-3 px-4 border-b">1MB = 1024KB</td>
+                  <td class="py-3 px-4 border-b">常用于表示中等大小的存储容量</td>
+                </tr>
+                <tr>
+                  <td class="py-3 px-4 border-b">吉字节</td>
+                  <td class="py-3 px-4 border-b">GB</td>
+                  <td class="py-3 px-4 border-b">1GB = 1024MB</td>
+                  <td class="py-3 px-4 border-b">常用于表示较大的存储容量</td>
+                </tr>
+                <tr>
+                  <td class="py-3 px-4 border-b">太字节</td>
+                  <td class="py-3 px-4 border-b">TB</td>
+                  <td class="py-3 px-4 border-b">1TB = 1024GB</td>
+                  <td class="py-3 px-4 border-b">常用于表示极大的存储容量</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <h3 class="text-xl font-bold mb-4 text-neutral-700">1.4.3 单片机中的存储器组织</h3>
+          <p class="text-neutral-600 mb-4">单片机中的存储器通常分为程序存储器（ROM）和数据存储器（RAM）两部分。</p>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+            <div>
+              <h4 class="font-bold text-primary mb-3 flex items-center">
+                <i class="fa fa-memory mr-2"></i> 程序存储器（ROM）
+              </h4>
+              <p class="text-neutral-600 mb-3">程序存储器用于存储单片机运行的程序代码和常量数据，掉电后数据不会丢失。</p>
+              <div class="bg-neutral-50 p-4 rounded-lg border border-neutral-200">
+                <p class="text-neutral-700 mb-2">常见的程序存储器类型：</p>
+                <ul class="list-disc pl-5 space-y-1 text-neutral-600 mb-3">
+                  <li>ROM（只读存储器）：出厂时已固化程序，不可修改</li>
+                  <li>PROM（可编程只读存储器）：用户可一次性编程</li>
+                  <li>EPROM（可擦除可编程只读存储器）：可用紫外线擦除后重新编程</li>
+                  <li>EEPROM（电可擦除可编程只读存储器）：可电擦除并重新编程</li>
+                  <li>Flash存储器：快速电可擦除可编程存储器，是目前最常用的程序存储器</li>
+                </ul>
+              </div>
+            </div>
+            <div>
+              <h4 class="font-bold text-primary mb-3 flex items-center">
+                <i class="fa fa-data mr-2"></i> 数据存储器（RAM）
+              </h4>
+              <p class="text-neutral-600 mb-3">数据存储器用于存储单片机运行过程中的临时数据和变量，掉电后数据丢失。</p>
+              <div class="bg-neutral-50 p-4 rounded-lg border border-neutral-200">
+                <p class="text-neutral-700 mb-2">常见的数据存储器类型：</p>
+                <ul class="list-disc pl-5 space-y-1 text-neutral-600 mb-3">
+                  <li>SRAM（静态随机存取存储器）：速度快，但成本高，集成度低</li>
+                  <li>DRAM（动态随机存取存储器）：速度较慢，但成本低，集成度高</li>
+                </ul>
+                <p class="text-neutral-700 mb-2">单片机中的数据存储器通常分为：</p>
+                <ul class="list-disc pl-5 space-y-1 text-neutral-600">
+                  <li>内部RAM：速度快，但容量较小</li>
+                  <li>外部RAM：容量较大，但速度较慢</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          <h3 class="text-xl font-bold mb-4 text-neutral-700">1.4.4 地址空间</h3>
+          <p class="text-neutral-600 mb-4">单片机通过地址来访问存储器中的数据，地址空间是指单片机可以寻址的存储器范围。</p>
+          <div class="bg-neutral-50 p-4 rounded-lg border border-neutral-200 mb-6">
+            <p class="text-neutral-700 mb-3">8051单片机的地址空间：</p>
+            <ul class="list-disc pl-5 space-y-2 text-neutral-600">
+              <li>程序存储器地址空间：0000H~FFFFH，共64KB</li>
+              <li>内部数据存储器地址空间：00H~FFH，共256B</li>
+              <li>外部数据存储器地址空间：0000H~FFFFH，共64KB</li>
+            </ul>
+            <p class="text-neutral-700 mt-3 mb-2">8051内部数据存储器的组织：</p>
+            <ul class="list-disc pl-5 space-y-2 text-neutral-600">
+              <li>低128B（00H~7FH）：通用寄存器区、位寻址区和用户RAM区</li>
+              <li>高128B（80H~FFH）：特殊功能寄存器（SFR）区</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 带符号数 -->
+    <section id="signed-number" class="mb-20 scroll-mt-24">
+      <div class="bg-white rounded-xl shadow-lg overflow-hidden card-hover">
+        <div class="bg-primary text-white p-6 md:p-8">
+          <h2 class="text-[clamp(1.5rem,3vw,2rem)] font-bold flex items-center">
+            <span class="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center mr-4">1.5</span>
+            带符号数
+          </h2>
+        </div>
+        <div class="p-6 md:p-8">
+          <h3 class="text-xl font-bold mb-4 text-neutral-700">1.5.1 机器数与真值</h3>
+          <p class="text-neutral-600 mb-4">在计算机中，带符号数的符号位也用二进制数表示，通常用最高位（最左边的位）表示符号，0表示正数，1表示负数。</p>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+            <div>
+              <h4 class="font-bold text-primary mb-3 flex items-center">
+                <i class="fa fa-machine mr-2"></i> 机器数
+              </h4>
+              <p class="text-neutral-600 mb-3">机器数是指计算机中表示的二进制数，包括符号位和数值位。</p>
+              <div class="bg-neutral-50 p-4 rounded-lg border border-neutral-200">
+                <p class="text-neutral-700 mb-2">例如：</p>
+                <p class="text-neutral-600">+5在8位计算机中的机器数为：00000101B</p>
+                <p class="text-neutral-600 mt-2">-5在8位计算机中的机器数为：10000101B</p>
+              </div>
+            </div>
+            <div>
+              <h4 class="font-bold text-primary mb-3 flex items-center">
+                <i class="fa fa-truth mr-2"></i> 真值
+              </h4>
+              <p class="text-neutral-600 mb-3">真值是指带符号数的实际数值，即用“+”、“-”表示符号的数值。</p>
+              <div class="bg-neutral-50 p-4 rounded-lg border border-neutral-200">
+                <p class="text-neutral-700 mb-2">例如：</p>
+                <p class="text-neutral-600">机器数00000101B的真值为：+5</p>
+                <p class="text-neutral-600 mt-2">机器数10000101B的真值为：-5</p>
+              </div>
+            </div>
+          </div>
+
+          <h3 class="text-xl font-bold mb-4 text-neutral-700">1.5.2 原码、反码和补码</h3>
+          <p class="text-neutral-600 mb-4">在计算机中，带符号数有三种表示方法：原码、反码和补码。</p>
+          <div class="overflow-x-auto mb-6">
+            <table class="min-w-full bg-white border border-neutral-200 rounded-lg overflow-hidden">
+              <thead class="bg-neutral-50">
+                <tr>
+                  <th class="py-3 px-4 text-left font-bold text-neutral-700 border-b">表示方法</th>
+                  <th class="py-3 px-4 text-left font-bold text-neutral-700 border-b">定义</th>
+                  <th class="py-3 px-4 text-left font-bold text-neutral-700 border-b">示例（以8位为例）</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td class="py-3 px-4 border-b">原码<td class="py-3 px-4 border-b">原码</td>
+                  <td class="py-3 px-4 border-b">
+                    <p class="text-neutral-600">最高位为符号位，其余位为数值位的绝对值。</p>
+                    <p class="text-neutral-500 mt-1">正数的原码是其本身，负数的原码是符号位为1，其余位为数值位的绝对值。</p>
+                  </td>
+                  <td class="py-3 px-4 border-b">
+                    <p class="text-neutral-600">+5的原码：00000101B</p>
+                    <p class="text-neutral-600 mt-1">-5的原码：10000101B</p>
+                  </td>
+                </tr>
+                <tr>
+                  <td class="py-3 px-4 border-b">反码</td>
+                  <td class="py-3 px-4 border-b">
+                    <p class="text-neutral-600">正数的反码与原码相同，负数的反码是在原码的基础上，符号位不变，其余位取反。</p>
+                  </td>
+                  <td class="py-3 px-4 border-b">
+                    <p class="text-neutral-600">+5的反码：00000101B</p>
+                    <p class="text-neutral-600 mt-1">-5的反码：11111010B</p>
+                  </td>
+                </tr>
+                <tr>
+                  <td class="py-3 px-4 border-b">补码</td>
+                  <td class="py-3 px-4 border-b">
+                    <p class="text-neutral-600">正数的补码与原码相同，负数的补码是在反码的基础上加1。</p>
+                  </td>
+                  <td class="py-3 px-4 border-b">
+                    <p class="text-neutral-600">+5的补码：00000101B</p>
+                    <p class="text-neutral-600 mt-1">-5的补码：11111011B</p>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <h3 class="text-xl font-bold mb-4 text-neutral-700">1.5.3 补码的运算</h3>
+          <p class="text-neutral-600 mb-4">在计算机中，带符号数的加减运算通常采用补码进行，因为补码可以将减法转换为加法，简化运算电路。</p>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+            <div>
+              <h4 class="font-bold text-primary mb-3 flex items-center">
+                <i class="fa fa-plus-circle mr-2"></i> 补码加法
+              </h4>
+              <p class="text-neutral-600 mb-3">补码加法的规则是：符号位参与运算，若最高位有进位，则舍去进位。</p>
+              <div class="bg-neutral-50 p-4 rounded-lg border border-neutral-200">
+                <p class="text-neutral-700 mb-2">例：计算5 + (-3)</p>
+                <pre class="text-neutral-700">5的补码：  00000101
++(-3)的补码：11111101
+-------------------
+  100000010</pre>
+                <p class="mt-2 text-neutral-600">舍去最高位的进位，结果为：00000010B = 2</p>
+              </div>
+            </div>
+            <div>
+              <h4 class="font-bold text-primary mb-3 flex items-center">
+                <i class="fa fa-minus-circle mr-2"></i> 补码减法
+              </h4>
+              <p class="text-neutral-600 mb-3">补码减法的规则是：减去一个数等于加上这个数的补码。</p>
+              <div class="bg-neutral-50 p-4 rounded-lg border border-neutral-200">
+                <p class="text-neutral-700 mb-2">例：计算5 - 3</p>
+                <pre class="text-neutral-700">5的补码：  00000101
++(-3)的补码：11111101
+-------------------
+  100000010</pre>
+                <p class="mt-2 text-neutral-600">舍去最高位的进位，结果为：00000010B = 2</p>
+              </div>
+            </div>
+          </div>
+
+          <h3 class="text-xl font-bold mb-4 text-neutral-700">1.5.4 溢出判断</h3>
+          <p class="text-neutral-600 mb-4">在补码运算中，如果运算结果超出了机器所能表示的范围，就会产生溢出。溢出判断方法有：</p>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+            <div>
+              <h4 class="font-bold text-primary mb-3 flex items-center">
+                <i class="fa fa-overflow mr-2"></i> 双符号位法
+              </h4>
+              <p class="text-neutral-600 mb-3">采用两位符号位，运算结果的两位符号位不同时，表示发生溢出。</p>
+              <div class="bg-neutral-50 p-4 rounded-lg border border-neutral-200">
+                <p class="text-neutral-700 mb-2">例如：</p>
+                <p class="text-neutral-600">00表示正数，11表示负数</p>
+                <p class="text-neutral-600 mt-1">若运算结果的符号位为01或10，则表示溢出</p>
+              </div>
+            </div>
+            <div>
+              <h4 class="font-bold text-primary mb-3 flex items-center">
+                <i class="fa fa-carry mr-2"></i> 进位判断法
+              </h4>
+              <p class="text-neutral-600 mb-3">当最高数值位向符号位的进位与符号位产生的进位不同时，表示发生溢出。</p>
+              <div class="bg-neutral-50 p-4 rounded-lg border border-neutral-200">
+                <p class="text-neutral-700 mb-2">例如：</p>
+                <p class="text-neutral-600">设C₁为最高数值位的进位，C₀为符号位的进位</p>
+                <p class="text-neutral-600 mt-1">当C₁ ≠ C₀时，表示溢出</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- BCD码和ASCII码 -->
+    <section id="bcd-ascii" class="mb-20 scroll-mt-24">
+      <div class="bg-white rounded-xl shadow-lg overflow-hidden card-hover">
+        <div class="bg-primary text-white p-6 md:p-8">
+          <h2 class="text-[clamp(1.5rem,3vw,2rem)] font-bold flex items-center">
+            <span class="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center mr-4">1.6</span>
+            BCD码和ASCII码
+          </h2>
+        </div>
+        <div class="p-6 md:p-8">
+          <h3 class="text-xl font-bold mb-4 text-neutral-700">1.6.1 BCD码（二进制编码的十进制数）</h3>
+          <p class="text-neutral-600 mb-4">BCD码（Binary Coded Decimal）是一种用二进制编码表示十进制数的方法，每四位二进制数表示一个十进制数位。</p>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+            <div>
+              <h4 class="font-bold text-primary mb-3 flex items-center">
+                <i class="fa fa-bcd mr-2"></i> 8421 BCD码
+              </h4>
+              <p class="text-neutral-600 mb-3">最常用的BCD码是8421 BCD码，每四位二进制数的权值分别为8、4、2、1。</p>
+              <div class="bg-neutral-50 p-4 rounded-lg border border-neutral-200">
+                <p class="text-neutral-700 mb-2">8421 BCD码与十进制数的对应关系：</p>
+                <div class="overflow-x-auto">
+                  <table class="min-w-full bg-white border border-neutral-200 rounded-lg overflow-hidden">
+                    <thead class="bg-neutral-50">
+                      <tr>
+                        <th class="py-2 px-4 text-center font-bold text-neutral-700 border-b">十进制数</th>
+                        <th class="py-2 px-4 text-center font-bold text-neutral-700 border-b">8421 BCD码</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td class="py-2 px-4 text-center border-b">0</td>
+                        <td class="py-2 px-4 text-center border-b">0000</td>
+                      </tr>
+                      <tr>
+                        <td class="py-2 px-4 text-center border-b">1</td>
+                        <td class="py-2 px-4 text-center border-b">0001</td>
+                      </tr>
+                      <tr>
+                        <td class="py-2 px-4 text-center border-b">2</td>
+                        <td class="py-2 px-4 text-center border-b">0010</td>
+                      </tr>
+                      <tr>
+                        <td class="py-2 px-4 text-center border-b">3</td>
+                        <td class="py-2 px-4 text-center border-b">0011</td>
+                      </tr>
+                      <tr>
+                        <td class="py-2 px-4 text-center border-b">4</td>
+                        <td class="py-2 px-4 text-center border-b">0100</td>
+                      </tr>
+                      <tr>
+                        <td class="py-2 px-4 text-center border-b">5</td>
+                        <td class="py-2 px-4 text-center border-b">0101</td>
+                      </tr>
+                      <tr>
+                        <td class="py-2 px-4 text-center border-b">6</td>
+                        <td class="py-2 px-4 text-center border-b">0110</td>
+                      </tr>
+                      <tr>
+                        <td class="py-2 px-4 text-center border-b">7</td>
+                        <td class="py-2 px-4 text-center border-b">0111</td>
+                      </tr>
+                      <tr>
+                        <td class="py-2 px-4 text-center border-b">8</td>
+                        <td class="py-2 px-4 text-center border-b">1000</td>
+                      </tr>
+                      <tr>
+                        <td class="py-2 px-4 text-center border-b">9</td>
+                        <td class="py-2 px-4 text-center border-b">1001</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+            <div>
+              <h4 class="font-bold text-primary mb-3 flex items-center">
+                <i class="fa fa-convert mr-2"></i> BCD码与二进制数的转换
+              </h4>
+              <p class="text-neutral-600 mb-3">BCD码与二进制数之间的转换需要特殊处理，不能直接按二进制数转换。</p>
+              <div class="bg-neutral-50 p-4 rounded-lg border border-neutral-200">
+                <p class="text-neutral-700 mb-2">例：将十进制数56转换为8421 BCD码</p>
+                <p class="text-neutral-600">56的BCD码为：0101 0110</p>
+                <p class="text-neutral-700 mt-3 mb-2">例：将8421 BCD码1001 0101转换为十进制数</p>
+                <p class="text-neutral-600">1001 0101的十进制数为：95</p>
+              </div>
+            </div>
+          </div>
+
+          <h3 class="text-xl font-bold mb-4 text-neutral-700">1.6.2 ASCII码（美国信息交换标准代码）</h3>
+          <p class="text-neutral-600 mb-4">ASCII码（American Standard Code for Information Interchange）是一种用于表示字符的标准二进制编码，使用7位二进制数表示128个字符。</p>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+            <div>
+              <h4 class="font-bold text-primary mb-3 flex items-center">
+                <i class="fa fa-ascii mr-2"></i> ASCII码的组成
+              </h4>
+              <p class="text-neutral-600 mb-3">ASCII码包括以下几类字符：</p>
+              <div class="bg-neutral-50 p-4 rounded-lg border border-neutral-200">
+                <ul class="list-disc pl-5 space-y-2 text-neutral-600">
+                  <li>控制字符（0~31和127）：用于控制设备或通信，如换行符（LF）、回车符（CR）等</li>
+                  <li>数字字符（48~57）：'0'~'9'</li>
+                  <li>大写字母（65~90）：'A'~'Z'</li>
+                  <li>小写字母（97~122）：'a'~'z'</li>
+                  <li>标点符号和特殊字符（32~47、58~64、91~96、123~126）：如空格、逗号、句号等</li>
+                </ul>
+              </div>
+            </div>
+            <div>
+              <h4 class="font-bold text-primary mb-3 flex items-center">
+                <i class="fa fa-table mr-2"></i> 常用ASCII码表
+              </h4>
+              <p class="text-neutral-600 mb-3">以下是部分常用字符的ASCII码值：</p>
+              <div class="bg-neutral-50 p-4 rounded-lg border border-neutral-200">
+                <div class="overflow-x-auto">
+                  <table class="min-w-full bg-white border border-neutral-200 rounded-lg overflow-hidden">
+                    <thead class="bg-neutral-50">
+                      <tr>
+                        <th class="py-2 px-4 text-center font-bold text-neutral-700 border-b">字符</th>
+                        <th class="py-2 px-4 text-center font-bold text-neutral-700 border-b">十进制</th>
+                        <th class="py-2 px-4 text-center font-bold text-neutral-700 border-b">十六进制</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td class="py-2 px-4 text-center border-b">空格</td>
+                        <td class="py-2 px-4 text-center border-b">32</td>
+                        <td class="py-2 px-4 text-center border-b">20H</td>
+                      </tr>
+                      <tr>
+                        <td class="py-2 px-4 text-center border-b">'0'</td>
+                        <td class="py-2 px-4 text-center border-b">48</td>
+                        <td class="py-2 px-4 text-center border-b">30H</td>
+                      </tr>
+                      <tr>
+                        <td class="py-2 px-4 text-center border-b">'1'</td>
+                        <td class="py-2 px-4 text-center border-b">49</td>
+                        <td class="py-2 px-4 text-center border-b">31H</td>
+                      </tr>
+                      <tr>
+                        <td class="py-2 px-4 text-center border-b">'A'</td>
+                        <td class="py-2 px-4 text-center border-b">65</td>
+                        <td class="py-2 px-4 text-center border-b">41H</td>
+                      </tr>
+                      <tr>
+                        <td class="py-2 px-4 text-center border-b">'B'</td>
+                        <td class="py-2 px-4 text-center border-b">66</td>
+                        <td class="py-2 px-4 text-center border-b">42H</td>
+                      </tr>
+                      <tr>
+                        <td class="py-2 px-4 text-center border-b">'a'</td>
+                        <td class="py-2 px-4 text-center border-b">97</td>
+                        <td class="py-2 px-4 text-center border-b">61H</td>
+                      </tr>
+                      <tr>
+                        <td class="py-2 px-4 text-center border-b">'b'</td>
+                        <td class="py-2 px-4 text-center border-b">98</td>
+                        <td class="py-2 px-4 text-center border-b">62H</td>
+                      </tr>
+                      <tr>
+                        <td class="py-2 px-4 text-center border-b">'.'</td>
+                        <td class="py-2 px-4 text-center border-b">46</td>
+                        <td class="py-2 px-4 text-center border-b">2EH</td>
+                      </tr>
+                      <tr>
+                        <td class="py-2 px-4 text-center border-b">','</td>
+                        <td class="py-2 px-4 text-center border-b">44</td>
+                        <td class="py-2 px-4 text-center border-b">2CH</td>
+                      </tr>
+                      <tr>
+                        <td class="py-2 px-4 text-center border-b">'!'.</td>
+                        <td class="py-2 px-4 text-center border-b">33</td>
+                        <td class="py-2 px-4 text-center border-b">21H</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <h3 class="text-xl font-bold mb-4 text-neutral-700">1.6.3 BCD码和ASCII码的应用</h3>
+          <p class="text-neutral-600 mb-4">BCD码和ASCII码在单片机中有广泛的应用：</p>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+            <div>
+              <h4 class="font-bold text-primary mb-3 flex items-center">
+                <i class="fa fa-bcd-app mr-2"></i> BCD码的应用
+              </h4>
+              <ul class="list-disc pl-5 space-y-2 text-neutral-600">
+                <li>数字显示：如数码管显示，直接使用BCD码驱动</li>
+                <li>数字输入：如键盘输入的数字，通常先转换为BCD码</li>
+                <li>需要精确十进制运算的场合：如财务计算</li>
+              </ul>
+            </div>
+            <div>
+              <h4 class="font-bold text-primary mb-3 flex items-center">
+                <i class="fa fa-ascii-app mr-2"></i> ASCII码的应用
+              </h4>
+              <ul class="list-disc pl-5 space-y-2 text-neutral-600">
+                <li>字符显示：如LCD显示字符</li>
+                <li>通信协议：如串口通信、网络通信中传输文本信息</li>
+                <li>文件存储：文本文件中的字符以ASCII码形式存储</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 本章总结 -->
+    <section id="summary" class="mb-20 scroll-mt-24">
+      <div class="bg-white rounded-xl shadow-lg overflow-hidden card-hover">
+        <div class="bg-primary text-white p-6 md:p-8">
+          <h2 class="text-[clamp(1.5rem,3vw,2rem)] font-bold flex items-center">
+            <span class="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center mr-4">1.7</span>
+            本章总结
+          </h2>
+        </div>
+        <div class="p-6 md:p-8">
+          <div class="bg-neutral-50 p-6 rounded-lg border border-neutral-200 mb-6">
+            <h3 class="text-xl font-bold mb-4 text-neutral-700">本章重点内容回顾</h3>
+            <ol class="list-decimal pl-5 space-y-3 text-neutral-600">
+              <li>单片机是将CPU、存储器、I/O接口等集成在一块芯片上的微型计算机系统，具有体积小、功耗低、控制功能强等特点。</li>
+              <li>常用的数制有十进制、二进制、八进制和十六进制，它们之间可以相互转换。单片机中主要使用二进制和十六进制。</li>
+              <li>二进制运算包括算术运算（加、减、乘、除）和逻辑运算（与、或、非、异或），是单片机中数据处理的基础。</li>
+              <li>单片机中的数据单位有位（bit）、字节（Byte）、字（Word）等，存储容量单位有KB、MB、GB等。</li>
+              <li>带符号数在计算机中有原码、反码和补码三种表示方法，补码是最常用的表示方法，可简化加减运算。</li>

@@ -1,0 +1,1321 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>《单片机技术与应用》第七章知识要点</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: '#165DFF',
+            secondary: '#36D399',
+            accent: '#FB923C',
+            dark: '#1E293B',
+            light: '#F8FAFC'
+          },
+          fontFamily: {
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+            mono: ['Consolas', 'Monaco', 'monospace']
+          },
+        },
+      }
+    }
+  </script>
+  <style type="text/tailwindcss">
+    @layer utilities {
+      .content-auto {
+        content-visibility: auto;
+      }
+      .text-shadow {
+        text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      }
+      .card-hover {
+        @apply transition-all duration-300 hover:shadow-lg hover:-translate-y-1;
+      }
+      .section-transition {
+        @apply transition-all duration-500 ease-in-out;
+      }
+      .scrollbar-hide::-webkit-scrollbar {
+        display: none;
+      }
+      .scrollbar-hide {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+      }
+    }
+  </style>
+</head>
+<body class="bg-gray-50 text-gray-800 font-sans">
+  <!-- 导航栏 -->
+  <header id="navbar" class="fixed top-0 left-0 w-full bg-white/90 backdrop-blur-sm shadow-sm z-50 transition-all duration-300">
+    <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+      <div class="flex items-center space-x-2">
+        <i class="fa fa-microchip text-primary text-2xl"></i>
+        <h1 class="text-xl md:text-2xl font-bold text-primary">单片机技术与应用</h1>
+      </div>
+      <nav class="hidden md:flex items-center space-x-8">
+        <a href="/" class="font-medium hover:text-primary transition-colors">首页</a>
+        <a href="#min-system" class="font-medium hover:text-primary transition-colors">单片机最小系统</a>
+        <a href="#memory-expansion" class="font-medium hover:text-primary transition-colors">存储器扩展</a>
+        <a href="#bus" class="font-medium hover:text-primary transition-colors">单片机总线</a>
+        <a href="#8255" class="font-medium hover:text-primary transition-colors">8255并行I/O扩展</a>
+        <a href="#min-case" class="font-medium hover:text-primary transition-colors">最小系统案例</a>
+        <a href="#8255-case" class="font-medium hover:text-primary transition-colors">8255项目案例</a>
+        <a href="#summary" class="font-medium hover:text-primary transition-colors">本章总结</a>
+      </nav>
+      <button id="mobile-menu-btn" class="md:hidden text-gray-700 hover:text-primary">
+        <i class="fa fa-bars text-xl"></i>
+      </button>
+    </div>
+    <!-- 移动端菜单 -->
+    <div id="mobile-menu" class="md:hidden bg-white shadow-lg absolute w-full left-0 top-full transform -translate-y-full opacity-0 transition-all duration-300 pointer-events-none">
+      <div class="container mx-auto px-4 py-3 flex flex-col space-y-4">
+        <a href="/" class="font-medium py-2 border-b border-gray-100 hover:text-primary transition-colors">首页</a>
+        <a href="#min-system" class="font-medium py-2 border-b border-gray-100 hover:text-primary transition-colors">单片机最小系统</a>
+        <a href="#memory-expansion" class="font-medium py-2 border-b border-gray-100 hover:text-primary transition-colors">存储器扩展</a>
+        <a href="#bus" class="font-medium py-2 border-b border-gray-100 hover:text-primary transition-colors">单片机总线</a>
+        <a href="#8255" class="font-medium py-2 border-b border-gray-100 hover:text-primary transition-colors">8255并行I/O扩展</a>
+        <a href="#min-case" class="font-medium py-2 border-b border-gray-100 hover:text-primary transition-colors">最小系统案例</a>
+        <a href="#8255-case" class="font-medium py-2 border-b border-gray-100 hover:text-primary transition-colors">8255项目案例</a>
+        <a href="#summary" class="font-medium py-2 hover:text-primary transition-colors">本章总结</a>
+      </div>
+    </div>
+  </header>
+
+  <!-- 英雄区 -->
+  <section class="pt-24 md:pt-32 pb-16 md:pb-24 bg-gradient-to-br from-primary/10 to-primary/5">
+    <div class="container mx-auto px-4">
+      <div class="max-w-4xl mx-auto text-center">
+        <h1 class="text-[clamp(2rem,5vw,3.5rem)] font-bold text-dark mb-6 leading-tight">
+          第七章 单片机硬件扩展与接口技术
+        </h1>
+        <p class="text-[clamp(1rem,2vw,1.25rem)] text-gray-600 mb-8">
+          深入理解单片机系统扩展原理与常用接口技术，掌握硬件设计与编程实现方法
+        </p>
+        <div class="flex flex-wrap justify-center gap-4">
+          <a href="#min-system" class="px-6 py-3 bg-primary text-white rounded-lg shadow-md hover:bg-primary/90 transition-all duration-300 flex items-center gap-2">
+            <i class="fa fa-book"></i> 开始学习
+          </a>
+          <a href="#summary" class="px-6 py-3 bg-white text-primary border border-primary rounded-lg hover:bg-primary/5 transition-all duration-300 flex items-center gap-2">
+            <i class="fa fa-list"></i> 快速浏览
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 主体内容 -->
+  <main class="container mx-auto px-4 pb-16">
+    <!-- 学习路径 -->
+    <div class="mb-16 bg-white rounded-xl shadow-md p-6">
+      <h2 class="text-2xl font-bold mb-6 text-center">本章学习路径</h2>
+      <div class="flex flex-col md:flex-row gap-4">
+        <div class="flex-1 bg-blue-50 rounded-lg p-4 border-l-4 border-primary card-hover">
+          <div class="flex items-center gap-3 mb-3">
+            <div class="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center text-primary">
+              <i class="fa fa-microchip"></i>
+            </div>
+            <h3 class="font-bold">基础知识</h3>
+          </div>
+          <p class="text-gray-600">掌握单片机最小系统、总线结构与存储器扩展的基本原理</p>
+        </div>
+        <div class="flex-1 bg-green-50 rounded-lg p-4 border-l-4 border-secondary card-hover">
+          <div class="flex items-center gap-3 mb-3">
+            <div class="w-10 h-10 rounded-full bg-secondary/20 flex items-center justify-center text-secondary">
+              <i class="fa fa-plug"></i>
+            </div>
+            <h3 class="font-bold">接口技术</h3>
+          </div>
+          <p class="text-gray-600">学习8255并行I/O扩展芯片的工作原理与编程方法</p>
+        </div>
+        <div class="flex-1 bg-orange-50 rounded-lg p-4 border-l-4 border-accent card-hover">
+          <div class="flex items-center gap-3 mb-3">
+            <div class="w-10 h-10 rounded-full bg-accent/20 flex items-center justify-center text-accent">
+              <i class="fa fa-cogs"></i>
+            </div>
+            <h3 class="font-bold">实践应用</h3>
+          </div>
+          <p class="text-gray-600">通过案例掌握单片机系统扩展的设计与实现方法</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- 各节内容 -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+      <!-- 侧边导航 -->
+      <div class="lg:col-span-3 order-2 lg:order-1">
+        <div class="sticky top-24 bg-white rounded-xl shadow-md p-6 scrollbar-hide max-h-[calc(100vh-8rem)] overflow-y-auto">
+          <h3 class="text-lg font-bold mb-4 text-primary">章节导航</h3>
+          <nav class="space-y-2">
+            <a href="#min-system" class="block py-2 px-3 rounded-lg hover:bg-primary/10 text-primary border-l-4 border-primary">
+              单片机最小系统
+            </a>
+            <a href="#memory-expansion" class="block py-2 px-3 rounded-lg hover:bg-primary/10">
+              单片机存储器扩展
+            </a>
+            <a href="#bus" class="block py-2 px-3 rounded-lg hover:bg-primary/10">
+              单片机总线
+            </a>
+            <a href="#8255" class="block py-2 px-3 rounded-lg hover:bg-primary/10">
+              8255并行I/O扩展芯片
+            </a>
+            <a href="#min-case" class="block py-2 px-3 rounded-lg hover:bg-primary/10">
+              最小系统案例
+            </a>
+            <a href="#8255-case" class="block py-2 px-3 rounded-lg hover:bg-primary/10">
+              8255项目案例
+            </a>
+            <a href="#summary" class="block py-2 px-3 rounded-lg hover:bg-primary/10">
+              本章总结
+            </a>
+          </nav>
+        </div>
+      </div>
+
+      <!-- 主要内容 -->
+      <div class="lg:col-span-9 order-1 lg:order-2">
+        <!-- 单片机最小系统 -->
+        <section id="min-system" class="section-container bg-white rounded-xl shadow-md p-8 mb-8">
+          <div class="flex items-center gap-4 mb-6">
+            <div class="w-12 h-12 rounded-full bg-primary/20 flex items-center justify-center text-primary">
+              <i class="fa fa-microchip text-xl"></i>
+            </div>
+            <h2 class="text-2xl md:text-3xl font-bold">单片机最小系统</h2>
+          </div>
+          <p class="text-gray-600 mb-6">
+            单片机最小系统是指能够让单片机正常工作的最基本的电路组合，是构成单片机应用系统的基础。
+          </p>
+          
+          <div class="mb-6">
+            <h3 class="text-xl font-bold mb-4 flex items-center">
+              <span class="inline-block w-2 h-6 bg-primary rounded-full mr-2"></span>
+              组成部分
+            </h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+              <div class="bg-blue-50 rounded-lg p-4 border-l-4 border-primary">
+                <h4 class="font-bold mb-2 text-primary">单片机芯片</h4>
+                <p class="text-gray-600">
+                  核心处理器，如8051系列，包含CPU、存储器、I/O接口等功能部件。
+                </p>
+              </div>
+              <div class="bg-blue-50 rounded-lg p-4 border-l-4 border-primary">
+                <h4 class="font-bold mb-2 text-primary">时钟电路</h4>
+                <p class="text-gray-600">
+                  为单片机提供工作时序基准，通常由晶振和电容组成，典型频率为11.0592MHz或12MHz。
+                </p>
+              </div>
+              <div class="bg-blue-50 rounded-lg p-4 border-l-4 border-primary">
+                <h4 class="font-bold mb-2 text-primary">复位电路</h4>
+                <p class="text-gray-600">
+                  使单片机初始化进入确定的起始状态，分上电复位和手动复位两种方式。
+                </p>
+              </div>
+              <div class="bg-blue-50 rounded-lg p-4 border-l-4 border-primary">
+                <h4 class="font-bold mb-2 text-primary">电源电路</h4>
+                <p class="text-gray-600">
+                  提供单片机工作所需的电能，通常为+5V或+3.3V直流电源。
+                </p>
+              </div>
+            </div>
+          </div>
+          
+          <div class="mb-6">
+            <h3 class="text-xl font-bold mb-4 flex items-center">
+              <span class="inline-block w-2 h-6 bg-primary rounded-full mr-2"></span>
+              工作原理
+            </h3>
+            <ul class="list-disc list-inside space-y-2 text-gray-600 mb-4">
+              <li>时钟信号控制单片机内部各种操作的时序</li>
+              <li>复位操作使单片机寄存器和程序计数器初始化</li>
+              <li>电源为芯片提供稳定的工作电压</li>
+              <li>程序从ROM中读取并执行</li>
+            </ul>
+          </div>
+          
+          <div class="mb-6">
+            <h3 class="text-xl font-bold mb-4 flex items-center">
+              <span class="inline-block w-2 h-6 bg-primary rounded-full mr-2"></span>
+              最小系统设计要点
+            </h3>
+            <div class="bg-gray-50 rounded-lg p-4 mb-4">
+              <pre class="font-mono text-sm text-gray-700">
+1. 晶振选择：根据系统需求选择合适频率的晶振
+   - 通信应用：通常选择11.0592MHz保证波特率准确
+   - 高速计算：可选择更高频率如24MHz或33MHz
+
+2. 复位电路设计：
+   - 上电复位：利用电容充电特性实现
+   - 手动复位：增加按键实现人工干预复位
+
+3. 电源稳定性：
+   - 使用滤波电容减少电源噪声
+   - 关键器件旁放置去耦电容
+              </pre>
+            </div>
+          </div>
+          
+          <div class="bg-primary/5 rounded-lg p-6 border border-primary/20 mb-6">
+            <h4 class="font-bold text-primary mb-2 flex items-center">
+              <i class="fa fa-lightbulb-o mr-2"></i>
+              知识拓展
+            </h4>
+            <p class="text-gray-600">
+              单片机最小系统是单片机应用系统的核心基础，后续的所有扩展功能都建立在最小系统之上。理解最小系统的工作原理对于分析和设计单片机应用系统至关重要。
+            </p>
+          </div>
+          
+          <div class="flex justify-between items-center mt-8">
+            <a href="#" class="text-primary hover:underline flex items-center">
+              <i class="fa fa-arrow-up mr-2"></i> 返回顶部
+            </a>
+            <a href="#memory-expansion" class="px-5 py-2 bg-primary text-white rounded-lg shadow-sm hover:bg-primary/90 transition-all duration-300 flex items-center">
+              下一节：存储器扩展 <i class="fa fa-arrow-right ml-2"></i>
+            </a>
+          </div>
+        </section>
+        
+        <!-- 存储器扩展 -->
+        <section id="memory-expansion" class="section-container bg-white rounded-xl shadow-md p-8 mb-8">
+          <div class="flex items-center gap-4 mb-6">
+            <div class="w-12 h-12 rounded-full bg-primary/20 flex items-center justify-center text-primary">
+              <i class="fa fa-database text-xl"></i>
+            </div>
+            <h2 class="text-2xl md:text-3xl font-bold">单片机存储器扩展</h2>
+          </div>
+          <p class="text-gray-600 mb-6">
+            由于单片机内部存储器容量有限，在实际应用中常需要扩展外部存储器来满足程序和数据存储的需求。
+          </p>
+          
+          <div class="mb-6">
+            <h3 class="text-xl font-bold mb-4 flex items-center">
+              <span class="inline-block w-2 h-6 bg-primary rounded-full mr-2"></span>
+              存储器分类
+            </h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+              <div class="bg-green-50 rounded-lg p-4 border-l-4 border-secondary">
+                <h4 class="font-bold mb-2 text-secondary">程序存储器(ROM)</h4>
+                <p class="text-gray-600">
+                  用于存储程序代码和固定数据，掉电后数据不丢失，如EPROM、EEPROM、Flash等。
+                </p>
+              </div>
+              <div class="bg-orange-50 rounded-lg p-4 border-l-4 border-accent">
+                <h4 class="font-bold mb-2 text-accent">数据存储器(RAM)</h4>
+                <p class="text-gray-600">
+                  用于临时存储程序运行过程中的数据和变量，掉电后数据丢失，如SRAM、DRAM等。
+                </p>
+              </div>
+            </div>
+          </div>
+          
+          <div class="mb-6">
+            <h3 class="text-xl font-bold mb-4 flex items-center">
+              <span class="inline-block w-2 h-6 bg-primary rounded-full mr-2"></span>
+              扩展方法
+            </h3>
+            <div class="bg-gray-50 rounded-lg p-4 mb-4">
+              <pre class="font-mono text-sm text-gray-700">
+1. 并行扩展：
+   - 使用地址总线、数据总线和控制总线连接外部存储器
+   - 特点：速度快，但占用I/O口资源多
+   - 典型芯片：6264(8K×8位SRAM)、2764(8K×8位EPROM)
+
+2. 串行扩展：
+   - 通过SPI、I²C等串行接口扩展存储器
+   - 特点：占用I/O口少，但速度相对较慢
+   - 典型芯片：AT24C02(2K位EEPROM)、W25Q64(8M位SPI Flash)
+              </pre>
+            </div>
+          </div>
+          
+          <div class="mb-6">
+            <h3 class="text-xl font-bold mb-4 flex items-center">
+              <span class="inline-block w-2 h-6 bg-primary rounded-full mr-2"></span>
+              地址译码技术
+            </h3>
+            <ul class="list-disc list-inside space-y-2 text-gray-600 mb-4">
+              <li><strong>线选法</strong>：直接用高位地址线作为存储器芯片的片选信号</li>
+              <li><strong>全译码法</strong>：使用译码器对高位地址进行译码，产生片选信号</li>
+              <li><strong>部分译码法</strong>：仅对部分高位地址线进行译码</li>
+            </ul>
+          </div>
+          
+          <div class="mb-6">
+            <h3 class="text-xl font-bold mb-4 flex items-center">
+              <span class="inline-block w-2 h-6 bg-primary rounded-full mr-2"></span>
+              8051单片机存储器扩展特点
+            </h3>
+            <ul class="list-disc list-inside space-y-2 text-gray-600 mb-4">
+              <li>程序存储器和数据存储器空间独立</li>
+              <li>程序存储器扩展使用PSEN信号</li>
+              <li>数据存储器扩展使用RD和WR信号</li>
+              <li>外部数据存储器地址空间为64KB(0000H-FFFFH)</li>
+            </ul>
+          </div>
+          
+          <div class="flex justify-between items-center mt-8">
+            <a href="#min-system" class="px-5 py-2 bg-white text-primary border border-primary rounded-lg shadow-sm hover:bg-primary/5 transition-all duration-300 flex items-center">
+              <i class="fa fa-arrow-left mr-2"></i> 上一节：最小系统
+            </a>
+            <a href="#bus" class="px-5 py-2 bg-primary text-white rounded-lg shadow-sm hover:bg-primary/90 transition-all duration-300 flex items-center">
+              下一节：单片机总线 <i class="fa fa-arrow-right ml-2"></i>
+            </a>
+          </div>
+        </section>
+        
+        <!-- 单片机总线 -->
+        <section id="bus" class="section-container bg-white rounded-xl shadow-md p-8 mb-8">
+          <div class="flex items-center gap-4 mb-6">
+            <div class="w-12 h-12 rounded-full bg-primary/20 flex items-center justify-center text-primary">
+              <i class="fa fa-exchange text-xl"></i>
+            </div>
+            <h2 class="text-2xl md:text-3xl font-bold">单片机总线</h2>
+          </div>
+          <p class="text-gray-600 mb-6">
+            总线是单片机系统中各功能部件之间进行信息传输的公共通道，是构成单片机系统的重要组成部分。
+          </p>
+          
+          <div class="mb-6">
+            <h3 class="text-xl font-bold mb-4 flex items-center">
+              <span class="inline-block w-2 h-6 bg-primary rounded-full mr-2"></span>
+              总线分类
+            </h3>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+              <div class="bg-blue-50 rounded-lg p-4 border-l-4 border-primary">
+                <h4 class="font-bold mb-2 text-primary">地址总线(AB)</h4>
+                <p class="text-gray-600">
+                  用于传输单片机发出的地址信号，确定存储单元或I/O端口的位置。
+                </p>
+              </div>
+              <div class="bg-green-50 rounded-lg p-4 border-l-4 border-secondary">
+                <h4 class="font-bold mb-2 text-secondary">数据总线(DB)</h4>
+                <p class="text-gray-600">
+                  用于在单片机与存储器、I/O端口之间传输数据，双向传输。
+                </p>
+              </div>
+              <div class="bg-orange-50 rounded-lg p-4 border-l-4 border-accent">
+                <h4 class="font-bold mb-2 text-accent">控制总线(CB)</h4>
+                <p class="text-gray-600">
+                  用于传输控制信号和时序信号，协调各部件工作。
+                </p>
+              </div>
+            </div>
+          </div>
+          
+          <div class="mb-6">
+            <h3 class="text-xl font-bold mb-4 flex items-center">
+              <span class="inline-block w-2 h-6 bg-primary rounded-full mr-2"></span>
+              8051单片机总线结构
+            </h3>
+            <ul class="list-disc list-inside space-y-2 text-gray-600 mb-4">
+              <li><strong>地址总线</strong>：16位，可寻址64KB空间(0000H-FFFFH)</li>
+              <li><strong>数据总线</strong>：8位，P0口复用为数据总线和低8位地址总线</li>
+              <li><strong>控制总线</strong>：包括ALE、PSEN、EA、RD、WR等信号</li>
+            </ul>
+          </div>
+          
+          <div class="mb-6">
+            <h3 class="text-xl font-bold mb-4 flex items-center">
+              <span class="inline-block w-2 h-6 bg-primary rounded-full mr-2"></span>
+              总线分时复用技术
+            </h3>
+            <p class="text-gray-600 mb-4">
+              8051单片机P0口同时作为数据总线和低8位地址总线，采用分时复用技术实现：
+            </p>
+            <div class="bg-gray-50 rounded-lg p-4 mb-4">
+              <pre class="font-mono text-sm text-gray-700">
+1. 地址锁存信号ALE(Address Latch Enable)：
+   - 当ALE为高电平时，P0口输出低8位地址
+   - 当ALE下降沿时，将低8位地址锁存到外部地址锁存器中
+
+2. 时序过程：
+   - 首先P0口输出低8位地址，ALE为高电平
+   - ALE下降沿将地址锁存
+   - 然后P0口切换为数据总线，进行数据传输
+              </pre>
+            </div>
+          </div>
+          
+          <div class="mb-6">
+            <h3 class="text-xl font-bold mb-4 flex items-center">
+              <span class="inline-block w-2 h-6 bg-primary rounded-full mr-2"></span>
+              总线扩展方法
+            </h3>
+            <ul class="list-disc list-inside space-y-2 text-gray-600 mb-4">
+              <li><strong>并行扩展</strong>：使用地址锁存器、数据缓冲器等芯片扩展总线</li>
+              <li><strong>串行扩展</strong>：通过SPI、I²C等串行总线扩展</li>
+              <li><strong>标准总线</strong>：使用如PCI、USB等标准总线扩展</li>
+            </ul>
+          </div>
+          
+          <div class="flex justify-between items-center mt-8">
+            <a href="#memory-expansion" class="px-5 py-2 bg-white text-primary border border-primary rounded-lg shadow-sm hover:bg-primary/5 transition-all duration-300 flex items-center">
+              <i class="fa fa-arrow-left mr-2"></i> 上一节：存储器扩展
+            </a>
+            <a href="#8255" class="px-5 py-2 bg-primary text-white rounded-lg shadow-sm hover:bg-primary/90 transition-all duration-300 flex items-center">
+              下一节：8255并行I/O扩展 <i class="fa fa-arrow-right ml-2"></i>
+            </a>
+          </div>
+        </section>
+        
+        <!-- 8255并行I/O扩展芯片 -->
+        <section id="8255" class="section-container bg-white rounded-xl shadow-md p-8 mb-8">
+          <div class="flex items-center gap-4 mb-6">
+            <div class="w-12 h-12 rounded-full bg-primary/20 flex items-center justify-center text-primary">
+              <i class="fa fa-plug text-xl"></i>
+            </div>
+            <h2 class="text-2xl md:text-3xl font-bold">8255并行I/O扩展芯片</h2>
+          </div>
+          <p class="text-gray-600 mb-6">
+            8255是一种常用的可编程并行I/O接口芯片，可用于扩展单片机的I/O端口，为外部设备提供数据输入/输出通道。
+          </p>
+          
+          <div class="mb-6">
+            <h3 class="text-xl font-bold mb-4 flex items-center">
+              <span class="inline-block w-2 h-6 bg-primary rounded-full mr-2"></span>
+              主要特点
+            </h3>
+            <ul class="list-disc list-inside space-y-2 text-gray-600 mb-4">
+              <li>具有24个可编程I/O引脚，分为3个8位端口(A、B、C)</li>
+              <li>三种工作方式：方式0(基本输入/输出)、方式1(选通输入/输出)、方式2(双向传输)</li>
+              <li>通过编程设置控制字可灵活配置各端口工作方式</li>
+              <li>与单片机通过数据总线连接，使用简单方便</li>
+            </ul>
+          </div>
+          
+          <div class="mb-6">
+            <h3 class="text-xl font-bold mb-4 flex items-center">
+              <span class="inline-block w-2 h-6 bg-primary rounded-full mr-2"></span>
+              内部结构
+            </h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+              <div class="bg-blue-50 rounded-lg p-4 border-l-4 border-primary">
+                <h4 class="font-bold mb-2 text-primary">端口A、B、C</h4>
+                <p class="text-gray-600">
+                  - 端口A：具有一个8位数据输出锁存/缓冲器和一个8位数据输入锁存器<br>
+                  - 端口B：具有一个8位数据输出锁存/缓冲器和一个8位数据输入缓冲器<br>
+                  - 端口C：可分为两个4位端口，分别与端口A和B配合使用，也可作为独立I/O口
+                </p>
+              </div>
+              <div class="bg-green-50 rounded-lg p-4 border-l-4 border-secondary">
+                <h4 class="font-bold mb-2 text-secondary">控制寄存器</h4>
+                <p class="text-gray-600">
+                  - 工作方式控制寄存器：用于设置各端口的工作方式<br>
+                  - C口按位置位/复位控制寄存器：用于对端口C的各位进行单独置位或复位操作
+                </p>
+              </div>
+            </div>
+          </div>
+          
+          <div class="mb-6">
+            <h3 class="text-xl font-bold mb-4 flex items-center">
+              <span class="inline-block w-2 h-6 bg-primary rounded-full mr-2"></span>
+              工作方式
+            </h3>
+            <div class="bg-gray-50 rounded-lg p-4 mb-4">
+              <pre class="font-mono text-sm text-gray-700">
+1. 方式0(基本输入/输出方式)：
+   - 端口A、B、C均可设置为输入或输出
+   - 无握手信号，适用于简单的I/O设备
+   - 例如：开关输入、LED显示输出
+
+2. 方式1(选通输入/输出方式)：
+   - 端口A和B可设置为方式1
+   - 端口C的部分引脚作为握手信号和中断请求信号
+   - 例如：键盘输入、打印机输出
+
+3. 方式2(双向传输方式)：
+   - 仅端口A可设置为方式2
+   - 端口A既可以输入也可以输出
+   - 端口C的5个引脚作为握手信号
+   - 例如：双向数据通信设备
+              </pre>
+            </div>
+          </div>
+          
+          <div class="mb-6">
+            <h3 class="text-xl font-bold mb-4 flex items-center">
+              <span class="inline-block w-2 h-6 bg-primary rounded-full mr-2"></span>
+              控制字格式
+            </h3>
+            <div class="flex flex-col md:flex-row gap-4 mb-6">
+              <div class="bg-blue-50 rounded-lg p-4 border-l-4 border-primary flex-1">
+                <h4 class="font-bold mb-2 text-primary">工作方式控制字</h4>
+                <p class="text-gray-600 mb-2">D7=1时为工作方式控制字</p>
+                <div class="font-mono text-sm bg-white p-2 rounded border border-gray-200">
+                  D7 D6 D5 D4 D3 D2 D1 D0<br>
+                  1  A组方式  A口  C上  B组  B口  C下<br>
+                     方式选择  I/O  I/O 方式  I/O  I/O
+                </div>
+              </div>
+              <div class="bg-green-50 rounded-lg p-4 border-l-4 border-secondary flex-1">
+                <h4 class="font-bold mb-2 text-secondary">C口按位置位/复位控制字</h4>
+                <p class="text-gray-600 mb-2">D7=0时为C口按位置位/复位控制字</p>
+                <div class="font-mono text-sm bg-white p-2 rounded border border-gray-200">
+                  D7 D6 D5 D4 D3 D2 D1 D0<br>
+                  0   0  0  0   位选择  置/复位<br>
+                           000-111   1=置位<br>
+                                   0=复位
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="flex justify-between items-center mt-8">
+            <a href="#bus" class="px-5 py-2 bg-white text-primary border border-primary rounded-lg shadow-sm hover:bg-primary/5 transition-all duration-300 flex items-center">
+              <i class="fa fa-arrow-left mr-2"></i> 上一节：单片机总线
+            </a>
+            <a href="#min-case" class="px-5 py-2 bg-primary text-white rounded-lg shadow-sm hover:bg-primary/90 transition-all duration-300 flex items-center">
+              下一节：最小系统案例 <i class="fa fa-arrow-right ml-2"></i>
+            </a>
+          </div>
+        </section>
+        
+        <!-- 最小系统案例 -->
+        <section id="min-case" class="section-container bg-white rounded-xl shadow-md p-8 mb-8">
+          <div class="flex items-center gap-4 mb-6">
+            <div class="w-12 h-12 rounded-full bg-primary/20 flex items-center justify-center text-primary">
+              <i class="fa fa-cogs text-xl"></i>
+            </div>
+            <h2 class="text-2xl md:text-3xl font-bold">最小系统案例</h2>
+          </div>
+          <p class="text-gray-600 mb-6">
+            通过实际案例掌握单片机最小系统的设计与实现方法，理解最小系统的工作原理和应用场景。
+          </p>
+          
+          <div class="mb-6">
+            <h3 class="text-xl font-bold mb-4 flex items-center">
+              <span class="inline-block w-2 h-6 bg-primary rounded-full mr-2"></span>
+              案例：基于8051的LED闪烁系统
+            </h3>
+            <p class="text-gray-600 mb-4">
+              设计一个简单的8051单片机最小系统，实现LED闪烁功能。
+            </p>
+            
+            <div class="mb-6">
+              <h4 class="font-bold text-lg mb-3 flex items-center">
+                <i class="fa fa-sitemap mr-2 text-primary"></i>
+                系统硬件设计
+              </h4>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                <div>
+                  <h5 class="font-bold mb-2">硬件组成</h5>
+                  <ul class="list-disc list-inside space-y-2 text-gray-600">
+                    <li>AT89C51单片机</li>
+                    <li>12MHz晶振及电容</li>
+                    <li>复位电路(10KΩ电阻、10μF电容、按键)</li>
+                    <li>LED及限流电阻(330Ω)</li>
+                    <li>+5V电源</li>
+                  </ul>
+                </div>
+                <div>
+                  <h5 class="font-bold mb-2">电路连接</h5>
+                  <ul class="list-disc list-inside space-y-2 text-gray-600">
+                    <li>晶振连接到XTAL1和XTAL2引脚</li>
+                    <li>复位电路连接到RST引脚</li>
+                    <li>LED阳极通过电阻连接到P1.0引脚，阴极接地</li>
+                    <li>VCC接+5V，GND接地</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+            
+            <div class="mb-6">
+              <h4 class="font-bold text-lg mb-3 flex items-center">
+                <i class="fa fa-code mr-2 text-primary"></i>
+                软件设计
+              </h4>
+              <div class="bg-gray-50 rounded-lg p-4 mb-4">
+                <pre class="font-mono text-sm text-gray-700">
+; 8051单片机LED闪烁程序
+; 功能：P1.0引脚连接的LED以1秒间隔闪烁
+
+ORG 0000H      ; 程序起始地址
+LJMP MAIN      ; 跳转到主程序
+
+ORG 0030H      ; 主程序起始地址
+MAIN:
+    MOV P1, #0FFH  ; 初始化P1口为高电平
+    
+LOOP:
+    CLR P1.0       ; 点亮LED
+    ACALL DELAY    ; 调用延时子程序
+    
+    SETB P1.0      ; 熄灭LED
+    ACALL DELAY    ; 调用延时子程序
+    
+    SJMP LOOP      ; 无限循环
+
+; 延时子程序 - 约1秒延时
+DELAY:
+    MOV R7, #20    ; 外循环次数
+DEL1:
+    MOV R6, #250   ; 中循环次数
+DEL2:
+    MOV R5, #200   ; 内循环次数
+DEL3:
+    DJNZ R5, DEL3  ; 内循环
+    DJNZ R6, DEL2  ; 中循环
+    DJNZ R7, DEL1  ; 外循环
+    RET            ; 返回主程序
+
+END              ; 程序结束
+                </pre>
+              </div>
+            </div>
+            
+            <div class="mb-6">
+              <h4 class="font-bold text-lg mb-3 flex items-center">
+                <i class="fa fa-lightbulb-o mr-2 text-primary"></i>
+                工作原理分析
+              </h4>
+              <ul class="list-disc list-inside space-y-2 text-gray-600 mb-4">
+                <li>系统上电后，复位电路使单片机初始化</li>
+                <li>晶振提供12MHz时钟信号，单片机开始执行程序</li>
+                <li>程序通过循环不断切换P1.0引脚的电平状态</li>
+                <li>当P1.0为低电平时，LED导通点亮；当P1.0为高电平时，LED截止熄灭</li>
+                <li>延时子程序通过多层循环实现约1秒的延时，控制LED闪烁频率</li>
+              </ul>
+            </div>
+          </div>
+          
+          <div class="mb-6">
+            <h3 class="text-xl font-bold mb-4 flex items-center">
+              <span class="inline-block w-2 h-6 bg-primary rounded-full mr-2"></span>
+              案例：基于8051的按键检测系统
+            </h3>
+            <p class="text-gray-600 mb-4">
+              设计一个按键检测系统，当按键按下时，LED状态翻转。
+            </p>
+            
+            <div class="mb-6">
+              <h4 class="font-bold text-lg mb-3 flex items-center">
+                <i class="fa fa-sitemap mr-2 text-primary"></i>
+                系统硬件设计
+              </h4>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                <div>
+                  <h5 class="font-bold mb-2">硬件组成</h5>
+                  <ul class="list-disc list-inside space-y-2 text-gray-600">
+                    <li>AT89C51单片机</li>
+                    <li>12MHz晶振及电容</li>
+                    <li>复位电路</li>
+                    <li>LED及限流电阻</li>
+                    <li>按键及上拉电阻(10KΩ)</li>
+                    <li>+5V电源</li>
+                  </ul>
+                </div>
+                <div>
+                  <h5 class="font-bold mb-2">电路连接</h5>
+                  <ul class="list-disc list-inside space-y-2 text-gray-600">
+                    <li>LED连接到P1.0引脚</li>
+                    <li>按键一端连接到P3.2引脚，另一端接地</li>
+                    <li>P3.2通过上拉电阻接+5V</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+            
+            <div class="mb-6">
+              <h4 class="font-bold text-lg mb-3 flex items-center">
+                <i class="fa fa-code mr-2 text-primary"></i>
+                软件设计
+              </h4>
+              <div class="bg-gray-50 rounded-lg p-4 mb-4">
+                <pre class="font-mono text-sm text-gray-700">
+; 8051单片机按键检测程序
+; 功能：检测P3.2引脚的按键状态，按键按下时翻转P1.0引脚的LED状态
+
+ORG 0000H      ; 程序起始地址
+LJMP MAIN      ; 跳转到主程序
+
+ORG 0030H      ; 主程序起始地址
+MAIN:
+    MOV P1, #0FFH  ; 初始化P1口为高电平
+    SETB P3.2      ; 设置P3.2为输入模式
+    
+CHECK_KEY:
+    JB P3.2, CHECK_KEY  ; 如果按键未按下，继续检测
+    
+    ; 检测到按键按下，消抖处理
+    ACALL DELAY_20MS    ; 延时20ms消除抖动
+    JB P3.2, CHECK_KEY  ; 再次检测，确认按键确实按下
+    
+    ; 按键确认按下，处理按键事件
+    CPL P1.0            ; 翻转LED状态
+    
+    ; 等待按键释放
+KEY_RELEASE:
+    JNB P3.2, KEY_RELEASE  ; 等待按键释放
+    
+    SJMP CHECK_KEY      ; 继续检测按键
+
+; 延时20ms子程序
+DELAY_20MS:
+    MOV R7, #20
+DEL1:
+    MOV R6, #100
+DEL2:
+    MOV R5, #10
+DEL3:
+    DJNZ R5, DEL3
+    DJNZ R6, DEL2
+    DJNZ R7, DEL1
+    RET
+
+END
+                </pre>
+              </div>
+            </div>
+            
+            <div class="mb-6">
+              <h4 class="font-bold text-lg mb-3 flex items-center">
+                <i class="fa fa-lightbulb-o mr-2 text-primary"></i>
+                工作原理分析
+              </h4>
+              <ul class="list-disc list-inside space-y-2 text-gray-600 mb-4">
+                <li>系统不断检测P3.2引脚的电平状态</li>
+                <li>当按键未按下时，P3.2通过上拉电阻保持高电平</li>
+                <li>当按键按下时，P3.2接地变为低电平</li>
+                <li>检测到低电平后，通过延时消抖处理，确认按键有效按下</li>
+                <li>按键有效按下后，翻转LED状态，并等待按键释放</li>
+              </ul>
+            </div>
+          </div>
+          
+          <div class="flex justify-between items-center mt-8">
+            <a href="#8255" class="px-5 py-2 bg-white text-primary border border-primary rounded-lg shadow-sm hover:bg-primary/5 transition-all duration-300 flex items-center">
+              <i class="fa fa-arrow-left mr-2"></i> 上一节：8255并行I/O扩展
+            </a>
+            <a href="#8255-case" class="px-5 py-2 bg-primary text-white rounded-lg shadow-sm hover:bg-primary/90 transition-all duration-300 flex items-center">
+              下一节：8255项目案例 <i class="fa fa-arrow-right ml-2"></i>
+            </a>
+          </div>
+        </section>
+        
+        <!-- 8255项目案例 -->
+        <section id="8255-case" class="section-container bg-white rounded-xl shadow-md p-8 mb-8">
+          <div class="flex items-center gap-4 mb-6">
+            <div class="w-12 h-12 rounded-full bg-primary/20 flex items-center justify-center text-primary">
+              <i class="fa fa-project-diagram text-xl"></i>
+            </div>
+            <h2 class="text-2xl md:text-3xl font-bold">8255项目案例</h2>
+          </div>
+          <p class="text-gray-600 mb-6">
+            通过实际项目案例掌握8255并行I/O扩展芯片的应用设计方法，理解其在单片机系统扩展中的作用。
+          </p>
+          
+          <div class="mb-6">
+            <h3 class="text-xl font-bold mb-4 flex items-center">
+              <span class="inline-block w-2 h-6 bg-primary rounded-full mr-2"></span>
+              案例：基于8255的LED点阵显示系统
+            </h3>
+            <p class="text-gray-600 mb-4">
+              设计一个基于8255扩展的8×8 LED点阵显示系统，实现简单字符显示。
+            </p>
+            
+            <div class="mb-6">
+              <h4 class="font-bold text-lg mb-3 flex items-center">
+                <i class="fa fa-sitemap mr-2 text-primary"></i>
+                系统硬件设计
+              </h4>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                <div>
+                  <h5 class="font-bold mb-2">硬件组成</h5>
+                  <ul class="list-disc list-inside space-y-2 text-gray-600">
+                    <li>AT89C51单片机</li>
+                    <li>8255并行I/O扩展芯片</li>
+                    <li>8×8 LED点阵模块</li>
+                    <li>74LS373地址锁存器</li>
+                    <li>晶振、复位电路、电源等</li>
+                  </ul>
+                </div>
+                <div>
+                  <h5 class="font-bold mb-2">电路连接</h5>
+                  <ul class="list-disc list-inside space-y-2 text-gray-600">
+                    <li>8255的D0-D7连接到单片机的P0口</li>
+                    <li>8255的CS连接到地址译码输出(如Y0)</li>
+                    <li>8255的A0、A1连接到地址线A0、A1</li>
+                    <li>8255的RD、WR分别连接到单片机的RD、WR</li>
+                    <li>8255的PA口连接到LED点阵的行线</li>
+                    <li>8255的PB口连接到LED点阵的列线</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+            
+            <div class="mb-6">
+              <h4 class="font-bold text-lg mb-3 flex items-center">
+                <i class="fa fa-code mr-2 text-primary"></i>
+                软件设计
+              </h4>
+              <div class="bg-gray-50 rounded-lg p-4 mb-4">
+                <pre class="font-mono text-sm text-gray-700">
+; 8255控制8×8 LED点阵显示程序
+; 功能：在LED点阵上显示字符'A'
+
+ORG 0000H      ; 程序起始地址
+LJMP MAIN      ; 跳转到主程序
+
+; 8255端口地址定义
+PA8255  EQU 0FF7CH  ; 8255端口A地址
+PB8255  EQU 0FF7DH  ; 8255端口B地址
+PC8255  EQU 0FF7EH  ; 8255端口C地址
+CON8255 EQU 0FF7FH  ; 8255控制寄存器地址
+
+ORG 0030H      ; 主程序起始地址
+MAIN:
+    ; 初始化8255
+    MOV DPTR, #CON8255  ; 指向8255控制寄存器
+    MOV A, #80H         ; 方式控制字：方式0，A口、B口输出
+    MOVX @DPTR, A       ; 写入控制字
+    
+    ; 显示字符'A'
+DISPLAY:
+    MOV R0, #0          ; 列计数器
+    MOV DPTR, #TABLE    ; 指向字符表
+    
+DISP_LOOP:
+    MOV A, R0           ; 获取列号
+    MOVC A, @A+DPTR     ; 从字符表中获取对应列的数据
+    MOV DPTR, #PA8255   ; 指向8255端口A(行数据)
+    MOVX @DPTR, A       ; 输出行数据
+    
+    MOV A, R0           ; 获取列号
+    CPL A               ; 取反，因为列是共阳连接
+    MOV DPTR, #PB8255   ; 指向8255端口B(列数据)
+    MOVX @DPTR, A       ; 输出列数据
+    
+    ACALL DELAY         ; 延时，控制显示亮度
+    
+    INC R0              ; 列号加1
+    CJNE R0, #8, DISP_LOOP  ; 如果未显示完8列，继续循环
+    
+    SJMP DISPLAY        ; 无限循环显示
+
+; 延时子程序
+DELAY:
+    MOV R7, #10
+DEL1:
+    MOV R6, #20
+DEL2:
+    MOV R5, #25
+DEL3:
+    DJNZ R5, DEL3
+    DJNZ R6, DEL2
+    DJNZ R7, DEL1
+    RET
+
+; 字符表 - 'A'的点阵数据
+TABLE:
+    DB 00H, 3CH, 42H, 42H, 42H, 7EH, 42H, 42H  ; 'A'的点阵数据
+
+END
+                </pre>
+              </div>
+            </div>
+            
+            <div class="mb-6">
+              <h4 class="font-bold text-lg mb-3 flex items-center">
+                <i class="fa fa-lightbulb-o mr-2 text-primary"></i>
+                工作原理分析
+              </h4>
+              <ul class="list-disc list-inside space-y-2 text-gray-600 mb-4">
+                <li>系统上电后，先对8255进行初始化，设置工作方式</li>
+                <li>采用动态扫描方式显示字符，依次点亮每一列</li>
+                <li>通过查表获取字符的点阵数据，按列输出到8255的PA口</li>
+                <li>控制8255的PB口选择当前显示的列</li>
+                <li>通过适当的延时控制显示亮度和扫描速度</li>
+              </ul>
+            </div>
+          </div>
+          
+          <div class="mb-6">
+            <h3 class="text-xl font-bold mb-4 flex items-center">
+              <span class="inline-block w-2 h-6 bg-primary rounded-full mr-2"></span>
+              案例：基于8255的简易键盘接口
+            </h3>
+            <p class="text-gray-600 mb-4">
+              设计一个基于8255的4×4矩阵键盘接口，实现按键识别功能。
+            </p>
+            
+            <div class="mb-6">
+              <h4 class="font-bold text-lg mb-3 flex items-center">
+                <i class="fa fa-sitemap mr-2 text-primary"></i>
+                系统硬件设计
+              </h4>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                <div>
+                  <h5 class="font-bold mb-2">硬件组成</h5>
+                  <ul class="list-disc list-inside space-y-2 text-gray-600">
+                    <li>AT89C51单片机</li>
+                    <li>8255并行I/O扩展芯片</li>
+                    <li>4×4矩阵键盘</li>
+                    <li>晶振、复位电路、电源等</li>
+                  </ul>
+                </div>
+                <div>
+                  <h5 class="font-bold mb-2">电路连接</h5>
+                  <ul class="list-disc list-inside space-y-2 text-gray-600">
+                    <li>8255的PA口连接键盘的行线(输出)</li>
+                    <li>8255的PB口连接键盘的列线(输入)</li>
+                    <li>其他控制信号连接同前例</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+            
+            <div class="mb-6">
+              <h4 class="font-bold text-lg mb-3 flex items-center">
+                <i class="fa fa-code mr-2 text-primary"></i>
+                软件设计
+              </h4>
+              <div class="bg-gray-50 rounded-lg p-4 mb-4">
+                <pre class="font-mono text-sm text-gray-700">
+; 8255控制4×4矩阵键盘程序
+; 功能：扫描矩阵键盘，识别按键并显示键值
+
+ORG 0000H      ; 程序起始地址
+LJMP MAIN      ; 跳转到主程序
+
+; 8255端口地址定义
+PA8255  EQU 0FF7CH  ; 8255端口A地址
+PB8255  EQU 0FF7DH  ; 8255端口B地址
+CON8255 EQU 0FF7FH  ; 8255控制寄存器地址
+
+ORG 0030H      ; 主程序起始地址
+MAIN:
+    ; 初始化8255
+    MOV DPTR, #CON8255  ; 指向8255控制寄存器
+    MOV A, #82H         ; 方式控制字：方式0，A口输出，B口输入
+    MOVX @DPTR, A       ; 写入控制字
+    
+SCAN_KEY:
+    ACALL KEY_SCAN      ; 调用键盘扫描子程序
+    JZ SCAN_KEY         ; 如果无按键，继续扫描
+    
+    ; 有按键，消抖处理
+    ACALL DELAY_20MS    ; 延时20ms
+    ACALL KEY_SCAN      ; 再次扫描确认
+    JZ SCAN_KEY         ; 如果按键消失，继续扫描
+    
+    ; 按键确认有效，处理键值
+    MOV R2, A           ; 保存键值
+    
+    ; 等待按键释放
+KEY_RELEASE:
+    ACALL KEY_SCAN
+    JNZ KEY_RELEASE     ; 等待按键释放
+    
+    ; 显示键值(此处简化处理)
+    MOV A, R2           ; 获取键值
+    SJMP SCAN_KEY       ; 继续扫描
+
+; 键盘扫描子程序
+; 功能：扫描键盘，有键按下返回键值(0-15)，无键按下返回0
+KEY_SCAN:
+    MOV DPTR, #PA8255   ; 指向8255端口A
+    MOV A, #00H         ; 所有行输出低电平
+    MOVX @DPTR, A       ; 输出到行线
+    
+    MOV DPTR, #PB8255   ; 指向8255端口B
+    MOVX A, @DPTR       ; 读取列线状态
+    CPL A               ; 取反，使1表示有键按下
+    ANL A, #0FH         ; 屏蔽高4位
+    JZ NO_KEY           ; 如果A=0，表示无按键
+    
+    ; 有按键，确定按键位置
+    MOV R1, A           ; 保存列扫描值
+    
+    ; 逐行扫描
+    MOV R0, #0          ; 行计数器
+    MOV A, #FEH         ; 初始行扫描值(第一行低电平)
+    
+ROW_SCAN:
+    MOV DPTR, #PA8255   ; 指向8255端口A
+    MOVX @DPTR, A       ; 输出行扫描值
+    
+    MOV DPTR, #PB8255   ; 指向8255端口B
+    MOVX A, @DPTR       ; 读取列线状态
+    CPL A               ; 取反，使1表示有键按下
+    ANL A, #0FH         ; 屏蔽高4位
+    JZ NEXT_ROW         ; 如果A=0，表示此行无按键
+    
+    ; 计算键值
+    MOV B, #4           ; 每行列数
+    MUL AB              ; R0×4
+    ADD A, R1           ; 加上列扫描值
+    RET                 ; 返回键值
+    
+NEXT_ROW:
+    INC R0              ; 行号加1
+    MOV A, #FEH         ; 重新加载初始行扫描值
+    RL A                ; 左移一位，指向下一行
+    CJNE R0, #4, ROW_SCAN  ; 如果未扫描完4行，继续
+    
+NO_KEY:
+    MOV A, #0           ; 无按键，返回0
+    RET
+
+; 延时20ms子程序
+DELAY_20MS:
+    MOV R7, #20
+DEL1:
+    MOV R6, #100
+DEL2:
+    MOV R5, #10
+DEL3:
+    DJNZ R5, DEL3
+    DJNZ R6, DEL2
+    DJNZ R7, DEL1
+    RET
+
+END
+                </pre>
+              </div>
+            </div>
+            
+            <div class="mb-6">
+              <h4 class="font-bold text-lg mb-3 flex items-center">
+                <i class="fa fa-lightbulb-o mr-2 text-primary"></i>
+                工作原理分析
+              </h4>
+              <ul class="list-disc list-inside space-y-2 text-gray-600 mb-4">
+                <li>采用行列扫描法识别按键，先将所有行线置低</li>
+                <li>读取列线状态，判断是否有按键按下</li>
+                <li>如果有按键按下，再逐行扫描确定具体按键位置</li>
+                <li>通过计算行号和列号得出键值</li>
+                <li>加入消抖处理确保按键识别准确</li>
+              </ul>
+            </div>
+          </div>
+          
+          <div class="flex justify-between items-center mt-8">
+            <a href="#min-case" class="px-5 py-2 bg-white text-primary border border-primary rounded-lg shadow-sm hover:bg-primary/5 transition-all duration-300 flex items-center">
+              <i class="fa fa-arrow-left mr-2"></i> 上一节：最小系统案例
+            </a>
+            <a href="#summary" class="px-5 py-2 bg-primary text-white rounded-lg shadow-sm hover:bg-primary/90 transition-all duration-300 flex items-center">
+              下一节：本章总结 <i class="fa fa-arrow-right ml-2"></i>
+            </a>
+          </div>
+        </section>
+        
+        <!-- 本章总结 -->
+        <section id="summary" class="section-container bg-white rounded-xl shadow-md p-8 mb-8">
+          <div class="flex items-center gap-4 mb-6">
+            <div class="w-12 h-12 rounded-full bg-primary/20 flex items-center justify-center text-primary">
+              <i class="fa fa-book text-xl"></i>
+            </div>
+            <h2 class="text-2xl md:text-3xl font-bold">本章总结</h2>
+          </div>
+          
+          <div class="mb-6">
+            <h3 class="text-xl font-bold mb-4 flex items-center">
+              <span class="inline-block w-2 h-6 bg-primary rounded-full mr-2"></span>
+              核心知识点回顾
+            </h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+              <div class="bg-blue-50 rounded-lg p-4 border-l-4 border-primary">
+                <h4 class="font-bold mb-2 text-primary">单片机最小系统</h4>
+                <p class="text-gray-600">
+                  由单片机芯片、时钟电路、复位电路和电源电路组成，是单片机工作的基础。时钟电路提供时序基准，复位电路使单片机初始化，电源提供稳定工作电压。
+                </p>
+              </div>
+              <div class="bg-green-50 rounded-lg p-4 border-l-4 border-secondary">
+                <h4 class="font-bold mb-2 text-secondary">存储器扩展</h4>
+                <p class="text-gray-600">
+                  包括程序存储器和数据存储器扩展，有并行扩展和串行扩展两种方式。地址译码技术有线选法、全译码法和部分译码法，用于确定存储器地址空间。
+                </p>
+              </div>
+              <div class="bg-orange-50 rounded-lg p-4 border-l-4 border-accent">
+                <h4 class="font-bold mb-2 text-accent">单片机总线</h4>
+                <p class="text-gray-600">
+                  包括地址总线、数据总线和控制总线。8051单片机P0口采用分时复用技术，既作为低8位地址总线又作为数据总线，通过ALE信号实现地址锁存。
+                </p>
+              </div>
+              <div class="bg-purple-50 rounded-lg p-4 border-l-4 border-purple-500">
+                <h4 class="font-bold mb-2 text-purple-500">8255并行I/O扩展</h4>
+                <p class="text-gray-600">
+                  可编程并行I/O接口芯片，有24个I/O引脚，分A、B、C三个端口，三种工作方式。通过控制字设置工作方式，可灵活扩展单片机I/O端口。
+                </p>
+              </div>
+            </div>
+          </div>
+          
+          <div class="mb-6">
+            <h3 class="text-xl font-bold mb-4 flex items-center">
+              <span class="inline-block w-2 h-6 bg-primary rounded-full mr-2"></span>
+              实践技能提升
+            </h3>
+            <ul class="list-disc list-inside space-y-2 text-gray-600 mb-4">
+              <li>掌握单片机最小系统的设计与调试方法</li>
+              <li>学会存储器扩展的电路设计与地址分配</li>
+              <li>理解总线分时复用原理及实现方法</li>
+              <li>掌握8255芯片的编程方法和应用设计</li>
+              <li>能够设计并实现基于单片机扩展的简单应用系统</li>
+            </ul>
+          </div>
+          
+          <div class="mb-6">
+            <h3 class="text-xl font-bold mb-4 flex items-center">
+              <span class="inline-block w-2 h-6 bg-primary rounded-full mr-2"></span>
+              应用与拓展
+            </h3>
+            <p class="text-gray-600 mb-4">
+              单片机硬件扩展技术是单片机应用系统开发的重要基础，在工业控制、智能仪器仪表、消费电子等领域有广泛应用。通过本章学习，学生应能够：
+            </p>
+            <ul class="list-disc list-inside space-y-2 text-gray-600 mb-4">
+              <li>根据应用需求合理选择和扩展外部存储器</li>
+              <li>设计并实现基于8255的I/O接口扩展</li>
+              <li>分析和解决单片机系统扩展中的常见问题</li>
+              <li>为进一步学习单片机高级应用技术打下坚实基础</li>
+            </ul>
+          </div>
+          
+          <div class="bg-primary/5 rounded-lg p-6 border border-primary/20 mb-6">
+            <h4 class="font-bold text-primary mb-2 flex items-center">
+              <i class="fa fa-lightbulb-o mr-2"></i>
+              学习建议
+            </h4>
+            <p class="text-gray-600">
+              本章内容实践性较强，建议通过实验加深理解：<br>
+              1. 搭建单片机最小系统实验平台，观察系统工作状态<br>
+              2. 进行存储器扩展实验，验证地址译码技术<br>
+              3. 完成8255芯片的编程实验，掌握其工作方式<br>
+              4. 设计并实现一个综合性的扩展应用系统
+            </p>
+          </div>
+          
+          <div class="flex justify-between items-center mt-8">
+            <a href="#8255-case" class="px-5 py-2 bg-white text-primary border border-primary rounded-lg shadow-sm hover:bg-primary/5 transition-all duration-300 flex items-center">
+              <i class="fa fa-arrow-left mr-2"></i> 上一节：8255项目案例
+            </a>
+            <a href="#" class="px-5 py-2 bg-primary text-white rounded-lg shadow-sm hover:bg-primary/90 transition-all duration-300 flex items-center">
+              返回顶部 <i class="fa fa-arrow-up ml-2"></i>
+            </a>
+          </div>
+        </section>
+      </div>
+    </div>
+  </main>
+
+  <!-- 页脚 -->
+  <footer class="bg-dark text-white py-12">
+    <div class="container mx-auto px-4">
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div>
+          <h3 class="text-xl font-bold mb-4 flex items-center">
+            <i class="fa fa-microchip mr-2"></i> 单片机技术与应用
+          </h3>
+          <p class="text-gray-400">
+            由《单片机技术与应用》教材第七章内容整理。
+          </p>
+        </div>
+        <div>
+          <h3 class="text-lg font-bold mb-4">相关资源</h3>
+          <ul class="space-y-2">
+            <li><a href="#" class="text-gray-400 hover:text-white transition-colors">实验指导</a></li>
+            <li><a href="#" class="text-gray-400 hover:text-white transition-colors">习题答案</a></li>
+            <li><a href="#" class="text-gray-400 hover:text-white transition-colors">教学课件</a></li>
+            <li><a href="#" class="text-gray-400 hover:text-white transition-colors">参考案例</a></li>
+          </ul>
+        </div>
+        <div>
+          <h3 class="text-lg font-bold mb-4">联系我们</h3>
+          <ul class="space-y-2">
+            <li class="flex items-center">
+              <i class="fa fa-envelope-o mr-2"></i>
+              <a href="" class="text-gray-400 hover:text-white transition-colors">单片机课程QQ群：370743825</a>
+            </li>
+            <li class="flex items-center">
+              <i class="fa fa-phone mr-2"></i>
+              <span class="text-gray-400">QQ：50394113</span>
+            </li>
+
+          </ul>
+        </div>
+      </div>
+      <div class="border-t border-gray-700 mt-8 pt-8 text-center text-gray-400">
+        <p>《单片机技术与应用》课程  &copy; 王老师. 保留所有权利.</p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- 脚本 -->
+  <script>
+    // 移动端菜单切换
+    const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+    const mobileMenu = document.getElementById('mobile-menu');
+    
+    mobileMenuBtn.addEventListener('click', () => {
+      if (mobileMenu.classList.contains('opacity-0')) {
+        mobileMenu.classList.remove('opacity-0', '-translate-y-full', 'pointer-events-none');
+        mobileMenu.classList.add('opacity-100', 'translate-y-0', 'pointer-events-auto');
+        mobileMenuBtn.innerHTML = '<i class="fa fa-times text-xl"></i>';
+      } else {
+        mobileMenu.classList.add('opacity-0', '-translate-y-full', 'pointer-events-none');
+        mobileMenu.classList.remove('opacity-100', 'translate-y-0', 'pointer-events-auto');
+        mobileMenuBtn.innerHTML = '<i class="fa fa-bars text-xl"></i>';
+      }
+    });
+    
+    // 导航栏滚动效果
+    const navbar = document.getElementById('navbar');
+    
+    window.addEventListener('scroll', () => {
+      if (window.scrollY > 100) {
+        navbar.classList.add('py-2', 'shadow-md');
+        navbar.classList.remove('py-3', 'shadow-sm');
+      } else {
+        navbar.classList.add('py-3', 'shadow-sm');
+        navbar.classList.remove('py-2', 'shadow-md');
+      }
+    });
+    
+    // 平滑滚动
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+      anchor.addEventListener('click', function (e) {
+        e.preventDefault();
+        
+        const targetId = this.getAttribute('href');
+        if (targetId === '#') return;
+        
+        const targetElement = document.querySelector(targetId);
+        if (targetElement) {
+          // 关闭移动菜单
+          if (!mobileMenu.classList.contains('opacity-0')) {
+            mobileMenu.classList.add('opacity-0', '-translate-y-full', 'pointer-events-none');
+            mobileMenu.classList.remove('opacity-100', 'translate-y-0', 'pointer-events-auto');
+            mobileMenuBtn.innerHTML = '<i class="fa fa-bars text-xl"></i>';
+          }
+          
+          // 平滑滚动到目标位置
+          window.scrollTo({
+            top: targetElement.offsetTop - 80,
+            behavior: 'smooth'
+          });
+        }
+      });
+    });
+    
+    // 滚动时添加动画效果
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('opacity-100', 'translate-y-0');
+          entry.target.classList.remove('opacity-0', 'translate-y-8');
+        }
+      });
+    }, { threshold: 0.1 });
+    
+    document.querySelectorAll('.section-container').forEach(section => {
+      section.classList.add('opacity-0', 'translate-y-8', 'transition-all', 'duration-700');
+      observer.observe(section);
+    });
+  </script>
+</body>
+</html>
+    

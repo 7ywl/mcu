@@ -1,0 +1,1634 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>第五章 单片机中断原理及应用 - 知识要点</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#1e40af',
+                        secondary: '#3b82f6',
+                        accent: '#93c5fd',
+                        dark: '#0f172a',
+                        light: '#f8fafc'
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .content-auto {
+                content-visibility: auto;
+            }
+            .text-shadow {
+                text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            }
+            .hover-scale {
+                transition: transform 0.3s ease;
+            }
+            .hover-scale:hover {
+                transform: scale(1.02);
+            }
+            .scroll-smooth {
+                scroll-behavior: smooth;
+            }
+            .sidebar-link {
+                @apply px-4 py-2 rounded-lg transition-all duration-200 
+                       flex items-center gap-3;
+            }
+            .sidebar-link.active {
+                @apply bg-primary/10 text-primary font-medium;
+            }
+            .sidebar-link:not(.active):hover {
+                @apply bg-gray-100;
+            }
+            .section-card {
+                @apply bg-white rounded-xl shadow-lg p-6 mb-8 hover-scale;
+            }
+            .subtopic {
+                @apply text-lg font-semibold text-gray-800 mb-3 mt-6;
+            }
+            .content p {
+                @apply mb-4 leading-relaxed;
+            }
+            .content ul {
+                @apply list-disc pl-6 mb-4;
+            }
+            .content ol {
+                @apply list-decimal pl-6 mb-4;
+            }
+            .content code {
+                @apply bg-gray-100 px-2 py-1 rounded text-sm font-mono;
+            }
+            .btn-primary {
+                @apply bg-primary text-white px-6 py-3 rounded-lg shadow-md hover:bg-primary/90 transition-all duration-200;
+            }
+            .btn-secondary {
+                @apply bg-gray-200 text-gray-800 px-6 py-3 rounded-lg shadow-md hover:bg-gray-300 transition-all duration-200;
+            }
+            .nav-item {
+                @apply px-4 py-2 rounded-lg transition-all duration-200 hover:bg-primary/10;
+            }
+            .nav-item.active {
+                @apply bg-primary/10 text-primary font-medium;
+            }
+        }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-800 font-sans scroll-smooth">
+    <!-- 顶部导航栏 -->
+    <header class="bg-white shadow-md sticky top-0 z-30">
+        <div class="container mx-auto px-4">
+            <div class="flex justify-between items-center py-4">
+                <div class="flex items-center gap-2">
+                    <i class="fa fa-microchip text-primary text-2xl"></i>
+                    <h1 class="text-xl font-bold text-primary">单片机技术与应用</h1>
+                </div>
+                
+                <!-- 桌面导航 -->
+                <nav class="hidden md:flex items-center space-x-1">
+                    <a href="/" class="nav-item active">首页</a>
+                    <a href="#overview" class="nav-item active">中断概述</a>
+                    <a href="#generation" class="nav-item">中断产生</a>
+                    <a href="#initialization" class="nav-item">中断初始化</a>
+                    <a href="#stack" class="nav-item">堆栈</a>
+                    <a href="#case" class="nav-item">中断案例</a>
+                    <a href="#summary" class="nav-item">本章总结</a>
+                </nav>
+                
+                <!-- 移动端菜单按钮 -->
+                <button id="mobile-menu-btn" class="md:hidden bg-primary text-white p-2 rounded-lg">
+                    <i class="fa fa-bars"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- 移动端菜单 -->
+    <div id="mobile-menu" class="fixed inset-0 bg-white z-50 transform translate-x-full transition-transform duration-300 md:hidden">
+        <div class="p-4 border-b flex justify-between items-center">
+            <div class="flex items-center gap-2">
+                <i class="fa fa-microchip text-primary text-2xl"></i>
+                <h1 class="text-xl font-bold text-primary">单片机技术与应用</h1>
+            </div>
+            <button id="close-mobile-menu" class="text-gray-500">
+                <i class="fa fa-times"></i>
+            </button>
+        </div>
+        <nav class="py-4">
+            <ul>
+                <li>
+                    <a href="/" class="sidebar-link active" id="mobile-nav-overview">
+                        <i class="fa fa-info-circle"></i>
+                        <span>首页</span>
+                    </a>
+                </li>
+                 <li>
+                    <a href="#overview" class="sidebar-link active" id="mobile-nav-overview">
+                        <i class="fa fa-info-circle"></i>
+                        <span>中断概述</span>
+                    </a>
+                </li>               <li>
+                    <a href="#generation" class="sidebar-link" id="mobile-nav-generation">
+                        <i class="fa fa-bolt"></i>
+                        <span>中断产生，响应与撤除</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="#initialization" class="sidebar-link" id="mobile-nav-initialization">
+                        <i class="fa fa-cog"></i>
+                        <span>中断初始化</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="#stack" class="sidebar-link" id="mobile-nav-stack">
+                        <i class="fa fa-archive"></i>
+                        <span>堆栈</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="#case" class="sidebar-link" id="mobile-nav-case">
+                        <i class="fa fa-code"></i>
+                        <span>中断控制案例</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="#summary" class="sidebar-link" id="mobile-nav-summary">
+                        <i class="fa fa-book"></i>
+                        <span>本章总结</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+    </div>
+
+    <!-- 主内容区 -->
+    <main class="container mx-auto px-4 py-8">
+        <!-- 页面标题 -->
+        <header class="mb-12 text-center">
+            <h1 class="text-[clamp(2rem,5vw,3rem)] font-bold text-primary mb-4 text-shadow">
+                第五章 单片机中断原理及应用
+            </h1>
+            <p class="text-gray-600 text-xl max-w-3xl mx-auto">
+                高等教育出版社 · 魏寿明主编《单片机技术与应用》
+            </p>
+            <div class="w-32 h-1 bg-primary mt-6 mx-auto rounded-full"></div>
+        </header>
+
+        <!-- 学习目标卡片 -->
+        <div class="bg-gradient-to-r from-primary/10 to-secondary/10 rounded-2xl p-8 mb-12 shadow-lg">
+            <h2 class="text-2xl font-bold text-primary mb-4 flex items-center">
+                <i class="fa fa-bullseye mr-3"></i>
+                学习目标
+            </h2>
+            <ul class="grid md:grid-cols-2 gap-4">
+                <li class="flex items-start gap-3">
+                    <i class="fa fa-check-circle text-primary mt-1"></i>
+                    <span>理解中断的基本概念和作用</span>
+                </li>
+                <li class="flex items-start gap-3">
+                    <i class="fa fa-check-circle text-primary mt-1"></i>
+                    <span>掌握8051单片机中断系统的组成和工作原理</span>
+                </li>
+                <li class="flex items-start gap-3">
+                    <i class="fa fa-check-circle text-primary mt-1"></i>
+                    <span>学会中断初始化的方法和步骤</span>
+                </li>
+                <li class="flex items-start gap-3">
+                    <i class="fa fa-check-circle text-primary mt-1"></i>
+                    <span>理解堆栈在中断处理中的作用</span>
+                </li>
+                <li class="flex items-start gap-3">
+                    <i class="fa fa-check-circle text-primary mt-1"></i>
+                    <span>能够编写简单的中断控制程序</span>
+                </li>
+                <li class="flex items-start gap-3">
+                    <i class="fa fa-check-circle text-primary mt-1"></i>
+                    <span>掌握中断优先级的设置和处理原则</span>
+                </li>
+            </ul>
+        </div>
+
+        <!-- 中断概述 -->
+        <section id="overview" class="section-card">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-bold text-primary flex items-center">
+                    <span class="bg-primary text-white rounded-full w-8 h-8 flex items-center justify-center mr-3">1</span>
+                    中断概述
+                </h2>
+                <a href="#generation" class="text-primary hover:text-primary/80 transition-colors duration-200">
+                    <i class="fa fa-arrow-down"></i>
+                </a>
+            </div>
+            
+            <div class="content">
+                <div class="flex flex-col md:flex-row gap-6 mb-8">
+                    <div class="md:w-2/3">
+                        <h3 class="subtopic">1. 中断的定义</h3>
+                        <p>
+                            中断是指CPU在执行程序的过程中，遇到突发事件时，暂停当前程序的执行，转去处理突发事件，处理完毕后，再回到原来被暂停的程序继续执行的过程。
+                        </p>
+                        <p class="mt-2">
+                            中断机制是单片机系统中非常重要的组成部分，它使得单片机能够实时响应外部事件，提高了系统的处理能力和灵活性。
+                        </p>
+                        
+                        <h3 class="subtopic">2. 中断的作用</h3>
+                        <ul class="grid md:grid-cols-2 gap-2">
+                            <li class="flex items-start gap-2">
+                                <i class="fa fa-bolt text-primary mt-1"></i>
+                                <span>提高CPU的工作效率：CPU可以在没有中断请求时执行主程序，有中断请求时才去处理中断，避免了CPU的空转等待。</span>
+                            </li>
+                            <li class="flex items-start gap-2">
+                                <i class="fa fa-clock-o text-primary mt-1"></i>
+                                <span>实时处理：能够及时响应外部事件，满足实时控制系统的要求。</span>
+                            </li>
+                            <li class="flex items-start gap-2">
+                                <i class="fa fa-wrench text-primary mt-1"></i>
+                                <span>故障处理：可以及时处理系统中的故障，如电源掉电、数据错误等。</span>
+                            </li>
+                            <li class="flex items-start gap-2">
+                                <i class="fa fa-tasks text-primary mt-1"></i>
+                                <span>实现多任务：通过中断机制，可以实现单片机的多任务处理。</span>
+                            </li>
+                        </ul>
+                    </div>
+                    
+                    <div class="md:w-1/3 bg-gray-100 rounded-xl p-6">
+                        <h3 class="font-bold text-lg mb-4 text-center">中断的基本概念</h3>
+                        <div class="space-y-4">
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center text-primary">
+                                    <i class="fa fa-refresh"></i>
+                                </div>
+                                <div>
+                                    <p class="font-medium">中断响应</p>
+                                    <p class="text-sm text-gray-600">CPU暂停当前程序，转去执行中断服务程序</p>
+                                </div>
+                            </div>
+                            
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 rounded-full bg-secondary/20 flex items-center justify-center text-secondary">
+                                    <i class="fa fa-code"></i>
+                                </div>
+                                <div>
+                                    <p class="font-medium">中断服务程序</p>
+                                    <p class="text-sm text-gray-600">处理中断事件的程序代码</p>
+                                </div>
+                            </div>
+                            
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 rounded-full bg-accent/20 flex items-center justify-center text-accent">
+                                    <i class="fa fa-undo"></i>
+                                </div>
+                                <div>
+                                    <p class="font-medium">中断返回</p>
+                                    <p class="text-sm text-gray-600">中断服务程序执行完毕后返回主程序</p>
+                                </div>
+                            </div>
+                            
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 rounded-full bg-dark/20 flex items-center justify-center text-dark">
+                                    <i class="fa fa-shield"></i>
+                                </div>
+                                <div>
+                                    <p class="font-medium">断点保护</p>
+                                    <p class="text-sm text-gray-600">保存主程序的执行位置，以便中断返回后继续执行</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <h3 class="subtopic">3. 中断系统的组成</h3>
+                <div class="grid md:grid-cols-2 gap-6 mb-8">
+                    <div class="bg-gray-50 p-4 rounded-lg border border-gray-200">
+                        <h4 class="font-bold text-primary mb-2">硬件组成</h4>
+                        <ul class="space-y-2">
+                            <li class="flex items-center gap-2">
+                                <i class="fa fa-external-link text-primary"></i>
+                                <span>中断源：产生中断请求的设备或事件</span>
+                            </li>
+                            <li class="flex items-center gap-2">
+                                <i class="fa fa-microchip text-primary"></i>
+                                <span>中断控制器：管理和处理中断请求</span>
+                            </li>
+                            <li class="flex items-center gap-2">
+                                <i class="fa fa-microchip text-primary"></i>
+                                <span>CPU：执行中断响应和处理</span>
+                            </li>
+                        </ul>
+                    </div>
+                    
+                    <div class="bg-gray-50 p-4 rounded-lg border border-gray-200">
+                        <h4 class="font-bold text-primary mb-2">软件组成</h4>
+                        <ul class="space-y-2">
+                            <li class="flex items-center gap-2">
+                                <i class="fa fa-file-code-o text-primary"></i>
+                                <span>中断服务程序：处理中断事件的程序</span>
+                            </li>
+                            <li class="flex items-center gap-2">
+                                <i class="fa fa-cog text-primary"></i>
+                                <span>中断初始化程序：设置中断参数</span>
+                            </li>
+                            <li class="flex items-center gap-2">
+                                <i class="fa fa-book text-primary"></i>
+                                <span>中断向量表：存储中断服务程序的入口地址</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <h3 class="subtopic">4. 8051单片机的中断系统</h3>
+                <p>
+                    8051单片机有5个中断源（基本型），分别是：外部中断0（INT0）、定时器/计数器0溢出中断（TF0）、外部中断1（INT1）、定时器/计数器1溢出中断（TF1）和串行口中断（RI/TI）。
+                </p>
+                
+                <div class="overflow-x-auto mt-4">
+                    <table class="min-w-full bg-white rounded-lg border border-gray-200">
+                        <thead>
+                            <tr class="bg-primary/10 text-primary">
+                                <th class="py-3 px-4 text-left">中断源</th>
+                                <th class="py-3 px-4 text-left">中断请求标志</th>
+                                <th class="py-3 px-4 text-left">中断向量地址</th>
+                                <th class="py-3 px-4 text-left">默认优先级</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr class="border-b border-gray-200">
+                                <td class="py-3 px-4">外部中断0（INT0）</td>
+                                <td class="py-3 px-4">IE0</td>
+                                <td class="py-3 px-4">0003H</td>
+                                <td class="py-3 px-4">最高</td>
+                            </tr>
+                            <tr class="border-b border-gray-200">
+                                <td class="py-3 px-4">定时器/计数器0溢出中断（TF0）</td>
+                                <td class="py-3 px-4">TF0</td>
+                                <td class="py-3 px-4">000BH</td>
+                                <td class="py-3 px-4">次高</td>
+                            </tr>
+                            <tr class="border-b border-gray-200">
+                                <td class="py-3 px-4">外部中断1（INT1）</td>
+                                <td class="py-3 px-4">IE1</td>
+                                <td class="py-3 px-4">0013H</td>
+                                <td class="py-3 px-4">中</td>
+                            </tr>
+                            <tr class="border-b border-gray-200">
+                                <td class="py-3 px-4">定时器/计数器1溢出中断（TF1）</td>
+                                <td class="py-3 px-4">TF1</td>
+                                <td class="py-3 px-4">001BH</td>
+                                <td class="py-3 px-4">次低</td>
+                            </tr>
+                            <tr>
+                                <td class="py-3 px-4">串行口中断（RI/TI）</td>
+                                <td class="py-3 px-4">RI/TI</td>
+                                <td class="py-3 px-4">0023H</td>
+                                <td class="py-3 px-4">最低</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div class="mt-6 p-4 bg-primary/5 rounded-lg border border-primary/20">
+                    <h4 class="font-bold text-primary mb-2 flex items-center">
+                        <i class="fa fa-lightbulb-o mr-2"></i>
+                        知识扩展
+                    </h4>
+                    <p>
+                        8052单片机在8051的基础上增加了一个定时器/计数器2中断，中断请求标志为TF2/EXF2，中断向量地址为002BH。
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- 中断产生，响应与撤除 -->
+        <section id="generation" class="section-card">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-bold text-primary flex items-center">
+                    <span class="bg-primary text-white rounded-full w-8 h-8 flex items-center justify-center mr-3">2</span>
+                    中断产生，响应与撤除
+                </h2>
+                <div class="flex gap-2">
+                    <a href="#overview" class="text-primary hover:text-primary/80 transition-colors duration-200">
+                        <i class="fa fa-arrow-up"></i>
+                    </a>
+                    <a href="#initialization" class="text-primary hover:text-primary/80 transition-colors duration-200">
+                        <i class="fa fa-arrow-down"></i>
+                    </a>
+                </div>
+            </div>
+            
+            <div class="content">
+                <h3 class="subtopic">1. 中断源分类</h3>
+                <div class="grid md:grid-cols-2 gap-6 mb-8">
+                    <div class="bg-blue-50 p-6 rounded-xl border border-blue-200">
+                        <h4 class="font-bold text-blue-700 mb-4 flex items-center">
+                            <i class="fa fa-external-link-square text-blue-700 mr-2"></i>
+                            外部中断
+                        </h4>
+                        <p class="mb-3">由外部设备产生的中断请求，用于响应外部事件。</p>
+                        <ul class="space-y-2">
+                            <li class="flex items-start gap-2">
+                                <i class="fa fa-check-circle text-blue-700 mt-1"></i>
+                                <span>外部中断0（INT0）：由P3.2引脚输入</span>
+                            </li>
+                            <li class="flex items-start gap-2">
+                                <i class="fa fa-check-circle text-blue-700 mt-1"></i>
+                                <span>外部中断1（INT1）：由P3.3引脚输入</span>
+                            </li>
+                            <li class="flex items-start gap-2">
+                                <i class="fa fa-check-circle text-blue-700 mt-1"></i>
+                                <span>触发方式可设置为电平触发或边沿触发</span>
+                            </li>
+                        </ul>
+                    </div>
+                    
+                    <div class="bg-green-50 p-6 rounded-xl border border-green-200">
+                        <h4 class="font-bold text-green-700 mb-4 flex items-center">
+                            <i class="fa fa-microchip text-green-700 mr-2"></i>
+                            内部中断
+                        </h4>
+                        <p class="mb-3">由单片机内部事件产生的中断请求，用于处理内部事务。</p>
+                        <ul class="space-y-2">
+                            <li class="flex items-start gap-2">
+                                <i class="fa fa-check-circle text-green-700 mt-1"></i>
+                                <span>定时器/计数器溢出中断：TF0、TF1</span>
+                            </li>
+                            <li class="flex items-start gap-2">
+                                <i class="fa fa-check-circle text-green-700 mt-1"></i>
+                                <span>串行口发送/接收中断：RI/TI</span>
+                            </li>
+                            <li class="flex items-start gap-2">
+                                <i class="fa fa-check-circle text-green-700 mt-1"></i>
+                                <span>其他内部中断（如8052的定时器2中断）</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <h3 class="subtopic">2. 中断请求标志</h3>
+                <p>
+                    每个中断源都有一个中断请求标志位，用于标志该中断源是否有中断请求。这些标志位通常位于特殊功能寄存器中。
+                </p>
+                
+                <div class="overflow-x-auto mt-4 mb-8">
+                    <table class="min-w-full bg-white rounded-lg border border-gray-200">
+                        <thead>
+                            <tr class="bg-primary/10 text-primary">
+                                <th class="py-3 px-4 text-left">中断源</th>
+                                <th class="py-3 px-4 text-left">请求标志</th>
+                                <th class="py-3 px-4 text-left">所在寄存器</th>
+                                <th class="py-3 px-4 text-left">标志置位条件</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr class="border-b border-gray-200">
+                                <td class="py-3 px-4">外部中断0（INT0）</td>
+                                <td class="py-3 px-4">IE0</td>
+                                <td class="py-3 px-4">TCON</td>
+                                <td class="py-3 px-4">外部信号触发（电平或边沿）</td>
+                            </tr>
+                            <tr class="border-b border-gray-200">
+                                <td class="py-3 px-4">定时器/计数器0溢出中断</td>
+                                <td class="py-3 px-4">TF0</td>
+                                <td class="py-3 px-4">TCON</td>
+                                <td class="py-3 px-4">定时器/计数器0溢出</td>
+                            </tr>
+                            <tr class="border-b border-gray-200">
+                                <td class="py-3 px-4">外部中断1（INT1）</td>
+                                <td class="py-3 px-4">IE1</td>
+                                <td class="py-3 px-4">TCON</td>
+                                <td class="py-3 px-4">外部信号触发（电平或边沿）</td>
+                            </tr>
+                            <tr class="border-b border-gray-200">
+                                <td class="py-3 px-4">定时器/计数器1溢出中断</td>
+                                <td class="py-3 px-4">TF1</td>
+                                <td class="py-3 px-4">TCON</td>
+                                <td class="py-3 px-4">定时器/计数器1溢出</td>
+                            </tr>
+                            <tr>
+                                <td class="py-3 px-4">串行口中断</td>
+                                <td class="py-3 px-4">RI/TI</td>
+                                <td class="py-3 px-4">SCON</td>
+                                <td class="py-3 px-4">串行口接收完成(RI)/发送完成(TI)</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <h3 class="subtopic">3. 中断响应条件</h3>
+                <div class="bg-gray-50 p-6 rounded-xl mb-8">
+                    <div class="flex flex-col md:flex-row gap-4">
+                        <div class="md:w-1/2">
+                            <div class="bg-white p-4 rounded-lg border border-gray-200 mb-4">
+                                <h4 class="font-bold text-primary mb-2">必要条件</h4>
+                                <ol class="space-y-2">
+                                    <li class="flex items-start gap-2">
+                                        <span class="bg-primary text-white rounded-full w-6 h-6 flex items-center justify-center text-sm mt-1">1</span>
+                                        <span>中断源有中断请求（相应的中断请求标志置1）</span>
+                                    </li>
+                                    <li class="flex items-start gap-2">
+                                        <span class="bg-primary text-white rounded-full w-6 h-6 flex items-center justify-center text-sm mt-1">2</span>
+                                        <span>此中断源的中断允许位为1（IE寄存器相应位为1）</span>
+                                    </li>
+                                    <li class="flex items-start gap-2">
+                                        <span class="bg-primary text-white rounded-full w-6 h-6 flex items-center justify-center text-sm mt-1">3</span>
+                                        <span>CPU开中断（总中断允许位EA=1）</span>
+                                    </li>
+                                </ol>
+                            </div>
+                        </div>
+                        
+                        <div class="md:w-1/2">
+                            <div class="bg-white p-4 rounded-lg border border-gray-200">
+                                <h4 class="font-bold text-primary mb-2">附加条件</h4>
+                                <ol class="space-y-2">
+                                    <li class="flex items-start gap-2">
+                                        <span class="bg-primary text-white rounded-full w-6 h-6 flex items-center justify-center text-sm mt-1">1</span>
+                                        <span>无同级或更高级中断正在被服务</span>
+                                    </li>
+                                    <li class="flex items-start gap-2">
+                                        <span class="bg-primary text-white rounded-full w-6 h-6 flex items-center justify-center text-sm mt-1">2</span>
+                                        <span>当前执行的指令不是RETI或访问IE、IP的指令</span>
+                                    </li>
+                                    <li class="flex items-start gap-2">
+                                        <span class="bg-primary text-white rounded-full w-6 h-6 flex items-center justify-center text-sm mt-1">3</span>
+                                        <span>若为上述指令，则需等待该指令执行完毕且再执行一条指令后</span>
+                                    </li>
+                                </ol>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <h3 class="subtopic">4. 中断响应过程</h3>
+                <div class="relative bg-gray-50 p-8 rounded-xl mb-8">
+                    <div class="flex flex-col items-center">
+                        <div class="w-full max-w-3xl">
+                            <div class="relative">
+                                <!-- 连接线 -->
+                                <div class="absolute left-1/2 transform -translate-x-1/2 h-full w-1 bg-primary/20 z-0"></div>
+                                
+                                <!-- 步骤1 -->
+                                <div class="relative z-10 mb-12">
+                                    <div class="flex justify-center">
+                                        <div class="w-10 h-10 rounded-full bg-primary text-white flex items-center justify-center">
+                                            <i class="fa fa-check"></i>
+                                        </div>
+                                    </div>
+                                    <div class="mt-4 bg-white p-6 rounded-xl shadow-md border border-gray-200">
+                                        <h4 class="font-bold text-primary mb-2">1. 检测中断请求</h4>
+                                        <p>
+                                            CPU在每个机器周期的S5P2时刻检测各中断源的中断请求标志位。
+                                        </p>
+                                    </div>
+                                </div>
+                                
+                                <!-- 步骤2 -->
+                                <div class="relative z-10 mb-12">
+                                    <div class="flex justify-center">
+                                        <div class="w-10 h-10 rounded-full bg-primary text-white flex items-center justify-center">
+                                            <i class="fa fa-shield"></i>
+                                        </div>
+                                    </div>
+                                    <div class="mt-4 bg-white p-6 rounded-xl shadow-md border border-gray-200">
+                                        <h4 class="font-bold text-primary mb-2">2. 判断响应条件</h4>
+                                        <p>
+                                            检查是否满足中断响应的所有条件，若满足则响应中断，否则忽略。
+                                        </p>
+                                    </div>
+                                </div>
+                                
+                                <!-- 步骤3 -->
+                                <div class="relative z-10 mb-12">
+                                    <div class="flex justify-center">
+                                        <div class="w-10 h-10 rounded-full bg-primary text-white flex items-center justify-center">
+                                            <i class="fa fa-floppy-o"></i>
+                                        </div>
+                                    </div>
+                                    <div class="mt-4 bg-white p-6 rounded-xl shadow-md border border-gray-200">
+                                        <h4 class="font-bold text-primary mb-2">3. 保护断点</h4>
+                                        <p>
+                                            将当前PC值（断点地址）压入堆栈，以便中断返回后能继续执行主程序。
+                                        </p>
+                                    </div>
+                                </div>
+                                
+                                <!-- 步骤4 -->
+                                <div class="relative z-10 mb-12">
+                                    <div class="flex justify-center">
+                                        <div class="w-10 h-10 rounded-full bg-primary text-white flex items-center justify-center">
+                                            <i class="fa fa-ban"></i>
+                                        </div>
+                                    </div>
+                                    <div class="mt-4 bg-white p-6 rounded-xl shadow-md border border-gray-200">
+                                        <h4 class="font-bold text-primary mb-2">4. 关中断（部分情况）</h4>
+                                        <p>
+                                            对于外部中断0和外部中断1，响应后会自动关闭同级中断；其他中断不会自动关闭。
+                                        </p>
+                                    </div>
+                                </div>
+                                
+                                <!-- 步骤5 -->
+                                <div class="relative z-10">
+                                    <div class="flex justify-center">
+                                        <div class="w-10 h-10 rounded-full bg-primary text-white flex items-center justify-center">
+                                            <i class="fa fa-code"></i>
+                                        </div>
+                                    </div>
+                                    <div class="mt-4 bg-white p-6 rounded-xl shadow-md border border-gray-200">
+                                        <h4 class="font-bold text-primary mb-2">5. 转去执行中断服务程序</h4>
+                                        <p>
+                                            根据中断源的向量地址，将对应的中断服务程序入口地址装入PC，开始执行中断服务程序。
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <h3 class="subtopic">5. 中断撤除</h3>
+                <p>
+                    中断撤除是指清除中断请求标志，以免重复响应同一中断请求。不同中断源的撤除方式不同：
+                </p>
+                
+                <div class="grid md:grid-cols-2 gap-6 mt-4">
+                    <div class="bg-gray-50 p-4 rounded-lg border border-gray-200">
+                        <h4 class="font-bold text-primary mb-2">自动撤除</h4>
+                        <ul class="space-y-2">
+                            <li class="flex items-start gap-2">
+                                <i class="fa fa-check-circle text-primary mt-1"></i>
+                                <span>定时器溢出中断：CPU响应中断后自动清除TF0/TF1</span>
+                            </li>
+                            <li class="flex items-start gap-2">
+                                <i class="fa fa-check-circle text-primary mt-1"></i>
+                                <span>边沿触发的外部中断：CPU响应中断后自动清除IE0/IE1</span>
+                            </li>
+                        </ul>
+                    </div>
+                    
+                    <div class="bg-gray-50 p-4 rounded-lg border border-gray-200">
+                        <h4 class="font-bold text-primary mb-2">手动撤除</h4>
+                        <ul class="space-y-2">
+                            <li class="flex items-start gap-2">
+                                <i class="fa fa-check-circle text-primary mt-1"></i>
+                                <span>电平触发的外部中断：需外部电路配合清除</span>
+                            </li>
+                            <li class="flex items-start gap-2">
+                                <i class="fa fa-check-circle text-primary mt-1"></i>
+                                <span>串行口中断：需在中断服务程序中手动清除RI/TI</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="mt-6 p-4 bg-yellow-50 rounded-lg border border-yellow-200">
+                    <h4 class="font-bold text-yellow-700 mb-2 flex items-center">
+                        <i class="fa fa-exclamation-triangle mr-2"></i>
+                        注意事项
+                    </h4>
+                    <p>
+                        对于电平触发的外部中断，如果中断请求信号不能及时撤除，可能会导致中断服务程序执行完毕后再次响应同一中断请求，造成重复中断。
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- 中断初始化 -->
+        <section id="initialization" class="section-card">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-bold text-primary flex items-center">
+                    <span class="bg-primary text-white rounded-full w-8 h-8 flex items-center justify-center mr-3">3</span>
+                    中断初始化
+                </h2>
+                <div class="flex gap-2">
+                    <a href="#generation" class="text-primary hover:text-primary/80 transition-colors duration-200">
+                        <i class="fa fa-arrow-up"></i>
+                    </a>
+                    <a href="#stack" class="text-primary hover:text-primary/80 transition-colors duration-200">
+                        <i class="fa fa-arrow-down"></i>
+                    </a>
+                </div>
+            </div>
+            
+            <div class="content">
+                <h3 class="subtopic">1. 中断初始化的步骤</h3>
+                <div class="bg-white p-6 rounded-xl shadow-md border border-gray-200 mb-8">
+                    <div class="flex flex-col md:flex-row gap-4">
+                        <div class="md:w-1/4">
+                            <div class="flex flex-col items-center justify-center h-full">
+                                <div class="w-16 h-16 rounded-full bg-primary text-white flex items-center justify-center text-2xl mb-4">
+                                    1
+                                </div>
+                                <p class="text-center font-medium">设置中断请求触发方式</p>
+                            </div>
+                        </div>
+                        
+                        <div class="md:w-3/4">
+                            <p>
+                                对于外部中断，需要设置其触发方式：电平触发或边沿触发。这通过TCON寄存器中的IT0和IT1位来实现。
+                            </p>
+                            <pre class="bg-gray-100 p-4 rounded-lg mt-2">
+IT0 = 0;  // 外部中断0为电平触发（低电平有效）
+IT0 = 1;  // 外部中断0为边沿触发（下降沿有效）
+IT1 = 0;  // 外部中断1为电平触发（低电平有效）
+IT1 = 1;  // 外部中断1为边沿触发（下降沿有效）
+                            </pre>
+                        </div>
+                    </div>
+                    
+                    <div class="h-px bg-gray-200 my-6"></div>
+                    
+                    <div class="flex flex-col md:flex-row gap-4">
+                        <div class="md:w-1/4">
+                            <div class="flex flex-col items-center justify-center h-full">
+                                <div class="w-16 h-16 rounded-full bg-primary text-white flex items-center justify-center text-2xl mb-4">
+                                    2
+                                </div>
+                                <p class="text-center font-medium">设置中断优先级</p>
+                            </div>
+                        </div>
+                        
+                        <div class="md:w-3/4">
+                            <p>
+                                根据需要设置各中断源的优先级，通过IP寄存器实现。8051支持两级优先级：高优先级和低优先级。
+                            </p>
+                            <pre class="bg-gray-100 p-4 rounded-lg mt-2">
+PX0 = 1;  // 外部中断0设置为高优先级
+PT0 = 0;  // 定时器0中断设置为低优先级
+PX1 = 1;  // 外部中断1设置为高优先级
+PT1 = 0;  // 定时器1中断设置为低优先级
+PS  = 1;  // 串行口中断设置为高优先级
+                            </pre>
+                        </div>
+                    </div>
+                    
+                    <div class="h-px bg-gray-200 my-6"></div>
+                    
+                    <div class="flex flex-col md:flex-row gap-4">
+                        <div class="md:w-1/4">
+                            <div class="flex flex-col items-center justify-center h-full">
+                                <div class="w-16 h-16 rounded-full bg-primary text-white flex items-center justify-center text-2xl mb-4">
+                                    3
+                                </div>
+                                <p class="text-center font-medium">开中断</p>
+                            </div>
+                        </div>
+                        
+                        <div class="md:w-3/4">
+                            <p>
+                                打开总中断允许位EA，并允许相应中断源的中断请求。这通过IE寄存器实现。
+                            </p>
+                            <pre class="bg-gray-100 p-4 rounded-lg mt-2">
+EA = 1;   // 开总中断
+EX0 = 1;  // 允许外部中断0中断
+ET0 = 1;  // 允许定时器0中断
+EX1 = 1;  // 允许外部中断1中断
+ET1 = 1;  // 允许定时器1中断
+ES  = 1;  // 允许串行口中断
+                            </pre>
+                        </div>
+                    </div>
+                </div>
+                
+                <h3 class="subtopic">2. 中断控制寄存器</h3>
+                <div class="grid md:grid-cols-2 gap-6 mb-8">
+                    <div class="bg-gray-50 p-4 rounded-lg border border-gray-200">
+                        <h4 class="font-bold text-primary mb-2">IE寄存器（中断允许寄存器）</h4>
+                        <p class="mb-3">用于控制各中断源的中断允许或禁止。</p>
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full">
+                                <thead>
+                                    <tr class="bg-primary/10 text-primary">
+                                        <th>位</th>
+                                        <th>D7</th>
+                                        <th>D6</th>
+                                        <th>D5</th>
+                                        <th>D4</th>
+                                        <th>D3</th>
+                                        <th>D2</th>
+                                        <th>D1</th>
+                                        <th>D0</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>位名称</td>
+                                        <td>EA</td>
+                                        <td>-</td>
+                                        <td>ET2</td>
+                                        <td>ES</td>
+                                        <td>ET1</td>
+                                        <td>EX1</td>
+                                        <td>ET0</td>
+                                        <td>EX0</td>
+                                    </tr>
+                                    <tr>
+                                        <td>功能</td>
+                                        <td>总中断允许</td>
+                                        <td>-</td>
+                                        <td>定时器2允许</td>
+                                        <td>串行口允许</td>
+                                        <td>定时器1允许</td>
+                                        <td>外部中断1允许</td>
+                                        <td>定时器0允许</td>
+                                        <td>外部中断0允许</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-gray-50 p-4 rounded-lg border border-gray-200">
+                        <h4 class="font-bold text-primary mb-2">IP寄存器（中断优先级寄存器）</h4>
+                        <p class="mb-3">用于设置各中断源的优先级。</p>
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full">
+                                <thead>
+                                    <tr class="bg-primary/10 text-primary">
+                                        <th>位</th>
+                                        <th>D7</th>
+                                        <th>D6</th>
+                                        <th>D5</th>
+                                        <th>D4</th>
+                                        <th>D3</th>
+                                        <th>D2</th>
+                                        <th>D1</th>
+                                        <th>D0</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>位名称</td>
+                                        <td>-</td>
+                                        <td>-</td>
+                                        <td>PT2</td>
+                                        <td>PS</td>
+                                        <td>PT1</td>
+                                        <td>PX1</td>
+                                        <td>PT0</td>
+                                        <td>PX0</td>
+                                    </tr>
+                                    <tr>
+                                        <td>功能</td>
+                                        <td>-</td>
+                                        <td>-</td>
+                                        <td>定时器2优先级</td>
+                                        <td>串行口优先级</td>
+                                        <td>定时器1优先级</td>
+                                        <td>外部中断1优先级</td>
+                                        <td>定时器0优先级</td>
+                                        <td>外部中断0优先级</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                
+                <h3 class="subtopic">3. 中断初始化实例</h3>
+                <p>
+                    下面是一个外部中断0的初始化示例，设置为边沿触发方式，高优先级：
+                </p>
+                <pre class="bg-gray-100 p-4 rounded-lg my-4">
+void init_interrupt0(void) {
+    IT0 = 1;    // 设置外部中断0为边沿触发方式
+    PX0 = 1;    // 设置外部中断0为高优先级
+    EX0 = 1;    // 使能外部中断0
+    EA = 1;     // 开总中断
+}
+                </pre>
+                
+                <div class="mt-6 p-4 bg-primary/5 rounded-lg border border-primary/20">
+                    <h4 class="font-bold text-primary mb-2 flex items-center">
+                        <i class="fa fa-lightbulb-o mr-2"></i>
+                        初始化注意事项
+                    </h4>
+                    <ul class="space-y-2">
+                        <li class="flex items-start gap-2">
+                            <i class="fa fa-check-circle text-primary mt-1"></i>
+                            <span>初始化顺序一般为：先设置触发方式，再设置优先级，最后开中断</span>
+                        </li>
+                        <li class="flex items-start gap-2">
+                            <i class="fa fa-check-circle text-primary mt-1"></i>
+                            <span>高优先级中断可以打断低优先级中断，形成中断嵌套</span>
+                        </li>
+                        <li class="flex items-start gap-2">
+                            <i class="fa fa-check-circle text-primary mt-1"></i>
+                            <span>同级中断按固定顺序查询响应：INT0 → TF0 → INT1 → TF1 → RI/TI</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- 堆栈 -->
+        <section id="stack" class="section-card">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-bold text-primary flex items-center">
+                    <span class="bg-primary text-white rounded-full w-8 h-8 flex items-center justify-center mr-3">4</span>
+                    堆栈
+                </h2>
+                <div class="flex gap-2">
+                    <a href="#initialization" class="text-primary hover:text-primary/80 transition-colors duration-200">
+                        <i class="fa fa-arrow-up"></i>
+                    </a>
+                    <a href="#case" class="text-primary hover:text-primary/80 transition-colors duration-200">
+                        <i class="fa fa-arrow-down"></i>
+                    </a>
+                </div>
+            </div>
+            
+            <div class="content">
+                <h3 class="subtopic">1. 堆栈的基本概念</h3>
+                <p>
+                    堆栈是单片机内存中的一个特殊区域，用于临时存放数据和地址。它遵循"后进先出"(LIFO)的原则，类似于一摞盘子，最后放上去的盘子总是最先被拿走。
+                </p>
+                
+                <div class="flex flex-col md:flex-row gap-6 mt-6 mb-8">
+                    <div class="md:w-1/2">
+                        <div class="bg-white p-6 rounded-xl shadow-md border border-gray-200">
+                            <h4 class="font-bold text-primary mb-4">堆栈的主要作用</h4>
+                            <ul class="space-y-3">
+                                <li class="flex items-start gap-3">
+                                    <div class="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center text-primary mt-1">
+                                        <i class="fa fa-bookmark"></i>
+                                    </div>
+                                    <div>
+                                        <p class="font-medium">断点保护</p>
+                                        <p class="text-sm text-gray-600">在中断或子程序调用时保存返回地址</p>
+                                    </div>
+                                </li>
+                                <li class="flex items-start gap-3">
+                                    <div class="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center text-primary mt-1">
+                                        <i class="fa fa-save"></i>
+                                    </div>
+                                    <div>
+                                        <p class="font-medium">现场保护</p>
+                                        <p class="text-sm text-gray-600">保存寄存器内容，确保中断返回后原程序能继续正确执行</p>
+                                    </div>
+                                </li>
+                                <li class="flex items-start gap-3">
+                                    <div class="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center text-primary mt-1">
+                                        <i class="fa fa-exchange"></i>
+                                    </div>
+                                    <div>
+                                        <p class="font-medium">参数传递</p>
+                                        <p class="text-sm text-gray-600">在子程序调用时传递参数和返回结果</p>
+                                    </div>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div class="md:w-1/2">
+                        <div class="bg-white p-6 rounded-xl shadow-md border border-gray-200">
+                            <h4 class="font-bold text-primary mb-4">堆栈操作指令</h4>
+                            <ul class="space-y-3">
+                                <li class="flex items-start gap-3">
+                                    <div class="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center text-primary mt-1">
+                                        <i class="fa fa-arrow-down"></i>
+                                    </div>
+                                    <div>
+                                        <p class="font-medium">PUSH</p>
+                                        <p class="text-sm text-gray-600">将数据压入堆栈，SP指针加1</p>
+                                    </div>
+                                </li>
+                                <li class="flex items-start gap-3">
+                                    <div class="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center text-primary mt-1">
+                                        <i class="fa fa-arrow-up"></i>
+                                    </div>
+                                    <div>
+                                        <p class="font-medium">POP</p>
+                                        <p class="text-sm text-gray-600">从堆栈弹出数据，SP指针减1</p>
+                                    </div>
+                                </li>
+                                <li class="flex items-start gap-3">
+                                    <div class="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center text-primary mt-1">
+                                        <i class="fa fa-cog"></i>
+                                    </div>
+                                    <div>
+                                        <p class="font-medium">MOV SP, #data</p>
+                                        <p class="text-sm text-gray-600">设置堆栈指针初值</p>
+                                    </div>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                
+                <h3 class="subtopic">2. 堆栈指针(SP)</h3>
+                <p>
+                    堆栈指针(SP)是一个8位寄存器，用于指示堆栈的栈顶位置。8051单片机复位后，SP的初始值为07H，即堆栈从08H地址开始。
+                </p>
+                
+                <div class="bg-gray-50 p-6 rounded-xl mb-8">
+                    <h4 class="font-bold text-primary mb-4">堆栈操作示例</h4>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div class="bg-white p-4 rounded-lg border border-gray-200">
+                            <p class="font-medium text-center mb-2">初始状态</p>
+                            <div class="space-y-1 text-center">
+                                <div class="bg-gray-100 p-2 rounded">07H ← SP</div>
+                                <div class="bg-gray-100 p-2 rounded">08H</div>
+                                <div class="bg-gray-100 p-2 rounded">09H</div>
+                                <div class="bg-gray-100 p-2 rounded">0AH</div>
+                                <div class="bg-gray-100 p-2 rounded">...</div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-white p-4 rounded-lg border border-gray-200">
+                            <p class="font-medium text-center mb-2">PUSH ACC</p>
+                            <div class="space-y-1 text-center">
+                                <div class="bg-gray-100 p-2 rounded">07H</div>
+                                <div class="bg-primary/20 p-2 rounded">08H ← SP</div>
+                                <div class="bg-primary/20 p-2 rounded">ACC内容</div>
+                                <div class="bg-gray-100 p-2 rounded">09H</div>
+                                <div class="bg-gray-100 p-2 rounded">0AH</div>
+                                <div class="bg-gray-100 p-2 rounded">...</div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-white p-4 rounded-lg border border-gray-200">
+                            <p class="font-medium text-center mb-2">PUSH B</p>
+                            <div class="space-y-1 text-center">
+                                <div class="bg-gray-100 p-2 rounded">07H</div>
+                                <div class="bg-primary/20 p-2 rounded">08H</div>
+                                <div class="bg-primary/20 p-2 rounded">ACC内容</div>
+                                <div class="bg-secondary/20 p-2 rounded">09H ← SP</div>
+                                <div class="bg-secondary/20 p-2 rounded">B内容</div>
+                                <div class="bg-gray-100 p-2 rounded">0AH</div>
+                                <div class="bg-gray-100 p-2 rounded">...</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <h3 class="subtopic">3. 堆栈在中断处理中的作用</h3>
+                <p>
+                    在中断处理过程中，堆栈主要用于保存断点地址和现场数据：
+                </p>
+                
+                <div class="grid md:grid-cols-2 gap-6 mb-8">
+                    <div class="bg-blue-50 p-6 rounded-xl border border-blue-200">
+                        <h4 class="font-bold text-blue-700 mb-4 flex items-center">
+                            <i class="fa fa-bookmark text-blue-700 mr-2"></i>
+                            断点保护
+                        </h4>
+                        <p>
+                            当CPU响应中断时，会自动将当前PC值（断点地址）压入堆栈，以便中断返回时能回到原程序继续执行。
+                        </p>
+                        <p class="mt-2">
+                            例如，当外部中断0发生时，CPU会自动执行以下操作：
+                        </p>
+                        <pre class="bg-blue-100 p-4 rounded-lg mt-2">
+PUSH PC_low    ;保存PC低8位
+PUSH PC_high   ;保存PC高8位
+PC = 0003H     ;跳转到外部中断0的中断服务程序入口
+                        </pre>
+                    </div>
+                    
+                    <div class="bg-green-50 p-6 rounded-xl border border-green-200">
+                        <h4 class="font-bold text-green-700 mb-4 flex items-center">
+                            <i class="fa fa-save text-green-700 mr-2"></i>
+                            现场保护
+                        </h4>
+                        <p>
+                            在中断服务程序中，通常需要保护现场，即将中断服务程序中要使用的寄存器内容压入堆栈，以免破坏主程序的运行环境。
+                        </p>
+                        <p class="mt-2">
+                            例如，一个典型的中断服务程序结构：
+                        </p>
+                        <pre class="bg-green-100 p-4 rounded-lg mt-2">
+INT0_ISR:
+    PUSH ACC    ;保护累加器
+    PUSH PSW    ;保护程序状态字
+    ;中断服务程序主体
+    POP PSW     ;恢复程序状态字
+    POP ACC     ;恢复累加器
+    RETI        ;中断返回
+                        </pre>
+                    </div>
+                </div>
+                
+                <h3 class="subtopic">4. 堆栈的设置与使用注意事项</h3>
+                <div class="bg-gray-50 p-6 rounded-xl border border-gray-200">
+                    <ul class="space-y-3">
+                        <li class="flex items-start gap-3">
+                            <i class="fa fa-exclamation-circle text-primary mt-1"></i>
+                            <span><strong>堆栈空间设置</strong>：8051复位后SP初值为07H，堆栈从08H开始。由于08H-1FH是工作寄存器区，20H-2FH是位寻址区，建议将SP值初始化为60H或更大值，避免堆栈覆盖这些区域。</span>
+                        </li>
+                        <li class="flex items-start gap-3">
+                            <i class="fa fa-exclamation-circle text-primary mt-1"></i>
+                            <span><strong>堆栈深度</strong>：堆栈空间有限，避免过深的中断嵌套或子程序调用，防止堆栈溢出。</span>
+                        </li>
+                        <li class="flex items-start gap-3">
+                            <i class="fa fa-exclamation-circle text-primary mt-1"></i>
+                            <span><strong>PUSH与POP配对</strong>：在中断服务程序中，PUSH和POP指令必须配对使用，确保堆栈平衡。</span>
+                        </li>
+                        <li class="flex items-start gap-3">
+                            <i class="fa fa-exclamation-circle text-primary mt-1"></i>
+                            <span><strong>中断嵌套</strong>：高优先级中断可以打断低优先级中断，此时堆栈需要保存多个断点和现场数据。</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- 中断控制案例 -->
+        <section id="case" class="section-card">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-bold text-primary flex items-center">
+                    <span class="bg-primary text-white rounded-full w-8 h-8 flex items-center justify-center mr-3">5</span>
+                    中断控制案例
+                </h2>
+                <div class="flex gap-2">
+                    <a href="#stack" class="text-primary hover:text-primary/80 transition-colors duration-200">
+                        <i class="fa fa-arrow-up"></i>
+                    </a>
+                    <a href="#summary" class="text-primary hover:text-primary/80 transition-colors duration-200">
+                        <i class="fa fa-arrow-down"></i>
+                    </a>
+                </div>
+            </div>
+            
+            <div class="content">
+                <h3 class="subtopic">1. 外部中断控制LED</h3>
+                <p>
+                    本案例使用外部中断0(INT0)控制LED的亮灭，当外部按键按下时，触发中断，LED状态翻转。
+                </p>
+                
+                <div class="grid md:grid-cols-2 gap-8 mb-8">
+                    <div>
+                        <div class="bg-white p-6 rounded-xl shadow-md border border-gray-200">
+                            <h4 class="font-bold text-primary mb-4">硬件连接</h4>
+                            <ul class="space-y-3">
+                                <li class="flex items-start gap-3">
+                                    <i class="fa fa-check-circle text-primary mt-1"></i>
+                                    <span>LED正极 → P1.0</span>
+                                </li>
+                                <li class="flex items-start gap-3">
+                                    <i class="fa fa-check-circle text-primary mt-1"></i>
+                                    <span>LED负极 → GND</span>
+                                </li>
+                                <li class="flex items-start gap-3">
+                                    <i class="fa fa-check-circle text-primary mt-1"></i>
+                                    <span>按键一端 → P3.2(INT0)</span>
+                                </li>
+                                <li class="flex items-start gap-3">
+                                    <i class="fa fa-check-circle text-primary mt-1"></i>
+                                    <span>按键另一端 → GND</span>
+                                </li>
+                                <li class="flex items-start gap-3">
+                                    <i class="fa fa-check-circle text-primary mt-1"></i>
+                                    <span>P3.2需接10KΩ上拉电阻到VCC</span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <div class="bg-white p-6 rounded-xl shadow-md border border-gray-200">
+                            <h4 class="font-bold text-primary mb-4">程序代码</h4>
+                            <pre class="bg-gray-100 p-4 rounded-lg">
+ORG 0000H
+    LJMP MAIN     ;跳转到主程序
+
+ORG 0003H         ;外部中断0入口地址
+    LJMP INT0_ISR ;跳转到中断服务程序
+
+ORG 0030H         ;主程序起始地址
+MAIN:
+    SETB IT0      ;设置外部中断0为边沿触发
+    SETB EX0      ;使能外部中断0
+    SETB EA       ;开总中断
+    
+    CLR P1.0      ;初始状态LED熄灭
+    
+MAIN_LOOP:
+    SJMP MAIN_LOOP ;主程序循环
+
+;外部中断0服务程序
+ORG 0100H
+INT0_ISR:
+    PUSH ACC      ;保护累加器
+    PUSH PSW      ;保护程序状态字
+    
+    CPL P1.0      ;翻转LED状态
+    
+    POP PSW       ;恢复程序状态字
+    POP ACC       ;恢复累加器
+    RETI          ;中断返回
+    END
+                            </pre>
+                        </div>
+                    </div>
+                </div>
+                
+                <h3 class="subtopic">2. 定时器中断实现LED闪烁</h3>
+                <p>
+                    本案例使用定时器0中断实现LED以固定频率闪烁。
+                </p>
+                
+                <div class="grid md:grid-cols-2 gap-8 mb-8">
+                    <div>
+                        <div class="bg-white p-6 rounded-xl shadow-md border border-gray-200">
+                            <h4 class="font-bold text-primary mb-4">硬件连接</h4>
+                            <ul class="space-y-3">
+                                <li class="flex items-start gap-3">
+                                    <i class="fa fa-check-circle text-primary mt-1"></i>
+                                    <span>LED正极 → P1.0</span>
+                                </li>
+                                <li class="flex items-start gap-3">
+                                    <i class="fa fa-check-circle text-primary mt-1"></i>
+                                    <span>LED负极 → GND</span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <div class="bg-white p-6 rounded-xl shadow-md border border-gray-200">
+                            <h4 class="font-bold text-primary mb-4">程序代码</h4>
+                            <pre class="bg-gray-100 p-4 rounded-lg">
+ORG 0000H
+    LJMP MAIN     ;跳转到主程序
+
+ORG 000BH         ;定时器0中断入口地址
+    LJMP TIMER0_ISR ;跳转到中断服务程序
+
+ORG 0030H         ;主程序起始地址
+MAIN:
+    MOV TMOD, #01H ;设置定时器0为模式1(16位定时器)
+    MOV TH0, #0FCH ;设置定时器初值
+    MOV TL0, #66H  ;定时1ms(晶振12MHz)
+    
+    SETB ET0      ;使能定时器0中断
+    SETB EA       ;开总中断
+    SETB TR0      ;启动定时器0
+    
+    CLR P1.0      ;初始状态LED熄灭
+    
+MAIN_LOOP:
+    SJMP MAIN_LOOP ;主程序循环
+
+;定时器0中断服务程序
+ORG 0100H
+TIMER0_ISR:
+    PUSH ACC      ;保护累加器
+    PUSH PSW      ;保护程序状态字
+    
+    MOV TH0, #0FCH ;重新加载初值
+    MOV TL0, #66H
+    
+    ;使用R7作为计数器
+    DJNZ R7, TIMER_EXIT
+    MOV R7, #195  ;500ms = 500次*1ms
+    
+    CPL P1.0      ;翻转LED状态
+    
+TIMER_EXIT:
+    POP PSW       ;恢复程序状态字
+    POP ACC       ;恢复累加器
+    RETI          ;中断返回
+    END
+                            </pre>
+                        </div>
+                    </div>
+                </div>
+                
+                <h3 class="subtopic">3. 中断嵌套示例</h3>
+                <p>
+                    本案例演示中断嵌套的使用，外部中断0(高优先级)可以打断外部中断1(低优先级)的服务程序。
+                </p>
+                
+                <div class="bg-white p-6 rounded-xl shadow-md border border-gray-200 mb-8">
+                    <h4 class="font-bold text-primary mb-4">程序代码</h4>
+                    <pre class="bg-gray-100 p-4 rounded-lg">
+ORG 0000H
+    LJMP MAIN     ;跳转到主程序
+
+ORG 0003H         ;外部中断0入口地址
+    LJMP INT0_ISR ;跳转到中断服务程序
+
+ORG 0013H         ;外部中断1入口地址
+    LJMP INT1_ISR ;跳转到中断服务程序
+
+ORG 0030H         ;主程序起始地址
+MAIN:
+    SETB IT0      ;设置外部中断0为边沿触发
+    SETB IT1      ;设置外部中断1为边沿触发
+    
+    SETB PX0      ;设置外部中断0为高优先级
+    CLR PX1       ;设置外部中断1为低优先级
+    
+    SETB EX0      ;使能外部中断0
+    SETB EX1      ;使能外部中断1
+    SETB EA       ;开总中断
+    
+    CLR P1.0      ;初始状态LED0熄灭
+    CLR P1.1      ;初始状态LED1熄灭
+    
+MAIN_LOOP:
+    SJMP MAIN_LOOP ;主程序循环
+
+;外部中断0服务程序(高优先级)
+ORG 0100H
+INT0_ISR:
+    PUSH ACC      ;保护累加器
+    PUSH PSW      ;保护程序状态字
+    
+    SETB P1.0     ;点亮LED0
+    
+    ;延时一段时间
+    MOV R2, #200
+DELAY0_1:
+    MOV R3, #250
+DELAY0_2:
+    DJNZ R3, DELAY0_2
+    DJNZ R2, DELAY0_1
+    
+    CLR P1.0      ;熄灭LED0
+    
+    POP PSW       ;恢复程序状态字
+    POP ACC       ;恢复累加器
+    RETI          ;中断返回
+
+;外部中断1服务程序(低优先级)
+ORG 0200H
+INT1_ISR:
+    PUSH ACC      ;保护累加器
+    PUSH PSW      ;保护程序状态字
+    
+    SETB P1.1     ;点亮LED1
+    
+    ;延时一段时间，期间如果有INT0请求，会被打断
+    MOV R4, #200
+DELAY1_1:
+    MOV R5, #250
+DELAY1_2:
+    DJNZ R5, DELAY1_2
+    DJNZ R4, DELAY1_1
+    
+    CLR P1.1      ;熄灭LED1
+    
+    POP PSW       ;恢复程序状态字
+    POP ACC       ;恢复累加器
+    RETI          ;中断返回
+    END
+                    </pre>
+                </div>
+                
+                <h3 class="subtopic">4. 中断编程注意事项</h3>
+                <div class="grid md:grid-cols-2 gap-6">
+                    <div class="bg-red-50 p-6 rounded-xl border border-red-200">
+                        <h4 class="font-bold text-red-700 mb-4 flex items-center">
+                            <i class="fa fa-exclamation-triangle text-red-700 mr-2"></i>
+                            常见错误
+                        </h4>
+                        <ul class="space-y-2">
+                            <li class="flex items-start gap-2">
+                                <i class="fa fa-times-circle text-red-700 mt-1"></i>
+                                <span>忘记开总中断(EA=1)</span>
+                            </li>
+                            <li class="flex items-start gap-2">
+                                <i class="fa fa-times-circle text-red-700 mt-1"></i>
+                                <span>中断服务程序中没有保护和恢复现场</span>
+                            </li>
+                            <li class="flex items-start gap-2">
+                                <i class="fa fa-times-circle text-red-700 mt-1"></i>
+                                <span>中断服务程序执行时间过长</span>
+                            </li>
+                            <li class="flex items-start gap-2">
+                                <i class="fa fa-times-circle text-red-700 mt-1"></i>
+                                <span>使用了与中断向量地址冲突的代码</span>
+                            </li>
+                        </ul>
+                    </div>
+                    
+                    <div class="bg-green-50 p-6 rounded-xl border border-green-200">
+                        <h4 class="font-bold text-green-700 mb-4 flex items-center">
+                            <i class="fa fa-check-circle text-green-700 mr-2"></i>
+                            编程建议
+                        </h4>
+                        <ul class="space-y-2">
+                            <li class="flex items-start gap-2">
+                                <i class="fa fa-check-circle text-green-700 mt-1"></i>
+                                <span>中断服务程序应尽量简短</span>
+                            </li>
+                            <li class="flex items-start gap-2">
+                                <i class="fa fa-check-circle text-green-700 mt-1"></i>
+                                <span>使用寄存器组切换保护现场</span>
+                            </li>
+                            <li class="flex items-start gap-2">
+                                <i class="fa fa-check-circle text-green-700 mt-1"></i>
+                                <span>避免在中断服务程序中使用延时函数</span>
+                            </li>
+                            <li class="flex items-start gap-2">
+                                <i class="fa fa-check-circle text-green-700 mt-1"></i>
+                                <span>对共享资源访问时应进行保护</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 本章总结 -->
+        <section id="summary" class="section-card">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-bold text-primary flex items-center">
+                    <span class="bg-primary text-white rounded-full w-8 h-8 flex items-center justify-center mr-3">6</span>
+                    本章总结
+                </h2>
+                <a href="#overview" class="text-primary hover:text-primary/80 transition-colors duration-200">
+                    <i class="fa fa-arrow-up"></i>
+                </a>
+            </div>
+            
+            <div class="content">
+                <h3 class="subtopic">1. 重点回顾</h3>
+                <div class="grid md:grid-cols-2 gap-6 mb-8">
+                    <div class="bg-gray-50 p-6 rounded-xl border border-gray-200">
+                        <h4 class="font-bold text-primary mb-4">核心概念</h4>
+                        <ul class="space-y-3">
+                            <li class="flex items-start gap-3">
+                                <i class="fa fa-circle text-primary mt-1 text-xs"></i>
+                                <span><strong>中断</strong>：CPU暂停当前程序，转去处理突发事件的机制</span>
+                            </li>
+                            <li class="flex items-start gap-3">
+                                <i class="fa fa-circle text-primary mt-1 text-xs"></i>
+                                <span><strong>中断源</strong>：引起中断的原因或设备</span>
+                            </li>
+                            <li class="flex items-start gap-3">
+                                <i class="fa fa-circle text-primary mt-1 text-xs"></i>
+                                <span><strong>中断优先级</strong>：多个中断同时发生时的处理顺序</span>
+                            </li>
+                            <li class="flex items-start gap-3">
+                                <i class="fa fa-circle text-primary mt-1 text-xs"></i>
+                                <span><strong>中断向量表</strong>：存储中断服务程序入口地址的表格</span>
+                            </li>
+                            <li class="flex items-start gap-3">
+                                <i class="fa fa-circle text-primary mt-1 text-xs"></i>
+                                <span><strong>堆栈</strong>：用于保存断点和现场数据的内存区域</span>
+                            </li>
+                        </ul>
+                    </div>
+                    
+                    <div class="bg-gray-50 p-6 rounded-xl border border-gray-200">
+                        <h4 class="font-bold text-primary mb-4">关键寄存器</h4>
+                        <ul class="space-y-3">
+                            <li class="flex items-start gap-3">
+                                <i class="fa fa-microchip text-primary mt-1"></i>
+                                <span><strong>IE</strong>：中断允许寄存器，控制各中断源的允许/禁止</span>
+                            </li>
+                            <li class="flex items-start gap-3">
+                                <i class="fa fa-microchip text-primary mt-1"></i>
+                                <span><strong>IP</strong>：中断优先级寄存器，设置中断优先级</span>
+                            </li>
+                            <li class="flex items-start gap-3">
+                                <i class="fa fa-microchip text-primary mt-1"></i>
+                                <span><strong>TCON</strong>：定时器控制寄存器，设置外部中断触发方式</span>
+                            </li>
+                            <li class="flex items-start gap-3">
+                                <i class="fa fa-microchip text-primary mt-1"></i>
+                                <span><strong>SCON</strong>：串行口控制寄存器，控制串行口中断</span>
+                            </li>
+                            <li class="flex items-start gap-3">
+                                    <i class="fa fa-circle text-primary mt-1 text-xs"></i>
+                                    <span><strong>SP</strong>：堆栈指针，指示堆栈栈顶位置</span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                
+                <h3 class="subtopic">2. 中断编程要点</h3>
+                <div class="grid md:grid-cols-2 gap-6 mb-8">
+                    <div class="bg-blue-50 p-6 rounded-xl border border-blue-200">
+                        <h4 class="font-bold text-blue-700 mb-4">中断响应过程</h4>
+                        <ol class="space-y-2">
+                            <li>中断源发出中断请求</li>
+                            <li>CPU检测到中断请求，且中断允许</li>
+                            <li>CPU保护断点（将PC压入堆栈）</li>
+                            <li>根据中断源，将相应的中断向量地址装入PC</li>
+                            <li>执行中断服务程序</li>
+                            <li>执行RETI指令，恢复断点（从堆栈弹出PC）</li>
+                            <li>继续执行原程序</li>
+                        </ol>
+                    </div>
+                    
+                    <div class="bg-green-50 p-6 rounded-xl border border-green-200">
+                        <h4 class="font-bold text-green-700 mb-4">中断服务程序结构</h4>
+                        <pre class="bg-green-100 p-4 rounded-lg">
+中断服务程序:
+    PUSH ACC    ;保护累加器
+    PUSH PSW    ;保护程序状态字
+    ;设置工作寄存器组(可选)
+    MOV R0, #数据 ;中断服务程序主体
+    ;...
+    POP PSW     ;恢复程序状态字
+    POP ACC     ;恢复累加器
+    RETI        ;中断返回
+                        </pre>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 版权信息 -->
+        <footer class="bg-primary text-white py-8 mt-12">
+            <div class="container mx-auto px-4">
+                <div class="flex flex-col md:flex-row justify-between items-center">
+                    <div class="mb-4 md:mb-0">
+                        <h3 class="text-xl font-bold mb-2">单片机中断原理及应用</h3>
+                        <p class="text-white/80">单片机课程QQ群：370743825   QQ：50394113</p>
+                    </div>
+                    <div class="flex gap-6">
+                        <a href="#" class="text-white hover:text-white/80 transition-colors duration-200">
+                            <i class="fa fa-book"></i> 相关教程
+                        </a>
+                        <a href="#" class="text-white hover:text-white/80 transition-colors duration-200">
+                            <i class="fa fa-question-circle"></i> 常见问题
+                        </a>
+                        <a href="#" class="text-white hover:text-white/80 transition-colors duration-200">
+                            <i class="fa fa-envelope"></i> 联系我们
+                        </a>
+                    </div>
+                </div>
+                <div class="border-t border-white/20 mt-6 pt-6 text-center text-white/60 text-sm">
+                    <p>《单片机技术与应用》课程  &copy; 王老师. 保留所有权利.</p>
+                </div>
+            </div>
+        </footer>
+
+       <!-- 返回顶部按钮 -->
+        <button id="backToTop" class="fixed bottom-6 right-6 bg-primary text-white w-12 h-12 rounded-full flex items-center justify-center shadow-lg transition-all duration-300 opacity-0 invisible">
+            <i class="fa fa-arrow-up"></i>
+        </button>
+
+        <script>
+            // 平滑滚动
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    const targetId = this.getAttribute('href');
+                    const targetElement = document.querySelector(targetId);
+                    if (targetElement) {
+                        window.scrollTo({
+                            top: targetElement.offsetTop - 80,
+                            behavior: 'smooth'
+                        });
+                    }
+                });
+            });
+
+            // 返回顶部按钮
+            const backToTopButton = document.getElementById('backToTop');
+            window.addEventListener('scroll', () => {
+                if (window.scrollY > 300) {
+                    backToTopButton.classList.remove('opacity-0', 'invisible');
+                    backToTopButton.classList.add('opacity-100', 'visible');
+                } else {
+                    backToTopButton.classList.remove('opacity-100', 'visible');
+                    backToTopButton.classList.add('opacity-0', 'invisible');
+                }
+            });
+
+            backToTopButton.addEventListener('click', () => {
+                window.scrollTo({
+                    top: 0,
+                    behavior: 'smooth'
+                });
+            });
+
+            // 导航栏滚动效果
+            const header = document.querySelector('header');
+            window.addEventListener('scroll', () => {
+                if (window.scrollY > 50) {
+                    header.classList.add('bg-white', 'shadow-md');
+                    header.classList.remove('bg-transparent');
+                } else {
+                    header.classList.remove('bg-white', 'shadow-md');
+                    header.classList.add('bg-transparent');
+                }
+            });
+
+            // 初始化导航栏状态
+            if (window.scrollY > 50) {
+                header.classList.add('bg-white', 'shadow-md');
+                header.classList.remove('bg-transparent');
+            }
+        </script>
+    </body>
+</html>
+    
+                

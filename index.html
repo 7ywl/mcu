@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>《单片机技术与应用》在线学习资源</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#165DFF',
+                        secondary: '#36D399',
+                        dark: '#1E293B',
+                        light: '#F8FAFC',
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .content-auto {
+                content-visibility: auto;
+            }
+            .menu-shadow {
+                box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            }
+            .section-card {
+                transition: all 0.3s ease;
+            }
+            .section-card:hover {
+                transform: translateY(-5px);
+                box-shadow: 0 10px 30px rgba(22, 93, 255, 0.15);
+            }
+            .btn-hover {
+                @apply transition-all duration-300 transform hover:scale-105 hover:shadow-lg;
+            }
+        }
+    </style>
+</head>
+<body class="bg-gray-50 font-sans text-dark">
+    <!-- 导航栏 -->
+    <nav class="fixed top-0 left-0 right-0 bg-white z-50 menu-shadow">
+        <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+            <div class="flex items-center space-x-2">
+                <i class="fa fa-microchip text-primary text-2xl"></i>
+                <h1 class="text-xl md:text-2xl font-bold text-primary">单片机技术与应用</h1>
+            </div>
+            <div class="hidden md:flex items-center space-x-6">
+                <a href="#" class="text-gray-700 hover:text-primary transition-colors">首页</a>
+                <a href="#chapters" class="text-gray-700 hover:text-primary transition-colors">课程章节</a>
+                <a href="#appendix" class="text-gray-700 hover:text-primary transition-colors">附录</a>
+                <a href="#" class="text-gray-700 hover:text-primary transition-colors">关于</a>
+            </div>
+            <button class="md:hidden text-gray-700 focus:outline-none">
+                <i class="fa fa-bars text-xl"></i>
+            </button>
+        </div>
+    </nav>
+
+    <!-- 主横幅 -->
+    <header class="pt-24 pb-16 md:pt-32 md:pb-24 bg-gradient-to-r from-primary/90 to-primary text-white">
+        <div class="container mx-auto px-4">
+            <div class="max-w-3xl mx-auto text-center">
+                <h1 class="text-[clamp(2rem,5vw,3.5rem)] font-bold mb-6 leading-tight">单片机技术与应用<br>在线学习资源</h1>
+                <p class="text-[clamp(1rem,2vw,1.25rem)] mb-8 opacity-90">全面覆盖51单片机知识体系，从基础到高级应用，助你掌握单片机编程与开发技能</p>
+                <div class="flex flex-col sm:flex-row justify-center gap-4">
+                    <a href="#chapters" class="bg-white text-primary px-8 py-3 rounded-lg font-semibold btn-hover">
+                        <i class="fa fa-book mr-2"></i>开始学习
+                    </a>
+                    <a href="#" class="bg-transparent border-2 border-white text-white px-8 py-3 rounded-lg font-semibold btn-hover">
+                        <i class="fa fa-info-circle mr-2"></i>了解更多
+                    </a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- 课程章节部分 -->
+    <section id="chapters" class="py-16 bg-white">
+        <div class="container mx-auto px-4">
+            <div class="text-center mb-12">
+                <h2 class="text-[clamp(1.5rem,3vw,2.5rem)] font-bold text-dark mb-4">课程章节</h2>
+                <p class="text-gray-600 max-w-2xl mx-auto">精心设计的章节内容，循序渐进带你掌握单片机技术与应用</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- 第1章 -->
+                <div class="section-card bg-white rounded-xl overflow-hidden shadow-md">
+                    <div class="bg-primary/10 p-6">
+                        <h3 class="text-xl font-bold text-primary flex items-center">
+                            <span class="bg-primary text-white rounded-full w-8 h-8 flex items-center justify-center mr-3">1</span>
+                            单片机基础
+                        </h3>
+                    </div>
+                    <div class="p-6">
+                        <p class="text-gray-600 mb-6">介绍单片机的基本概念、发展历程、特点及应用领域，了解单片机在现代电子技术中的重要地位。</p>
+                        <a href="第一章 单片机基础知识.html" target="_self" class="inline-block bg-primary text-white px-6 py-2 rounded-lg font-medium btn-hover">
+                            <i class="fa fa-arrow-right mr-2"></i>学习章节
+                        </a>
+                    </div>
+                </div>
+
+                <!-- 第2章 -->
+                <div class="section-card bg-white rounded-xl overflow-hidden shadow-md">
+                    <div class="bg-primary/10 p-6">
+                        <h3 class="text-xl font-bold text-primary flex items-center">
+                            <span class="bg-primary text-white rounded-full w-8 h-8 flex items-center justify-center mr-3">2</span>
+                            单片机硬件结构与原理
+                        </h3>
+                    </div>
+                    <div class="p-6">
+                        <p class="text-gray-600 mb-6">深入剖析51系列单片机的内部结构、引脚功能、存储器组织及工作原理，为后续编程打下基础。</p>
+                        <a href="第二章 单片机硬件结构与原理知识.html" target="_self" class="inline-block bg-primary text-white px-6 py-2 rounded-lg font-medium btn-hover">
+                            <i class="fa fa-arrow-right mr-2"></i>学习章节
+                        </a>
+                    </div>
+                </div>
+
+                <!-- 第3章 -->
+                <div class="section-card bg-white rounded-xl overflow-hidden shadow-md">
+                    <div class="bg-primary/10 p-6">
+                        <h3 class="text-xl font-bold text-primary flex items-center">
+                            <span class="bg-primary text-white rounded-full w-8 h-8 flex items-center justify-center mr-3">3</span>
+                            51系列单片机指令
+                        </h3>
+                    </div>
+                    <div class="p-6">
+                        <p class="text-gray-600 mb-6">详细讲解51系列单片机的指令系统，包括数据传送指令、算术运算指令、逻辑运算指令等。</p>
+                        <a href="第三章 单片机指令系统知识.html" target="_self" class="inline-block bg-primary text-white px-6 py-2 rounded-lg font-medium btn-hover">
+                            <i class="fa fa-arrow-right mr-2"></i>学习章节
+                        </a>
+                    </div>
+                </div>
+
+                <!-- 第4章 -->
+                <div class="section-card bg-white rounded-xl overflow-hidden shadow-md">
+                    <div class="bg-primary/10 p-6">
+                        <h3 class="text-xl font-bold text-primary flex items-center">
+                            <span class="bg-primary text-white rounded-full w-8 h-8 flex items-center justify-center mr-3">4</span>
+                            汇编语言程序设计方法
+                        </h3>
+                    </div>
+                    <div class="p-6">
+                        <p class="text-gray-600 mb-6">学习51单片机汇编语言程序设计的基本方法、结构和技巧，掌握顺序、分支、循环等程序设计。</p>
+                        <a href="第四章 汇编语言程序设计方法知识.html" target="_self" class="inline-block bg-primary text-white px-6 py-2 rounded-lg font-medium btn-hover">
+                            <i class="fa fa-arrow-right mr-2"></i>学习章节
+                        </a>
+                    </div>
+                </div>
+
+                <!-- 第5章 -->
+                <div class="section-card bg-white rounded-xl overflow-hidden shadow-md">
+                    <div class="bg-primary/10 p-6">
+                        <h3 class="text-xl font-bold text-primary flex items-center">
+                            <span class="bg-primary text-white rounded-full w-8 h-8 flex items-center justify-center mr-3">5</span>
+                            中断原理及应用
+                        </h3>
+                    </div>
+                    <div class="p-6">
+                        <p class="text-gray-600 mb-6">理解单片机中断的基本概念、中断系统结构及中断处理过程，学习中断服务程序的设计方法。</p>
+                        <a href="第五章 单片机中断原理及应用知识.html" target="_self" class="inline-block bg-primary text-white px-6 py-2 rounded-lg font-medium btn-hover">
+                            <i class="fa fa-arrow-right mr-2"></i>学习章节
+                        </a>
+                    </div>
+                </div>
+
+                <!-- 第6章 -->
+                <div class="section-card bg-white rounded-xl overflow-hidden shadow-md">
+                    <div class="bg-primary/10 p-6">
+                        <h3 class="text-xl font-bold text-primary flex items-center">
+                            <span class="bg-primary text-white rounded-full w-8 h-8 flex items-center justify-center mr-3">6</span>
+                            单片机定时器/计数器及串行通信
+                        </h3>
+                    </div>
+                    <div class="p-6">
+                        <p class="text-gray-600 mb-6">掌握51单片机定时器/计数器的结构、工作方式及应用，学习串行通信原理和编程实现方法。</p>
+                        <a href="第六章 单片机定时器计数器及串行口知识.html" target="_self" class="inline-block bg-primary text-white px-6 py-2 rounded-lg font-medium btn-hover">
+                            <i class="fa fa-arrow-right mr-2"></i>学习章节
+                        </a>
+                    </div>
+                </div>
+
+                <!-- 第7章 -->
+                <div class="section-card bg-white rounded-xl overflow-hidden shadow-md">
+                    <div class="bg-primary/10 p-6">
+                        <h3 class="text-xl font-bold text-primary flex items-center">
+                            <span class="bg-primary text-white rounded-full w-8 h-8 flex items-center justify-center mr-3">7</span>
+                            单片机硬件扩展与接口技术
+                        </h3>
+                    </div>
+                    <div class="p-6">
+                        <p class="text-gray-600 mb-6">学习单片机I/O口扩展、存储器扩展、键盘与显示接口技术，掌握LED、LCD等外设的驱动方法。</p>
+                        <a href="第七章 单片机硬件扩展与接口技术知识.html" target="_self" class="inline-block bg-primary text-white px-6 py-2 rounded-lg font-medium btn-hover">
+                            <i class="fa fa-arrow-right mr-2"></i>学习章节
+                        </a>
+                    </div>
+                </div>
+
+                <!-- 第8章 -->
+                <div class="section-card bg-white rounded-xl overflow-hidden shadow-md">
+                    <div class="bg-primary/10 p-6">
+                        <h3 class="text-xl font-bold text-primary flex items-center">
+                            <span class="bg-primary text-white rounded-full w-8 h-8 flex items-center justify-center mr-3">8</span>
+                            A/D转换与D/A转换
+                        </h3>
+                    </div>
+                    <div class="p-6">
+                        <p class="text-gray-600 mb-6">了解模拟量与数字量转换的基本原理，掌握A/D和D/A转换器的接口技术和编程方法。</p>
+                        <a href="第八章 ADC0809与DAC0832知识.html" target="_self" class="inline-block bg-primary text-white px-6 py-2 rounded-lg font-medium btn-hover">
+                            <i class="fa fa-arrow-right mr-2"></i>学习章节
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 附录部分 -->
+    <section id="appendix" class="py-16 bg-gray-50">
+        <div class="container mx-auto px-4">
+            <div class="text-center mb-12">
+                <h2 class="text-[clamp(1.5rem,3vw,2.5rem)] font-bold text-dark mb-4">附录</h2>
+                <p class="text-gray-600 max-w-2xl mx-auto">常用参考资料与工具</p>
+            </div>
+
+            <div class="max-w-4xl mx-auto">
+                <div class="bg-white rounded-xl shadow-md overflow-hidden">
+                    <div class="bg-primary/10 p-6">
+                        <h3 class="text-xl font-bold text-primary flex items-center">
+                            <span class="bg-primary text-white rounded-full w-8 h-8 flex items-center justify-center mr-3">附</span>
+                            51系列单片机指令集
+                        </h3>
+                    </div>
+                    <div class="p-6">
+                        <p class="text-gray-600 mb-6">本附录提供51系列单片机完整的指令集参考，包括指令格式、功能描述、字节数、机器周期数等详细信息，是单片机编程的重要参考工具。</p>
+                        <div class="flex flex-wrap gap-4 mb-6">
+                            <div class="bg-gray-100 px-4 py-2 rounded-lg">
+                                <span class="font-semibold">数据传送指令</span>
+                                <p class="text-sm text-gray-600">MOV, MOVX, MOVC, XCH等</p>
+                            </div>
+                            <div class="bg-gray-100 px-4 py-2 rounded-lg">
+                                <span class="font-semibold">算术运算指令</span>
+                                <p class="text-sm text-gray-600">ADD, ADDC, SUBB, MUL等</p>
+                            </div>
+                            <div class="bg-gray-100 px-4 py-2 rounded-lg">
+                                <span class="font-semibold">逻辑运算指令</span>
+                                <p class="text-sm text-gray-600">ANL, ORL, XRL, CPL等</p>
+                            </div>
+                            <div class="bg-gray-100 px-4 py-2 rounded-lg">
+                                <span class="font-semibold">控制转移指令</span>
+                                <p class="text-sm text-gray-600">JMP, CALL, RET, SJMP等</p>
+                            </div>
+                            <div class="bg-gray-100 px-4 py-2 rounded-lg">
+                                <span class="font-semibold">位操作指令</span>
+                                <p class="text-sm text-gray-600">CLR, SETB, CPL, JB等</p>
+                            </div>
+                        </div>
+                        <a href="第三章 单片机指令系统-全指令整理.html" target="_self" class="inline-block bg-primary text-white px-8 py-3 rounded-lg font-medium btn-hover">
+                            <i class="fa fa-book mr-2"></i>查看完整指令集
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 页脚 -->
+    <footer class="bg-dark text-white py-12">
+        <div class="container mx-auto px-4">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <div>
+                    <h3 class="text-lg font-bold mb-4 flex items-center">
+                        <i class="fa fa-microchip mr-2"></i>单片机技术与应用
+                    </h3>
+                    <p class="text-gray-400 mb-4">全面的51单片机在线学习资源，助力你掌握单片机编程与开发技能。</p>
+                    <div class="flex space-x-4">
+                        <a href="#" class="text-gray-400 hover:text-white transition-colors">
+                            <i class="fa fa-weibo"></i>
+                        </a>
+                        <a href="#" class="text-gray-400 hover:text-white transition-colors">
+                            <i class="fa fa-wechat"></i>
+                        </a>
+                        <a href="#" class="text-gray-400 hover:text-white transition-colors">
+                            <i class="fa fa-github"></i>
+                        </a>
+                    </div>
+                </div>
+                <div>
+                    <h3 class="text-lg font-bold mb-4">快速链接</h3>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="text-gray-400 hover:text-white transition-colors">首页</a></li>
+                        <li><a href="#chapters" class="text-gray-400 hover:text-white transition-colors">课程章节</a></li>
+                        <li><a href="#appendix" class="text-gray-400 hover:text-white transition-colors">附录</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition-colors">关于我们</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="text-lg font-bold mb-4">课程资源</h3>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="text-gray-400 hover:text-white transition-colors">教学视频</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition-colors">实验指导</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition-colors">示例代码</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition-colors">常见问题</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="text-lg font-bold mb-4">联系我们</h3>
+                    <ul class="space-y-2">
+                        <li class="flex items-center">
+                            <i class="fa fa-envelope-o mr-2 text-gray-400"></i>
+                            <a href="mailto:contact@example.com" class="text-gray-400 hover:text-white transition-colors">单片机课程QQ群：370743825   </a>
+                        </li>
+                        <li class="flex items-center">
+                            <i class="fa fa-phone mr-2 text-gray-400"></i>
+                            <span class="text-gray-400">QQ：50394113</span>
+                        </li>
+                        <li class="flex items-center">
+                            <i class="fa fa-map-marker mr-2 text-gray-400"></i>
+                            <span class="text-gray-400">四川省崇州市蜀州中路271号</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <div class="border-t border-gray-800 mt-8 pt-8 text-center text-gray-500">
+                <p>《单片机技术与应用》课程  &copy; 王老师. 保留所有权利.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- 回到顶部按钮 -->
+    <button id="backToTop" class="fixed bottom-6 right-6 bg-primary text-white w-12 h-12 rounded-full flex items-center justify-center shadow-lg opacity-0 transition-opacity duration-300 hover:bg-primary/90 focus:outline-none">
+        <i class="fa fa-arrow-up"></i>
+    </button>
+
+    <script>
+        // 回到顶部功能
+        const backToTopButton = document.getElementById('backToTop');
+        
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 300) {
+                backToTopButton.style.opacity = '1';
+            } else {
+                backToTopButton.style.opacity = '0';
+            }
+        });
+        
+        backToTopButton.addEventListener('click', () => {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        });
+
+        // 平滑滚动到锚点
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                
+                const targetId = this.getAttribute('href');
+                if (targetId === '#') return;
+                
+                const targetElement = document.querySelector(targetId);
+                if (targetElement) {
+                    targetElement.scrollIntoView({
+                        behavior: 'smooth'
+                    });
+                }
+            });
+        });
+    </script>
+</body>
+</html>
+    

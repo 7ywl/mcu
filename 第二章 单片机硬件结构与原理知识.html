@@ -1,0 +1,756 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>《单片机技术与应用》第二章知识要点</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#165DFF',
+                        secondary: '#FF7D00',
+                        neutral: {
+                            100: '#F5F7FA',
+                            200: '#E5E6EB',
+                            300: '#C9CDD4',
+                            400: '#86909C',
+                            500: '#4E5969',
+                            600: '#272E3B',
+                            700: '#1D2129',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                    boxShadow: {
+                        'card': '0 4px 20px rgba(0, 0, 0, 0.08)',
+                        'card-hover': '0 8px 30px rgba(0, 0, 0, 0.12)',
+                    }
+                },
+            }
+        }
+    </script>
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .content-auto {
+                content-visibility: auto;
+            }
+            .text-balance {
+                text-wrap: balance;
+            }
+            .scrollbar-hide::-webkit-scrollbar {
+                display: none;
+            }
+            .scrollbar-hide {
+                -ms-overflow-style: none;
+                scrollbar-width: none;
+            }
+            .text-shadow {
+                text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            }
+            .transition-all-300 {
+                transition: all 0.3s ease;
+            }
+        }
+    </style>
+</head>
+<body class="bg-neutral-100 font-sans text-neutral-700">
+    <!-- 顶部导航栏 -->
+    <header id="navbar" class="fixed top-0 left-0 right-0 z-50 bg-white bg-opacity-95 shadow-sm transition-all duration-300">
+        <div class="container mx-auto px-4 py-3 flex items-center justify-between">
+            <div class="flex items-center space-x-2">
+                <i class="fa fa-microchip text-primary text-2xl"></i>
+                <h1 class="text-xl md:text-2xl font-bold text-neutral-700"><span class="text-primary">51单片机硬件结构与原理</span></h1>
+            </div>
+            <nav class="hidden md:flex items-center space-x-8">
+                <a href="/" class="text-neutral-500 hover:text-primary transition-colors duration-200">首页</a>
+                <a href="#hardware-structure" class="text-neutral-500 hover:text-primary transition-colors duration-200">硬件结构</a>
+                <a href="#memory" class="text-neutral-500 hover:text-primary transition-colors duration-200">存储器</a>
+                <a href="#io-ports" class="text-neutral-500 hover:text-primary transition-colors duration-200">并行I/O口</a>
+                <a href="#pins" class="text-neutral-500 hover:text-primary transition-colors duration-200">引脚及功能</a>
+                <a href="#timing" class="text-neutral-500 hover:text-primary transition-colors duration-200">基本时序</a>
+                <a href="#reset" class="text-neutral-500 hover:text-primary transition-colors duration-200">复位电路</a>
+                <a href="#clock" class="text-neutral-500 hover:text-primary transition-colors duration-200">时钟电路</a>
+            </nav>
+            <button id="mobile-menu-button" class="md:hidden text-neutral-700 focus:outline-none">
+                <i class="fa fa-bars text-xl"></i>
+            </button>
+        </div>
+        <!-- 移动端菜单 -->
+        <div id="mobile-menu" class="hidden md:hidden bg-white border-t border-neutral-200 shadow-lg">
+            <div class="container mx-auto px-4 py-3 flex flex-col space-y-3">
+                <a href="/" class="text-neutral-500 hover:text-primary py-2 transition-colors duration-200">首页</a>
+                <a href="#hardware-structure" class="text-neutral-500 hover:text-primary py-2 transition-colors duration-200">硬件结构</a>
+                <a href="#memory" class="text-neutral-500 hover:text-primary py-2 transition-colors duration-200">存储器</a>
+                <a href="#io-ports" class="text-neutral-500 hover:text-primary py-2 transition-colors duration-200">并行I/O口</a>
+                <a href="#pins" class="text-neutral-500 hover:text-primary py-2 transition-colors duration-200">引脚及功能</a>
+                <a href="#timing" class="text-neutral-500 hover:text-primary py-2 transition-colors duration-200">基本时序</a>
+                <a href="#reset" class="text-neutral-500 hover:text-primary py-2 transition-colors duration-200">复位电路</a>
+                <a href="#clock" class="text-neutral-500 hover:text-primary py-2 transition-colors duration-200">时钟电路</a>
+            </div>
+        </div>
+    </header>
+
+    <!-- 页面主体 -->
+    <main class="container mx-auto px-4 pt-24 pb-16">
+        <!-- 页面标题 -->
+        <section class="mb-12 text-center">
+            <h1 class="text-[clamp(2rem,5vw,3.5rem)] font-bold text-neutral-700 mb-4 text-shadow">
+                单片机硬件结构与原理
+            </h1>
+            <p class="text-lg md:text-xl text-neutral-500 max-w-3xl mx-auto">
+                《单片机技术与应用》第二章知识要点
+                <span class="block mt-2 text-sm text-neutral-400">高等教育出版社 魏寿明主编</span>
+            </p>
+        </section>
+
+        <!-- 硬件结构部分 -->
+        <section id="hardware-structure" class="mb-16 scroll-mt-24">
+            <div class="bg-white rounded-xl shadow-card hover:shadow-card-hover transition-all-300 p-6 md:p-8">
+                <div class="flex items-center mb-6">
+                    <div class="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mr-4">
+                        <i class="fa fa-cubes text-primary text-xl"></i>
+                    </div>
+                    <h2 class="text-2xl md:text-3xl font-bold text-neutral-700">51单片机的硬件结构</h2>
+                </div>
+                
+                <div class="space-y-6">
+                    <div class="p-4 bg-neutral-100 rounded-lg">
+                        <h3 class="text-xl font-semibold text-neutral-700 mb-3">基本组成</h3>
+                        <ul class="list-disc pl-6 space-y-2">
+                            <li>8位CPU，具有丰富的位操作能力</li>
+                            <li>128B内部数据存储器(RAM)</li>
+                            <li>4KB片内程序存储器(ROM/EPROM/Flash)</li>
+                            <li>4个8位并行I/O口(P0~P3)</li>
+                            <li>2个16位定时/计数器</li>
+                            <li>1个全双工串行通信口</li>
+                            <li>5个中断源，2个中断优先级</li>
+                            <li>片内振荡器和时钟电路</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="grid md:grid-cols-2 gap-6">
+                        <div>
+                            <h3 class="text-xl font-semibold text-neutral-700 mb-3">中央处理器(CPU)</h3>
+                            <p class="mb-3">51单片机的CPU是8位的，能处理8位二进制数或代码，由运算器和控制器组成。</p>
+                            <ul class="list-disc pl-6 space-y-2">
+                                <li>运算器：包括算术逻辑单元ALU、累加器ACC、寄存器B等，完成算术/逻辑运算</li>
+                                <li>控制器：包括程序计数器PC、指令寄存器IR、指令译码器ID等，控制指令执行</li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h3 class="text-xl font-semibold text-neutral-700 mb-3">总线结构</h3>
+                            <p class="mb-3">51单片机采用哈佛结构，程序存储器和数据存储器是分开的，通过不同的总线访问。</p>
+                            <ul class="list-disc pl-6 space-y-2">
+                                <li>数据总线(DB)：8位，用于CPU与存储器/IO之间的数据传输</li>
+                                <li>地址总线(AB)：16位，用于CPU寻址存储器或IO，寻址范围64KB</li>
+                                <li>控制总线(CB)：包括读/写信号、片选信号等控制信号</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 存储器部分 -->
+        <section id="memory" class="mb-16 scroll-mt-24">
+            <div class="bg-white rounded-xl shadow-card hover:shadow-card-hover transition-all-300 p-6 md:p-8">
+                <div class="flex items-center mb-6">
+                    <div class="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mr-4">
+                        <i class="fa fa-database text-primary text-xl"></i>
+                    </div>
+                    <h2 class="text-2xl md:text-3xl font-bold text-neutral-700">单片机存储器</h2>
+                </div>
+                
+                <div class="space-y-6">
+                    <div class="grid md:grid-cols-2 gap-6">
+                        <div>
+                            <h3 class="text-xl font-semibold text-neutral-700 mb-3">程序存储器(ROM)</h3>
+                            <p class="mb-3">用于存放程序和固定数据，51单片机最多可扩展到64KB。</p>
+                            <ul class="list-disc pl-6 space-y-2">
+                                <li>8051：4KB内部ROM(掩膜ROM)</li>
+                                <li>8751：4KB内部EPROM</li>
+                                <li>8031：无内部ROM，需外扩</li>
+                                <li>AT89S51：4KB内部Flash</li>
+                                <li>EA引脚控制内外存储器选择</li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h3 class="text-xl font-semibold text-neutral-700 mb-3">数据存储器(RAM)</h3>
+                            <p class="mb-3">用于存放运行时的数据和中间结果，51单片机内部RAM为128B，可扩展到64KB外部RAM。</p>
+                            <ul class="list-disc pl-6 space-y-2">
+                                <li>00H~1FH：通用工作寄存器区(4组)</li>
+                                <li>20H~2FH：位寻址区(16B，128位)</li>
+                                <li>30H~7FH：用户RAM区</li>
+                                <li>80H~FFH：特殊功能寄存器区(SFR)</li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <h3 class="text-xl font-semibold text-neutral-700 mb-3">特殊功能寄存器(SFR)</h3>
+                        <p class="mb-3">SFR是单片机中各功能部件对应的寄存器，用于控制和监视片内各功能模块的工作状态。</p>
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full bg-white border border-neutral-200 rounded-lg">
+                                <thead>
+                                    <tr class="bg-neutral-100">
+                                        <th class="py-3 px-4 text-left font-semibold text-neutral-700 border-b">寄存器名称</th>
+                                        <th class="py-3 px-4 text-left font-semibold text-neutral-700 border-b">地址</th>
+                                        <th class="py-3 px-4 text-left font-semibold text-neutral-700 border-b">功能描述</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr class="hover:bg-neutral-50">
+                                        <td class="py-3 px-4 border-b">ACC</td>
+                                        <td class="py-3 px-4 border-b">E0H</td>
+                                        <td class="py-3 px-4 border-b">累加器，最常用的寄存器</td>
+                                    </tr>
+                                    <tr class="hover:bg-neutral-50">
+                                        <td class="py-3 px-4 border-b">B</td>
+                                        <td class="py-3 px-4 border-b">F0H</td>
+                                        <td class="py-3 px-4 border-b">乘法和除法运算时使用</td>
+                                    </tr>
+                                    <tr class="hover:bg-neutral-50">
+                                        <td class="py-3 px-4 border-b">PSW</td>
+                                        <td class="py-3 px-4 border-b">D0H</td>
+                                        <td class="py-3 px-4 border-b">程序状态字，包含状态标志位</td>
+                                    </tr>
+                                    <tr class="hover:bg-neutral-50">
+                                        <td class="py-3 px-4 border-b">SP</td>
+                                        <td class="py-3 px-4 border-b">81H</td>
+                                        <td class="py-3 px-4 border-b">堆栈指针，指向栈顶地址</td>
+                                    </tr>
+                                    <tr class="hover:bg-neutral-50">
+                                        <td class="py-3 px-4 border-b">DPTR</td>
+                                        <td class="py-3 px-4 border-b">83H~82H</td>
+                                        <td class="py-3 px-4 border-b">数据指针，16位寄存器</td>
+                                    </tr>
+                                    <tr class="hover:bg-neutral-50">
+                                        <td class="py-3 px-4 border-b">P0~P3</td>
+                                        <td class="py-3 px-4 border-b">80H,90H,A0H,B0H</td>
+                                        <td class="py-3 px-4 border-b">并行I/O口锁存器</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 并行I/O口部分 -->
+        <section id="io-ports" class="mb-16 scroll-mt-24">
+            <div class="bg-white rounded-xl shadow-card hover:shadow-card-hover transition-all-300 p-6 md:p-8">
+                <div class="flex items-center mb-6">
+                    <div class="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mr-4">
+                        <i class="fa fa-plug text-primary text-xl"></i>
+                    </div>
+                    <h2 class="text-2xl md:text-3xl font-bold text-neutral-700">单片机并行I/O口</h2>
+                </div>
+                
+                <div class="space-y-6">
+                    <div class="p-4 bg-neutral-100 rounded-lg">
+                        <h3 class="text-xl font-semibold text-neutral-700 mb-3">I/O口概述</h3>
+                        <p>51单片机有4个8位并行I/O口(P0~P3)，每个口既可以按字节输入/输出，也可以按位单独使用。</p>
+                        <div class="grid md:grid-cols-4 gap-4 mt-4">
+                            <div class="bg-white p-3 rounded-lg border border-neutral-200">
+                                <h4 class="font-semibold text-primary mb-2">P0口</h4>
+                                <p class="text-sm">地址/数据复用口，开漏输出</p>
+                            </div>
+                            <div class="bg-white p-3 rounded-lg border border-neutral-200">
+                                <h4 class="font-semibold text-primary mb-2">P1口</h4>
+                                <p class="text-sm">准双向通用I/O口</p>
+                            </div>
+                            <div class="bg-white p-3 rounded-lg border border-neutral-200">
+                                <h4 class="font-semibold text-primary mb-2">P2口</h4>
+                                <p class="text-sm">高8位地址线，准双向口</p>
+                            </div>
+                            <div class="bg-white p-3 rounded-lg border border-neutral-200">
+                                <h4 class="font-semibold text-primary mb-2">P3口</h4>
+                                <p class="text-sm">双功能口，准双向口</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="grid md:grid-cols-2 gap-6">
+                        <div>
+                            <h3 class="text-xl font-semibold text-neutral-700 mb-3">P0口结构与特性</h3>
+                            <ul class="list-disc pl-6 space-y-2">
+                                <li>由8个漏极开路的FET和反相器组成</li>
+                                <li>无内部上拉电阻，需外接上拉电阻</li>
+                                <li>用作通用I/O口时为开漏输出</li>
+                                <li>用作地址/数据总线时可驱动8个TTL负载</li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h3 class="text-xl font-semibold text-neutral-700 mb-3">P3口第二功能</h3>
+                            <div class="overflow-x-auto">
+                                <table class="min-w-full bg-white border border-neutral-200 rounded-lg">
+                                    <thead>
+                                        <tr class="bg-neutral-100">
+                                            <th class="py-2 px-3 text-left font-semibold text-neutral-700 border-b">引脚</th>
+                                            <th class="py-2 px-3 text-left font-semibold text-neutral-700 border-b">第二功能</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr class="hover:bg-neutral-50">
+                                            <td class="py-2 px-3 border-b">P3.0</td>
+                                            <td class="py-2 px-3 border-b">RXD(串行输入口)</td>
+                                        </tr>
+                                        <tr class="hover:bg-neutral-50">
+                                            <td class="py-2 px-3 border-b">P3.1</td>
+                                            <td class="py-2 px-3 border-b">TXD(串行输出口)</td>
+                                        </tr>
+                                        <tr class="hover:bg-neutral-50">
+                                            <td class="py-2 px-3 border-b">P3.2</td>
+                                            <td class="py-2 px-3 border-b">INT0(外部中断0)</td>
+                                        </tr>
+                                        <tr class="hover:bg-neutral-50">
+                                            <td class="py-2 px-3 border-b">P3.3</td>
+                                            <td class="py-2 px-3 border-b">INT1(外部中断1)</td>
+                                        </tr>
+                                        <tr class="hover:bg-neutral-50">
+                                            <td class="py-2 px-3 border-b">P3.4</td>
+                                            <td class="py-2 px-3 border-b">T0(定时器0外部输入)</td>
+                                        </tr>
+                                        <tr class="hover:bg-neutral-50">
+                                            <td class="py-2 px-3 border-b">P3.5</td>
+                                            <td class="py-2 px-3 border-b">T1(定时器1外部输入)</td>
+                                        </tr>
+                                        <tr class="hover:bg-neutral-50">
+                                            <td class="py-2 px-3 border-b">P3.6</td>
+                                            <td class="py-2 px-3 border-b">WR(外部数据存储器写选通)</td>
+                                        </tr>
+                                        <tr class="hover:bg-neutral-50">
+                                            <td class="py-2 px-3 border-b">P3.7</td>
+                                            <td class="py-2 px-3 border-b">RD(外部数据存储器读选通)</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 引脚及功能部分 -->
+        <section id="pins" class="mb-16 scroll-mt-24">
+            <div class="bg-white rounded-xl shadow-card hover:shadow-card-hover transition-all-300 p-6 md:p-8">
+                <div class="flex items-center mb-6">
+                    <div class="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mr-4">
+                        <i class="fa fa-puzzle-piece text-primary text-xl"></i>
+                    </div>
+                    <h2 class="text-2xl md:text-3xl font-bold text-neutral-700">单片机引脚及功能</h2>
+                </div>
+                
+                <div class="space-y-6">
+                    <div class="grid md:grid-cols-2 gap-6">
+                        <div>
+                            <h3 class="text-xl font-semibold text-neutral-700 mb-3">40引脚DIP封装</h3>
+                            <div class="relative bg-neutral-100 rounded-lg p-4 min-h-[300px]">
+                                <img src="https://picsum.photos/400/300?random=1" alt="51单片机引脚图" class="rounded-lg mx-auto max-w-full h-auto object-cover">
+                                <div class="absolute inset-0 flex items-center justify-center bg-black/50 rounded-lg opacity-0 hover:opacity-100 transition-opacity duration-300">
+                                    <p class="text-white text-center p-4">51单片机标准40引脚DIP封装</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div>
+                            <h3 class="text-xl font-semibold text-neutral-700 mb-3">引脚分类</h3>
+                            <ul class="list-disc pl-6 space-y-3">
+                                <li><span class="font-semibold">电源引脚(2个)</span>：VCC(40脚，+5V)、GND(20脚，地)</li>
+                                <li><span class="font-semibold">时钟引脚(2个)</span>：XTAL1(19脚)、XTAL2(18脚)</li>
+                                <li><span class="font-semibold">控制引脚(4个)</span>：RST(9脚，复位)、ALE/PROG(30脚)、PSEN(29脚)、EA/VPP(31脚)</li>
+                                <li><span class="font-semibold">I/O口引脚(32个)</span>：P0口(39~32脚)、P1口(1~8脚)、P2口(21~28脚)、P3口(10~17脚)</li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <h3 class="text-xl font-semibold text-neutral-700 mb-3">主要控制引脚功能</h3>
+                        <div class="grid md:grid-cols-2 gap-4">
+                            <div class="bg-white p-4 rounded-lg border border-neutral-200 hover:border-primary/50 transition-all-300">
+                                <h4 class="font-semibold text-primary mb-2">RST(Reset)</h4>
+                                <p>复位输入引脚，高电平有效。持续2个机器周期以上的高电平将使单片机复位。</p>
+                            </div>
+                            <div class="bg-white p-4 rounded-lg border border-neutral-200 hover:border-primary/50 transition-all-300">
+                                <h4 class="font-semibold text-primary mb-2">ALE/PROG</h4>
+                                <p>地址锁存允许信号。在访问外部存储器时，ALE用于锁存低8位地址信号。</p>
+                            </div>
+                            <div class="bg-white p-4 rounded-lg border border-neutral-200 hover:border-primary/50 transition-all-300">
+                                <h4 class="font-semibold text-primary mb-2">PSEN(Program Store Enable)</h4>
+                                <p>外部程序存储器读选通信号，低电平有效。访问外部ROM时自动产生PSEN信号。</p>
+                            </div>
+                            <div class="bg-white p-4 rounded-lg border border-neutral-200 hover:border-primary/50 transition-all-300">
+                                <h4 class="font-semibold text-primary mb-2">EA/VPP</h4>
+                                <p>内外ROM选择控制端。EA=1时，访问内部ROM；EA=0时，只访问外部ROM。</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 基本时序部分 -->
+        <section id="timing" class="mb-16 scroll-mt-24">
+            <div class="bg-white rounded-xl shadow-card hover:shadow-card-hover transition-all-300 p-6 md:p-8">
+                <div class="flex items-center mb-6">
+                    <div class="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mr-4">
+                        <i class="fa fa-clock-o text-primary text-xl"></i>
+                    </div>
+                    <h2 class="text-2xl md:text-3xl font-bold text-neutral-700">单片机基本时序</h2>
+                </div>
+                
+                <div class="space-y-6">
+                    <div class="p-4 bg-neutral-100 rounded-lg">
+                        <h3 class="text-xl font-semibold text-neutral-700 mb-3">时序基本概念</h3>
+                        <ul class="list-disc pl-6 space-y-2">
+                            <li><span class="font-semibold">振荡周期</span>：为单片机提供定时信号的振荡源的周期，由晶振频率决定</li>
+                            <li><span class="font-semibold">状态周期</span>：振荡周期的2倍，每个状态周期分为P1、P2两个节拍</li>
+                            <li><span class="font-semibold">机器周期</span>：完成一个基本操作所需的时间，由12个振荡周期组成</li>
+                            <li><span class="font-semibold">指令周期</span>：执行一条指令所需的全部时间，通常为1~4个机器周期</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="grid md:grid-cols-2 gap-6">
+                        <div>
+                            <h3 class="text-xl font-semibold text-neutral-700 mb-3">时序关系</h3>
+                            <p class="mb-3">若晶振频率为fosc，则各时间单位关系如下：</p>
+                            <ul class="list-disc pl-6 space-y-2">
+                                <li>振荡周期 = 1/fosc</li>
+                                <li>状态周期 = 2/fosc</li>
+                                <li>机器周期 = 12/fosc</li>
+                                <li>指令周期 = 1~4个机器周期</li>
+                            </ul>
+                            <p class="mt-3">例如：当fosc=12MHz时，机器周期=1μs，指令周期=1~4μs</p>
+                        </div>
+                        <div>
+                            <h3 class="text-xl font-semibold text-neutral-700 mb-3">典型指令时序</h3>
+                            <div class="bg-white p-4 rounded-lg border border-neutral-200">
+                                <h4 class="font-semibold text-primary mb-2">单字节单周期指令</h4>
+                                <p class="text-sm mb-2">如INC A，只需一个机器周期，在S1P2取指令，S4P2执行</p>
+                                <h4 class="font-semibold text-primary mb-2">双字节单周期指令</h4>
+                                <p class="text-sm mb-2">如ADD A, #data，S1P2取操作码，S4P2取操作数，S6P2执行</p>
+                                <h4 class="font-semibold text-primary mb-2">单字节双周期指令</h4>
+                                <p class="text-sm">如MOVX A, @DPTR，包含访问外部RAM操作，需两个机器周期</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 复位电路部分 -->
+        <section id="reset" class="mb-16 scroll-mt-24">
+            <div class="bg-white rounded-xl shadow-card hover:shadow-card-hover transition-all-300 p-6 md:p-8">
+                <div class="flex items-center mb-6">
+                    <div class="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mr-4">
+                        <i class="fa fa-refresh text-primary text-xl"></i>
+                    </div>
+                    <h2 class="text-2xl md:text-3xl font-bold text-neutral-700">复位电路</h2>
+                </div>
+                
+                <div class="space-y-6">
+                    <div>
+                        <h3 class="text-xl font-semibold text-neutral-700 mb-3">复位功能与条件</h3>
+                        <p class="mb-3">复位是单片机的初始化操作，主要功能是使CPU和系统中的其他部件处于一个确定的初始状态，并从这个状态开始工作。</p>
+                        <ul class="list-disc pl-6 space-y-2">
+                            <li>复位条件：RST引脚保持两个机器周期(24个振荡周期)以上的高电平</li>
+                            <li>复位后PC值为0000H，程序从0000H地址开始执行</li>
+                            <li>复位不影响内部RAM，但影响SFR的值</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="grid md:grid-cols-2 gap-6">
+                        <div>
+                            <h3 class="text-xl font-semibold text-neutral-700 mb-3">上电复位电路</h3>
+                            <div class="relative bg-neutral-100 rounded-lg p-4 min-h-[200px]">
+                                <img src="https://picsum.photos/400/200?random=2" alt="上电复位电路" class="rounded-lg mx-auto max-w-full h-auto object-cover">
+                                <div class="absolute inset-0 flex items-center justify-center bg-black/50 rounded-lg opacity-0 hover:opacity-100 transition-opacity duration-300">
+                                    <p class="text-white text-center p-4">上电复位电路由电容和电阻组成</p>
+                                </div>
+                            </div>
+                            <p class="mt-3">上电瞬间，电容充电，RST端出现正脉冲。调整RC参数可改变复位脉冲宽度。</p>
+                        </div>
+                        <div>
+                            <h3 class="text-xl font-semibold text-neutral-700 mb-3">按键复位电路</h3>
+                            <div class="relative bg-neutral-100 rounded-lg p-4 min-h-[200px]">
+                                <img src="https://picsum.photos/400/200?random=3" alt="按键复位电路" class="rounded-lg mx-auto max-w-full h-auto object-cover">
+                                <div class="absolute inset-0 flex items-center justify-center bg-black/50 rounded-lg opacity-0 hover:opacity-100 transition-opacity duration-300">
+                                    <p class="text-white text-center p-4">按键复位电路允许手动复位单片机</p>
+                                </div>
+                            </div>
+                            <p class="mt-3">上电时完成上电复位，按键按下时电容放电，RST端出现高电平，实现手动复位。</p>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <h3 class="text-xl font-semibold text-neutral-700 mb-3">复位后SFR的初始状态</h3>
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full bg-white border border-neutral-200 rounded-lg">
+                                <thead>
+                                    <tr class="bg-neutral-100">
+                                        <th class="py-3 px-4 text-left font-semibold text-neutral-700 border-b">寄存器</th>
+                                        <th class="py-3 px-4 text-left font-semibold text-neutral-700 border-b">初始值</th>
+                                        <th class="py-3 px-4 text-left font-semibold text-neutral-700 border-b">寄存器</th>
+                                        <th class="py-3 px-4 text-left font-semibold text-neutral-700 border-b">初始值</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr class="hover:bg-neutral-50">
+                                        <td class="py-3 px-4 border-b">PC</td>
+                                        <td class="py-3 px-4 border-b">0000H</td>
+                                        <td class="py-3 px-4 border-b">TMOD</td>
+                                        <td class="py-3 px-4 border-b">00H</td>
+                                    </tr>
+                                    <tr class="hover:bg-neutral-50">
+                                        <td class="py-3 px-4 border-b">ACC</td>
+                                        <td class="py-3 px-4 border-b">00H</td>
+                                        <td class="py-3 px-4 border-b">TCON</td>
+                                        <td class="py-3 px-4 border-b">00H</td>
+                                    </tr>
+                                    <tr class="hover:bg-neutral-50">
+                                        <td class="py-3 px-4 border-b">B</td>
+                                        <td class="py-3 px-4 border-b">00H</td>
+                                        <td class="py-3 px-4 border-b">TH0</td>
+                                        <td class="py-3 px-4 border-b">00H</td>
+                                    </tr>
+                                    <tr class="hover:bg-neutral-50">
+                                        <td class="py-3 px-4 border-b">PSW</td>
+                                        <td class="py-3 px-4 border-b">00H</td>
+                                        <td class="py-3 px-4 border-b">TL0</td>
+                                        <td class="py-3 px-4 border-b">00H</td>
+                                    </tr>
+                                    <tr class="hover:bg-neutral-50">
+                                        <td class="py-3 px-4 border-b">SP</td>
+                                        <td class="py-3 px-4 border-b">07H</td>
+                                        <td class="py-3 px-4 border-b">TH1</td>
+                                        <td class="py-3 px-4 border-b">00H</td>
+                                    </tr>
+                                    <tr class="hover:bg-neutral-50">
+                                        <td class="py-3 px-4 border-b">DPTR</td>
+                                        <td class="py-3 px-4 border-b">0000H</td>
+                                        <td class="py-3 px-4 border-b">TL1</td>
+                                        <td class="py-3 px-4 border-b">00H</td>
+                                    </tr>
+                                    <tr class="hover:bg-neutral-50">
+                                        <td class="py-3 px-4 border-b">P0~P3</td>
+                                        <td class="py-3 px-4 border-b">FFH</td>
+                                        <td class="py-3 px-4 border-b">SCON</td>
+                                        <td class="py-3 px-4 border-b">00H</td>
+                                    </tr>
+                                    <tr class="hover:bg-neutral-50">
+                                        <td class="py-3 px-4 border-b">IP</td>
+                                        <td class="py-3 px-4 border-b">XXX00000B</td>
+                                        <td class="py-3 px-4 border-b">SBUF</td>
+                                        <td class="py-3 px-4 border-b">不定</td>
+                                    </tr>
+                                    <tr class="hover:bg-neutral-50">
+                                        <td class="py-3 px-4 border-b">IE</td>
+                                        <td class="py-3 px-4 border-b">0XX00000B</td>
+                                        <td class="py-3 px-4 border-b">PCON</td>
+                                        <td class="py-3 px-4 border-b">0XXX0000B</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 时钟电路部分 -->
+        <section id="clock" class="mb-16 scroll-mt-24">
+            <div class="bg-white rounded-xl shadow-card hover:shadow-card-hover transition-all-300 p-6 md:p-8">
+                <div class="flex items-center mb-6">
+                    <div class="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mr-4">
+                        <i class="fa fa-cog text-primary text-xl"></i>
+                    </div>
+                    <h2 class="text-2xl md:text-3xl font-bold text-neutral-700">时钟电路</h2>
+                </div>
+                
+                <div class="space-y-6">
+                    <div>
+                        <h3 class="text-xl font-semibold text-neutral-700 mb-3">时钟电路功能</h3>
+                        <p class="mb-3">时钟电路为单片机产生时钟脉冲序列，是单片机工作的基础，直接影响单片机的工作速度和稳定性。</p>
+                        <ul class="list-disc pl-6 space-y-2">
+                            <li>51单片机内部有一个高增益反相放大器，用于构成振荡器</li>
+                            <li>XTAL1(19脚)为反相放大器输入端</li>
+                            <li>XTAL2(18脚)为反相放大器输出端</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="grid md:grid-cols-2 gap-6">
+                        <div>
+                            <h3 class="text-xl font-semibold text-neutral-700 mb-3">内部时钟方式</h3>
+                            <div class="relative bg-neutral-100 rounded-lg p-4 min-h-[200px]">
+                                <img src="https://picsum.photos/400/200?random=4" alt="内部时钟电路" class="rounded-lg mx-auto max-w-full h-auto object-cover">
+                                <div class="absolute inset-0 flex items-center justify-center bg-black/50 rounded-lg opacity-0 hover:opacity-100 transition-opacity duration-300">
+                                    <p class="text-white text-center p-4">内部时钟方式电路连接图</p>
+                                </div>
+                            </div>
+                            <p class="mt-3">在XTAL1和XTAL2引脚外接晶体振荡器和微调电容，构成并联谐振电路。</p>
+                            <ul class="list-disc pl-6 space-y-2 mt-2">
+                                <li>晶振频率典型值为6MHz、12MHz、11.0592MHz等</li>
+                                <li>电容值通常为30pF左右，用于微调振荡频率</li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h3 class="text-xl font-semibold text-neutral-700 mb-3">外部时钟方式</h3>
+                            <div class="relative bg-neutral-100 rounded-lg p-4 min-h-[200px]">
+                                <img src="https://picsum.photos/400/200?random=5" alt="外部时钟电路" class="rounded-lg mx-auto max-w-full h-auto object-cover">
+                                <div class="absolute inset-0 flex items-center justify-center bg-black/50 rounded-lg opacity-0 hover:opacity-100 transition-opacity duration-300">
+                                    <p class="text-white text-center p-4">外部时钟方式电路连接图</p>
+                                </div>
+                            </div>
+                            <p class="mt-3">外部时钟信号直接接入XTAL2引脚，XTAL1接地。常用于多片单片机同步工作。</p>
+                            <ul class="list-disc pl-6 space-y-2 mt-2">
+                                <li>输入信号需为方波，高、低电平持续时间大于20ns</li>
+                                <li>适用于外部时钟源已经存在的场合</li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <h3 class="text-xl font-semibold text-neutral-700 mb-3">晶振频率选择</h3>
+                        <p class="mb-3">晶振频率决定了单片机的工作速度，选择时需考虑以下因素：</p>
+                        <div class="grid md:grid-cols-3 gap-4">
+                            <div class="bg-white p-4 rounded-lg border border-neutral-200">
+                                <h4 class="font-semibold text-primary mb-2">系统需求</h4>
+                                <p class="text-sm">根据系统对处理速度的要求选择合适的频率</p>
+                            </div>
+                            <div class="bg-white p-4 rounded-lg border border-neutral-200">
+                                <h4 class="font-semibold text-primary mb-2">抗干扰能力</h4>
+                                <p class="text-sm">频率越高，抗干扰能力越差，功耗也越大</p>
+                            </div>
+                            <div class="bg-white p-4 rounded-lg border border-neutral-200">
+                                <h4 class="font-semibold text-primary mb-2">外设兼容性</h4>
+                                <p class="text-sm">例如串口通信常采用11.0592MHz以避免波特率误差</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- 页脚 -->
+    <footer class="bg-neutral-700 text-white py-8">
+        <div class="container mx-auto px-4">
+            <div class="flex flex-col md:flex-row justify-between items-center">
+                <div class="mb-6 md:mb-0">
+                    <div class="flex items-center">
+                        <i class="fa fa-microchip text-primary text-2xl mr-2"></i>
+                        <span class="text-xl font-bold">51单片机知识要点</span>
+                    </div>
+                    <p class="text-neutral-400 mt-2">基于《单片机技术与应用》第二章</p>
+                </div>
+                <div class="flex space-x-6">
+                    <a href="#hardware-structure" class="text-neutral-300 hover:text-white transition-colors duration-200">硬件结构</a>
+                    <a href="#memory" class="text-neutral-300 hover:text-white transition-colors duration-200">存储器</a>
+                    <a href="#io-ports" class="text-neutral-300 hover:text-white transition-colors duration-200">并行I/O口</a>
+                    <a href="#pins" class="text-neutral-300 hover:text-white transition-colors duration-200">引脚及功能</a>
+                    <a href="#timing" class="text-neutral-300 hover:text-white transition-colors duration-200">基本时序</a>
+                    <a href="#reset" class="text-neutral-300 hover:text-white transition-colors duration-200">复位电路</a>
+                    <a href="#clock" class="text-neutral-300 hover:text-white transition-colors duration-200">时钟电路</a>
+                </div>
+            </div>
+            <div class="border-t border-neutral-600 mt-6 pt-6 text-center text-neutral-400">
+                <p>《单片机技术与应用》课程  &copy; 王老师. 保留所有权利.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- 返回顶部按钮 -->
+    <button id="back-to-top" class="fixed bottom-6 right-6 bg-primary text-white w-12 h-12 rounded-full flex items-center justify-center shadow-lg opacity-0 invisible transition-all duration-300 hover:bg-primary/90 focus:outline-none">
+        <i class="fa fa-arrow-up"></i>
+    </button>
+
+    <script>
+        // 导航栏滚动效果
+        const navbar = document.getElementById('navbar');
+        const backToTop = document.getElementById('back-to-top');
+        
+        window.addEventListener('scroll', function() {
+            if (window.scrollY > 50) {
+                navbar.classList.add('py-2', 'shadow');
+                navbar.classList.remove('py-3');
+                
+                backToTop.classList.remove('opacity-0', 'invisible');
+                backToTop.classList.add('opacity-100', 'visible');
+            } else {
+                navbar.classList.add('py-3');
+                navbar.classList.remove('py-2', 'shadow');
+                
+                backToTop.classList.add('opacity-0', 'invisible');
+                backToTop.classList.remove('opacity-100', 'visible');
+            }
+        });
+        
+        // 移动端菜单切换
+        const mobileMenuButton = document.getElementById('mobile-menu-button');
+        const mobileMenu = document.getElementById('mobile-menu');
+        
+        mobileMenuButton.addEventListener('click', function() {
+            mobileMenu.classList.toggle('hidden');
+        });
+        
+        // 平滑滚动
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function(e) {
+                e.preventDefault();
+                
+                const targetId = this.getAttribute('href');
+                const targetElement = document.querySelector(targetId);
+                
+                if (targetElement) {
+                    window.scrollTo({
+                        top: targetElement.offsetTop - 80,
+                        behavior: 'smooth'
+                    });
+                    
+                    // 关闭移动端菜单
+                    if (!mobileMenu.classList.contains('hidden')) {
+                        mobileMenu.classList.add('hidden');
+                    }
+                }
+            });
+        });
+        
+        // 返回顶部
+        backToTop.addEventListener('click', function() {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        });
+        
+        // 添加内容动画
+        const observerOptions = {
+            root: null,
+            rootMargin: '0px',
+            threshold: 0.1
+        };
+        
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('opacity-100', 'translate-y-0');
+                    entry.target.classList.remove('opacity-0', 'translate-y-4');
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, observerOptions);
+        
+        document.querySelectorAll('section > div').forEach(section => {
+            section.classList.add('transition-all', 'duration-700', 'opacity-0', 'translate-y-4');
+            observer.observe(section);
+        });
+    </script>
+</body>
+</html>
+    

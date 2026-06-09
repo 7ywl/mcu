@@ -1,0 +1,1571 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>51单片机指令系统 - 全面指南</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.8/dist/chart.umd.min.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- Tailwind 配置 -->
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: '#165DFF',
+            secondary: '#36CFC9',
+            accent: '#722ED1',
+            dark: '#1D2129',
+            light: '#F7F8FA',
+            success: '#00B42A',
+            warning: '#FF7D00',
+            info: '#165DFF',
+            danger: '#F53F3F'
+          },
+          fontFamily: {
+            inter: ['Inter', 'sans-serif'],
+          },
+        },
+      }
+    }
+  </script>
+  
+  <style type="text/tailwindcss">
+    @layer utilities {
+      .content-auto {
+        content-visibility: auto;
+      }
+      .text-shadow {
+        text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      }
+      .card-hover {
+        transition: all 0.3s ease;
+      }
+      .card-hover:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+      }
+      .nav-active {
+        border-bottom: 3px solid theme('colors.primary');
+        color: theme('colors.primary');
+      }
+      .animate-fade-in {
+        animation: fadeIn 0.5s ease-in-out;
+      }
+      @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
+    }
+  </style>
+</head>
+
+<body class="font-inter bg-light text-dark min-h-screen flex flex-col">
+  <!-- 导航栏 -->
+  <header class="sticky top-0 z-50 bg-white shadow-md transition-all duration-300" id="navbar">
+    <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+      <div class="flex items-center space-x-2">
+        <i class="fa fa-microchip text-primary text-2xl"></i>
+        <h1 class="text-xl md:text-2xl font-bold text-dark">51单片机指令系统</h1>
+      </div>
+      
+      <nav class="hidden md:flex items-center space-x-6">
+        <a href="/" class="font-medium hover:text-primary transition-colors">首页</a>
+        <a href="#introduction" class="font-medium hover:text-primary transition-colors">简介</a>
+        <a href="#categories" class="font-medium nav-active">指令分类</a>
+        <a href="#search" class="font-medium hover:text-primary transition-colors">搜索指令</a>
+        <a href="#statistics" class="font-medium hover:text-primary transition-colors">指令统计</a>
+      </nav>
+      
+      <div class="flex items-center space-x-4">
+        <button class="md:hidden text-dark focus:outline-none" id="menu-toggle">
+          <i class="fa fa-bars text-xl"></i>
+        </button>
+        <button class="bg-primary text-white px-4 py-2 rounded-lg hover:bg-primary/90 transition-colors shadow-md hover:shadow-lg">
+          <i class="fa fa-download mr-2"></i>下载指令表
+        </button>
+      </div>
+    </div>
+    
+    <!-- 移动端菜单 -->
+    <div class="md:hidden hidden bg-white border-t animate-fade-in" id="mobile-menu">
+      <div class="container mx-auto px-4 py-2 flex flex-col space-y-3">
+        <a href="/" class="font-medium py-2 hover:text-primary transition-colors">首页</a>
+        <a href="#introduction" class="font-medium py-2 hover:text-primary transition-colors">简介</a>
+        <a href="#categories" class="font-medium py-2 text-primary border-l-4 border-primary pl-2">指令分类</a>
+        <a href="#search" class="font-medium py-2 hover:text-primary transition-colors">搜索指令</a>
+        <a href="#statistics" class="font-medium py-2 hover:text-primary transition-colors">指令统计</a>
+      </div>
+    </div>
+  </header>
+
+  <!-- 英雄区域 -->
+  <section class="bg-gradient-to-br from-primary/90 to-primary text-white py-16 md:py-24">
+    <div class="container mx-auto px-4 text-center">
+      <h2 class="text-[clamp(1.8rem,5vw,3rem)] font-bold mb-4 text-shadow">51单片机指令系统全面指南</h2>
+      <p class="text-[clamp(1rem,2vw,1.25rem)] max-w-3xl mx-auto mb-8 text-white/90">
+        掌握51单片机编程的基础，完整收录111条指令，按功能分类展示，助你轻松学习和查阅
+      </p>
+      <div class="flex flex-col sm:flex-row justify-center gap-4">
+        <a href="#categories" class="bg-white text-primary px-6 py-3 rounded-lg font-medium hover:bg-gray-100 transition-colors shadow-lg">
+          浏览指令集 <i class="fa fa-arrow-down ml-2"></i>
+        </a>
+        <a href="#search" class="bg-transparent border-2 border-white text-white px-6 py-3 rounded-lg font-medium hover:bg-white/10 transition-colors">
+          搜索指令 <i class="fa fa-search ml-2"></i>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- 简介部分 -->
+  <section id="introduction" class="py-12 md:py-16 bg-white">
+    <div class="container mx-auto px-4">
+      <div class="text-center mb-12">
+        <h2 class="text-[clamp(1.5rem,3vw,2.5rem)] font-bold text-dark mb-4">51单片机指令系统简介</h2>
+        <div class="w-20 h-1 bg-primary mx-auto"></div>
+      </div>
+      
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div class="bg-light p-6 rounded-xl shadow-md card-hover">
+          <div class="w-12 h-12 bg-primary/10 text-primary rounded-full flex items-center justify-center mb-4">
+            <i class="fa fa-book text-xl"></i>
+          </div>
+          <h3 class="text-xl font-semibold mb-3">指令系统概述</h3>
+          <p class="text-gray-600">
+            51单片机采用精简指令集架构，共有111条指令，按功能可分为五大类，支持7种寻址方式。
+          </p>
+        </div>
+        
+        <div class="bg-light p-6 rounded-xl shadow-md card-hover">
+          <div class="w-12 h-12 bg-secondary/10 text-secondary rounded-full flex items-center justify-center mb-4">
+            <i class="fa fa-list-alt text-xl"></i>
+          </div>
+          <h3 class="text-xl font-semibold mb-3">指令格式</h3>
+          <p class="text-gray-600">
+            51指令有单字节、双字节和三字节三种格式，操作码指定操作功能，操作数指定操作对象。
+          </p>
+        </div>
+        
+        <div class="bg-light p-6 rounded-xl shadow-md card-hover">
+          <div class="w-12 h-12 bg-accent/10 text-accent rounded-full flex items-center justify-center mb-4">
+            <i class="fa fa-cogs text-xl"></i>
+          </div>
+          <h3 class="text-xl font-semibold mb-3">寻址方式</h3>
+          <p class="text-gray-600">
+            支持寄存器、直接、寄存器间接、立即数、基址加变址、相对和位寻址七种方式。
+          </p>
+        </div>
+      </div>
+      
+      <div class="mt-12 bg-light rounded-xl p-6 md:p-8 shadow-md">
+        <h3 class="text-xl font-semibold mb-4 flex items-center">
+          <i class="fa fa-info-circle text-primary mr-2"></i> 指令系统特点
+        </h3>
+        <ul class="space-y-2 text-gray-700">
+          <li class="flex items-start">
+            <i class="fa fa-check text-success mt-1 mr-2"></i>
+            <span>共有111条指令，包括49条单字节指令，45条双字节指令，17条三字节指令</span>
+          </li>
+          <li class="flex items-start">
+            <i class="fa fa-check text-success mt-1 mr-2"></i>
+            <span>执行时间：64条指令为1个机器周期，45条为2个机器周期，2条乘法和除法指令为4个机器周期</span>
+          </li>
+          <li class="flex items-start">
+            <i class="fa fa-check text-success mt-1 mr-2"></i>
+            <span>支持位操作，可对内部RAM和特殊功能寄存器的位进行直接操作</span>
+          </li>
+          <li class="flex items-start">
+            <i class="fa fa-check text-success mt-1 mr-2"></i>
+            <span>丰富的转移指令，包括无条件转移、条件转移、子程序调用和返回指令</span>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- 指令分类部分 -->
+  <section id="categories" class="py-12 md:py-16 bg-gray-50">
+    <div class="container mx-auto px-4">
+      <div class="text-center mb-12">
+        <h2 class="text-[clamp(1.5rem,3vw,2.5rem)] font-bold text-dark mb-4">指令分类浏览</h2>
+        <div class="w-20 h-1 bg-primary mx-auto"></div>
+        <p class="mt-4 text-gray-600 max-w-2xl mx-auto">
+          51单片机指令系统按功能可分为五大类，点击下方分类查看具体指令
+        </p>
+      </div>
+      
+      <!-- 分类标签 -->
+      <div class="flex flex-wrap justify-center gap-2 mb-8" id="category-tags">
+        <button class="category-btn bg-primary text-white px-5 py-2 rounded-full font-medium" data-category="all">
+          全部指令 <span class="ml-2 bg-white text-primary text-sm rounded-full px-2 py-0.5">111</span>
+        </button>
+        <button class="category-btn bg-gray-200 text-dark px-5 py-2 rounded-full font-medium hover:bg-primary hover:text-white transition-colors" data-category="data-transfer">
+          数据传送 <span class="ml-2 bg-white text-gray-600 text-sm rounded-full px-2 py-0.5">29</span>
+        </button>
+        <button class="category-btn bg-gray-200 text-dark px-5 py-2 rounded-full font-medium hover:bg-primary hover:text-white transition-colors" data-category="arithmetic">
+          算术运算 <span class="ml-2 bg-white text-gray-600 text-sm rounded-full px-2 py-0.5">24</span>
+        </button>
+        <button class="category-btn bg-gray-200 text-dark px-5 py-2 rounded-full font-medium hover:bg-primary hover:text-white transition-colors" data-category="logical">
+          逻辑运算 <span class="ml-2 bg-white text-gray-600 text-sm rounded-full px-2 py-0.5">24</span>
+        </button>
+        <button class="category-btn bg-gray-200 text-dark px-5 py-2 rounded-full font-medium hover:bg-primary hover:text-white transition-colors" data-category="control">
+          控制转移 <span class="ml-2 bg-white text-gray-600 text-sm rounded-full px-2 py-0.5">17</span>
+        </button>
+        <button class="category-btn bg-gray-200 text-dark px-5 py-2 rounded-full font-medium hover:bg-primary hover:text-white transition-colors" data-category="bit-operation">
+          位操作 <span class="ml-2 bg-white text-gray-600 text-sm rounded-full px-2 py-0.5">17</span>
+        </button>
+      </div>
+      
+      <!-- 指令列表 -->
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="instruction-list">
+        <!-- 指令将动态加载到这里 -->
+      </div>
+      
+      <!-- 加载更多按钮 -->
+      <div class="text-center mt-10">
+        <button id="load-more" class="bg-white text-primary border border-primary px-6 py-3 rounded-lg font-medium hover:bg-primary/5 transition-colors">
+          <i class="fa fa-refresh mr-2"></i> 加载更多指令
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- 搜索指令部分 -->
+  <section id="search" class="py-12 md:py-16 bg-white">
+    <div class="container mx-auto px-4">
+      <div class="text-center mb-12">
+        <h2 class="text-[clamp(1.5rem,3vw,2.5rem)] font-bold text-dark mb-4">搜索指令</h2>
+        <div class="w-20 h-1 bg-primary mx-auto"></div>
+        <p class="mt-4 text-gray-600 max-w-2xl mx-auto">
+          输入指令助记符、功能描述或操作数，快速查找你需要的指令
+        </p>
+      </div>
+      
+      <!-- 搜索框 -->
+      <div class="max-w-2xl mx-auto mb-8">
+        <div class="relative">
+          <input type="text" id="instruction-search" placeholder="搜索指令... (如: MOV, ADD, JMP)" 
+                 class="w-full px-6 py-4 pl-12 rounded-xl border border-gray-300 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all">
+          <i class="fa fa-search absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"></i>
+        </div>
+        <p class="text-sm text-gray-500 mt-2">支持按指令助记符、操作数和功能描述搜索</p>
+      </div>
+      
+      <!-- 搜索结果 -->
+      <div class="max-w-4xl mx-auto" id="search-results">
+        <div class="bg-light rounded-xl p-6 shadow-md mb-6">
+          <h3 class="text-lg font-semibold mb-4">热门搜索指令</h3>
+          <div class="flex flex-wrap gap-2">
+            <a href="#" class="bg-primary/10 text-primary px-3 py-1 rounded-full text-sm hover:bg-primary hover:text-white transition-colors search-tag" data-tag="MOV">MOV</a>
+            <a href="#" class="bg-primary/10 text-primary px-3 py-1 rounded-full text-sm hover:bg-primary hover:text-white transition-colors search-tag" data-tag="ADD">ADD</a>
+            <a href="#" class="bg-primary/10 text-primary px-3 py-1 rounded-full text-sm hover:bg-primary hover:text-white transition-colors search-tag" data-tag="JMP">JMP</a>
+            <a href="#" class="bg-primary/10 text-primary px-3 py-1 rounded-full text-sm hover:bg-primary hover:text-white transition-colors search-tag" data-tag="DJNZ">DJNZ</a>
+            <a href="#" class="bg-primary/10 text-primary px-3 py-1 rounded-full text-sm hover:bg-primary hover:text-white transition-colors search-tag" data-tag="SETB">SETB</a>
+          </div>
+        </div>
+        
+        <!-- 搜索结果列表 -->
+        <div id="search-results-list" class="space-y-4">
+          <!-- 搜索结果将动态生成到这里 -->
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 指令统计部分 -->
+  <section id="statistics" class="py-12 md:py-16 bg-gray-50">
+    <div class="container mx-auto px-4">
+      <div class="text-center mb-12">
+        <h2 class="text-[clamp(1.5rem,3vw,2.5rem)] font-bold text-dark mb-4">指令系统统计</h2>
+        <div class="w-20 h-1 bg-primary mx-auto"></div>
+        <p class="mt-4 text-gray-600 max-w-2xl mx-auto">
+          51单片机指令系统的详细统计数据，帮助你更好地理解指令分布和特点
+        </p>
+      </div>
+      
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
+        <!-- 分类统计图表 -->
+        <div class="bg-white p-6 rounded-xl shadow-md">
+          <h3 class="text-xl font-semibold mb-4 flex items-center">
+            <i class="fa fa-pie-chart text-primary mr-2"></i> 指令分类统计
+          </h3>
+          <div class="h-64">
+            <canvas id="category-chart"></canvas>
+          </div>
+        </div>
+        
+        <!-- 字节数统计图表 -->
+        <div class="bg-white p-6 rounded-xl shadow-md">
+          <h3 class="text-xl font-semibold mb-4 flex items-center">
+            <i class="fa fa-bar-chart text-primary mr-2"></i> 指令字节数分布
+          </h3>
+          <div class="h-64">
+            <canvas id="byte-chart"></canvas>
+          </div>
+        </div>
+      </div>
+      
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <!-- 执行周期统计 -->
+        <div class="bg-white p-6 rounded-xl shadow-md">
+          <h3 class="text-lg font-semibold mb-4 flex items-center">
+            <i class="fa fa-clock-o text-primary mr-2"></i> 执行周期分布
+          </h3>
+          <div class="space-y-4">
+            <div>
+              <div class="flex justify-between mb-1">
+                <span class="text-sm font-medium">1个机器周期</span>
+                <span class="text-sm font-medium text-primary">64条</span>
+              </div>
+              <div class="w-full bg-gray-200 rounded-full h-2.5">
+                <div class="bg-primary h-2.5 rounded-full" style="width: 57.66%"></div>
+              </div>
+            </div>
+            <div>
+              <div class="flex justify-between mb-1">
+                <span class="text-sm font-medium">2个机器周期</span>
+                <span class="text-sm font-medium text-secondary">45条</span>
+              </div>
+              <div class="w-full bg-gray-200 rounded-full h-2.5">
+                <div class="bg-secondary h-2.5 rounded-full" style="width: 40.54%"></div>
+              </div>
+            </div>
+            <div>
+              <div class="flex justify-between mb-1">
+                <span class="text-sm font-medium">4个机器周期</span>
+                <span class="text-sm font-medium text-accent">2条</span>
+              </div>
+              <div class="w-full bg-gray-200 rounded-full h-2.5">
+                <div class="bg-accent h-2.5 rounded-full" style="width: 1.8%"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- 寻址方式统计 -->
+        <div class="bg-white p-6 rounded-xl shadow-md">
+          <h3 class="text-lg font-semibold mb-4 flex items-center">
+            <i class="fa fa-list text-primary mr-2"></i> 寻址方式分布
+          </h3>
+          <div class="space-y-3">
+            <div class="flex items-center">
+              <div class="w-3 h-3 rounded-full bg-primary mr-2"></div>
+              <span class="text-sm">寄存器寻址</span>
+            </div>
+            <div class="flex items-center">
+              <div class="w-3 h-3 rounded-full bg-secondary mr-2"></div>
+              <span class="text-sm">直接寻址</span>
+            </div>
+            <div class="flex items-center">
+              <div class="w-3 h-3 rounded-full bg-accent mr-2"></div>
+              <span class="text-sm">寄存器间接寻址</span>
+            </div>
+            <div class="flex items-center">
+              <div class="w-3 h-3 rounded-full bg-success mr-2"></div>
+              <span class="text-sm">立即数寻址</span>
+            </div>
+            <div class="flex items-center">
+              <div class="w-3 h-3 rounded-full bg-warning mr-2"></div>
+              <span class="text-sm">基址加变址寻址</span>
+            </div>
+            <div class="flex items-center">
+              <div class="w-3 h-3 rounded-full bg-info mr-2"></div>
+              <span class="text-sm">相对寻址</span>
+            </div>
+            <div class="flex items-center">
+              <div class="w-3 h-3 rounded-full bg-danger mr-2"></div>
+              <span class="text-sm">位寻址</span>
+            </div>
+          </div>
+        </div>
+        
+        <!-- 关键数据卡片 -->
+        <div class="bg-white p-6 rounded-xl shadow-md">
+          <h3 class="text-lg font-semibold mb-4 flex items-center">
+            <i class="fa fa-database text-primary mr-2"></i> 关键数据
+          </h3>
+          <div class="space-y-4">
+            <div class="flex justify-between items-center">
+              <span class="text-sm font-medium">总指令数</span>
+              <span class="text-2xl font-bold text-primary">111</span>
+            </div>
+            <div class="flex justify-between items-center">
+              <span class="text-sm font-medium">单字节指令</span>
+              <span class="text-2xl font-bold text-secondary">49</span>
+            </div>
+            <div class="flex justify-between items-center">
+              <span class="text-sm font-medium">双字节指令</span>
+              <span class="text-2xl font-bold text-accent">45</span>
+            </div>
+            <div class="flex justify-between items-center">
+              <span class="text-sm font-medium">三字节指令</span>
+              <span class="text-2xl font-bold text-success">17</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 学习资源部分 -->
+  <section class="py-12 md:py-16 bg-white">
+    <div class="container mx-auto px-4">
+      <div class="text-center mb-12">
+        <h2 class="text-[clamp(1.5rem,3vw,2.5rem)] font-bold text-dark mb-4">学习资源</h2>
+        <div class="w-20 h-1 bg-primary mx-auto"></div>
+        <p class="mt-4 text-gray-600 max-w-2xl mx-auto">
+          更多51单片机学习资源，帮助你深入理解指令系统和单片机编程
+        </p>
+      </div>
+      
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div class="bg-light rounded-xl overflow-hidden shadow-md card-hover">
+          <div class="h-48 bg-primary/10 flex items-center justify-center">
+            <i class="fa fa-book text-5xl text-primary"></i>
+          </div>
+          <div class="p-6">
+            <h3 class="text-xl font-semibold mb-2">51单片机指令手册</h3>
+            <p class="text-gray-600 mb-4">
+              完整的51单片机指令参考手册，包含每条指令的详细说明、操作码和示例。
+            </p>
+            <a href="#" class="inline-flex items-center text-primary font-medium hover:underline">
+              下载手册 <i class="fa fa-download ml-2"></i>
+            </a>
+          </div>
+        </div>
+        
+        <div class="bg-light rounded-xl overflow-hidden shadow-md card-hover">
+          <div class="h-48 bg-secondary/10 flex items-center justify-center">
+            <i class="fa fa-video-camera text-5xl text-secondary"></i>
+          </div>
+          <div class="p-6">
+            <h3 class="text-xl font-semibold mb-2">指令系统视频教程</h3>
+            <p class="text-gray-600 mb-4">
+              由专业教师录制的51单片机指令系统视频课程，详细讲解每条指令的功能和应用。
+            </p>
+            <a href="#" class="inline-flex items-center text-secondary font-medium hover:underline">
+              观看课程 <i class="fa fa-play ml-2"></i>
+            </a>
+          </div>
+        </div>
+        
+        <div class="bg-light rounded-xl overflow-hidden shadow-md card-hover">
+          <div class="h-48 bg-accent/10 flex items-center justify-center">
+            <i class="fa fa-code text-5xl text-accent"></i>
+          </div>
+          <div class="p-6">
+            <h3 class="text-xl font-semibold mb-2">指令应用实例</h3>
+            <p class="text-gray-600 mb-4">
+              包含各种应用场景的51单片机程序实例，展示如何灵活运用指令系统实现不同功能。
+            </p>
+            <a href="#" class="inline-flex items-center text-accent font-medium hover:underline">
+              查看实例 <i class="fa fa-github ml-2"></i>
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 页脚 -->
+  <footer class="bg-dark text-white py-12">
+    <div class="container mx-auto px-4">
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+        <div>
+          <div class="flex items-center space-x-2 mb-4">
+            <i class="fa fa-microchip text-primary text-2xl"></i>
+            <h3 class="text-xl font-bold">51单片机指令系统</h3>
+          </div>
+          <p class="text-gray-400 mb-4">
+            专业的51单片机指令系统学习平台，为单片机爱好者和学习者提供全面的指令参考和学习资源。
+          </p>
+          <div class="flex space-x-4">
+            <a href="#" class="text-gray-400 hover:text-primary transition-colors">
+              <i class="fa fa-weixin text-xl"></i>
+            </a>
+            <a href="#" class="text-gray-400 hover:text-primary transition-colors">
+              <i class="fa fa-weibo text-xl"></i>
+            </a>
+            <a href="#" class="text-gray-400 hover:text-primary transition-colors">
+              <i class="fa fa-github text-xl"></i>
+            </a>
+          </div>
+        </div>
+        
+        <div>
+          <h4 class="text-lg font-semibold mb-4">快速链接</h4>
+          <ul class="space-y-2">
+            <li><a href="#introduction" class="text-gray-400 hover:text-primary transition-colors">指令系统简介</a></li>
+            <li><a href="#categories" class="text-gray-400 hover:text-primary transition-colors">指令分类浏览</a></li>
+            <li><a href="#search" class="text-gray-400 hover:text-primary transition-colors">搜索指令</a></li>
+            <li><a href="#statistics" class="text-gray-400 hover:text-primary transition-colors">指令统计</a></li>
+            <li><a href="#" class="text-gray-400 hover:text-primary transition-colors">学习资源</a></li>
+          </ul>
+        </div>
+        
+        <div>
+          <h4 class="text-lg font-semibold mb-4">指令分类</h4>
+          <ul class="space-y-2">
+            <li><a href="#" class="text-gray-400 hover:text-primary transition-colors">数据传送指令</a></li>
+            <li><a href="#" class="text-gray-400 hover:text-primary transition-colors">算术运算指令</a></li>
+            <li><a href="#" class="text-gray-400 hover:text-primary transition-colors">逻辑运算指令</a></li>
+            <li><a href="#" class="text-gray-400 hover:text-primary transition-colors">控制转移指令</a></li>
+            <li><a href="#" class="text-gray-400 hover:text-primary transition-colors">位操作指令</a></li>
+          </ul>
+        </div>
+        
+        <div>
+          <h4 class="text-lg font-semibold mb-4">联系我们</h4>
+          <ul class="space-y-2 text-gray-400">
+            <li class="flex items-start">
+              <i class="fa fa-envelope-o mt-1 mr-2 text-primary"></i>
+              <span>50394113@QQ.COM</span>
+            </li>
+            <li class="flex items-start">
+              <i class="fa fa-phone mt-1 mr-2 text-primary"></i>
+              <span>QQ：50394113</span>
+            </li>
+            <li class="flex items-start">
+              <i class="fa fa-map-marker mt-1 mr-2 text-primary"></i>
+              <span>单片机课程QQ群：370743825</span>
+            </li>
+          </ul>
+        </div>
+      </div>
+      
+      <div class="border-t border-gray-800 mt-8 pt-8 text-center text-gray-500 text-sm">
+        <p>© 2025 崇州职教中心 王老师. 保留所有权利.</p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- 指令详情模态框 -->
+  <div id="instruction-modal" class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center hidden">
+    <div class="bg-white rounded-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto mx-4 animate-fade-in">
+      <div class="p-6">
+        <div class="flex justify-between items-center mb-4">
+          <h3 class="text-2xl font-bold text-dark" id="modal-title">指令详情</h3>
+          <button id="close-modal" class="text-gray-500 hover:text-gray-700">
+            <i class="fa fa-times text-xl"></i>
+          </button>
+        </div>
+        
+        <div class="border-b border-gray-200 pb-4 mb-4" id="modal-header">
+          <!-- 指令头部信息将在这里显示 -->
+        </div>
+        
+        <div class="space-y-6" id="modal-content">
+          <!-- 指令详细内容将在这里显示 -->
+        </div>
+        
+        <div class="mt-6 flex justify-end">
+          <button id="close-modal-btn" class="bg-primary text-white px-6 py-2 rounded-lg font-medium hover:bg-primary/90 transition-colors">
+            关闭
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // 51单片机指令数据（完整版本）
+    const instructionData = [
+      {
+        id: 1,
+        category: "data-transfer",
+        mnemonic: "MOV",
+        format: "MOV dest, src",
+        bytes: 1,
+        cycles: 1,
+        description: "数据传送指令，将源操作数传送到目的操作数",
+        operands: "A, direct, @Ri, Rn, #data",
+        addressing: "寄存器, 直接, 寄存器间接, 立即数",
+        example: "MOV A, R0  ; 将寄存器R0的内容传送到累加器A",
+        note: "最常用的数据传送指令，支持多种寻址方式"
+      },
+      {
+        id: 2,
+        category: "data-transfer",
+        mnemonic: "MOVX",
+        format: "MOVX A, @DPTR  或  MOVX @DPTR, A",
+        bytes: 1,
+        cycles: 2,
+        description: "外部数据存储器传送指令，用于访问外部RAM",
+        operands: "A, @DPTR, @Ri",
+        addressing: "寄存器间接",
+        example: "MOVX A, @DPTR  ; 从DPTR指向的外部RAM单元读取数据到A",
+        note: "访问外部数据存储器的专用指令"
+      },
+      {
+        id: 3,
+        category: "data-transfer",
+        mnemonic: "MOVC",
+        format: "MOVC A, @A+DPTR  或  MOVC A, @A+PC",
+        bytes: 1,
+        cycles: 2,
+        description: "程序存储器查表指令，用于读取程序存储器中的数据",
+        operands: "A, @A+DPTR, @A+PC",
+        addressing: "基址加变址",
+        example: "MOVC A, @A+DPTR  ; 从程序存储器中读取数据到A",
+        note: "常用于查表操作，如ASCII码转换、数字显示码转换等"
+      },
+      {
+        id: 4,
+        category: "data-transfer",
+        mnemonic: "PUSH",
+        format: "PUSH direct",
+        bytes: 2,
+        cycles: 2,
+        description: "入栈指令，将直接寻址单元的内容压入堆栈",
+        operands: "direct",
+        addressing: "直接",
+        example: "PUSH ACC  ; 将累加器A的内容压入堆栈",
+        note: "堆栈操作指令，SP自动加1"
+      },
+      {
+        id: 5,
+        category: "data-transfer",
+        mnemonic: "POP",
+        format: "POP direct",
+        bytes: 2,
+        cycles: 2,
+        description: "出栈指令，将堆栈内容弹出到直接寻址单元",
+        operands: "direct",
+        addressing: "直接",
+        example: "POP ACC  ; 将堆栈内容弹出到累加器A",
+        note: "堆栈操作指令，SP自动减1"
+      },
+      {
+        id: 6,
+        category: "data-transfer",
+        mnemonic: "XCH",
+        format: "XCH A, src",
+        bytes: 1,
+        cycles: 1,
+        description: "字节交换指令，将累加器A与源操作数交换",
+        operands: "Rn, direct, @Ri",
+        addressing: "寄存器, 直接, 寄存器间接",
+        example: "XCH A, R0  ; 累加器A与寄存器R0的内容交换",
+        note: "支持与寄存器、直接寻址单元和寄存器间接寻址单元交换"
+      },
+      {
+        id: 7,
+        category: "data-transfer",
+        mnemonic: "XCHD",
+        format: "XCHD A, @Ri",
+        bytes: 1,
+        cycles: 1,
+        description: "半字节交换指令，将累加器A与@Ri的低4位交换",
+        operands: "@Ri",
+        addressing: "寄存器间接",
+        example: "XCHD A, @R0  ; A的低4位与R0指向的单元的低4位交换",
+        note: "仅交换低4位，高4位保持不变"
+      },
+      {
+        id: 8,
+        category: "arithmetic",
+        mnemonic: "ADD",
+        format: "ADD A, src",
+        bytes: 1,
+        cycles: 1,
+        description: "加法指令，将源操作数与累加器A相加，结果存于A",
+        operands: "Rn, direct, @Ri, #data",
+        addressing: "寄存器, 直接, 寄存器间接, 立即数",
+        example: "ADD A, R0  ; A = A + R0",
+        note: "影响标志位：CY, AC, OV, P"
+      },
+      {
+        id: 9,
+        category: "arithmetic",
+        mnemonic: "ADDC",
+        format: "ADDC A, src",
+        bytes: 1,
+        cycles: 1,
+        description: "带进位加法指令，将源操作数与累加器A及进位标志CY相加",
+        operands: "Rn, direct, @Ri, #data",
+        addressing: "寄存器, 直接, 寄存器间接, 立即数",
+        example: "ADDC A, R0  ; A = A + R0 + CY",
+        note: "常用于多字节加法运算，影响标志位：CY, AC, OV, P"
+      },
+      {
+        id: 10,
+        category: "arithmetic",
+        mnemonic: "SUBB",
+        format: "SUBB A, src",
+        bytes: 1,
+        cycles: 1,
+        description: "带借位减法指令，用累加器A减去源操作数和借位标志CY",
+        operands: "Rn, direct, @Ri, #data",
+        addressing: "寄存器, 直接, 寄存器间接, 立即数",
+        example: "SUBB A, R0  ; A = A - R0 - CY",
+        note: "51单片机没有无借位减法指令，需用SUBB并先清CY，影响标志位：CY, AC, OV, P"
+      },
+      {
+        id: 11,
+        category: "arithmetic",
+        mnemonic: "INC",
+        format: "INC src",
+        bytes: 1,
+        cycles: 1,
+        description: "加1指令，将操作数加1",
+        operands: "A, Rn, direct, @Ri",
+        addressing: "寄存器, 直接, 寄存器间接",
+        example: "INC A  ; A = A + 1",
+        note: "不影响标志位，除INC A外，其他形式不影响标志位"
+      },
+      {
+        id: 12,
+        category: "arithmetic",
+        mnemonic: "DEC",
+        format: "DEC src",
+        bytes: 1,
+        cycles: 1,
+        description: "减1指令，将操作数减1",
+        operands: "A, Rn, direct, @Ri",
+        addressing: "寄存器, 直接, 寄存器间接",
+        example: "DEC A  ; A = A - 1",
+        note: "不影响标志位，除DEC A外，其他形式不影响标志位"
+      },
+      {
+        id: 13,
+        category: "arithmetic",
+        mnemonic: "MUL",
+        format: "MUL AB",
+        bytes: 1,
+        cycles: 4,
+        description: "乘法指令，将累加器A和寄存器B中的无符号数相乘",
+        operands: "AB",
+        addressing: "寄存器",
+        example: "MUL AB  ; 乘积的低8位存于A，高8位存于B",
+        note: "执行后，CY清0，OV标志表示乘积是否超过255（即A*B>255时OV=1）"
+      },
+      {
+        id: 14,
+        category: "arithmetic",
+        mnemonic: "DIV",
+        format: "DIV AB",
+        bytes: 1,
+        cycles: 4,
+        description: "除法指令，将累加器A中的无符号数除以寄存器B中的无符号数",
+        operands: "AB",
+        addressing: "寄存器",
+        example: "DIV AB  ; 商存于A，余数存于B",
+        note: "执行后，CY和OV清0，若B=0（除数为0），则OV=1，结果无意义"
+      },
+      {
+        id: 15,
+        category: "arithmetic",
+        mnemonic: "DA",
+        format: "DA A",
+        bytes: 1,
+        cycles: 1,
+        description: "十进制调整指令，用于BCD码加法后的结果调整",
+        operands: "A",
+        addressing: "寄存器",
+        example: "DA A  ; 对A中的BCD码加法结果进行十进制调整",
+        note: "必须跟在ADD或ADDC指令之后，对减法无效"
+      },
+      {
+        id: 16,
+        category: "logical",
+        mnemonic: "ANL",
+        format: "ANL A, src  或  ANL direct, A",
+        bytes: 1,
+        cycles: 1,
+        description: "逻辑与指令，将累加器A与源操作数按位与",
+        operands: "Rn, direct, @Ri, #data",
+        addressing: "寄存器, 直接, 寄存器间接, 立即数",
+        example: "ANL A, #0FH  ; A = A & 0FH（屏蔽高4位）",
+        note: "可用于屏蔽某些位或保留某些位，影响标志位P"
+      },
+      {
+        id: 17,
+        category: "logical",
+        mnemonic: "ORL",
+        format: "ORL A, src  或  ORL direct, A",
+        bytes: 1,
+        cycles: 1,
+        description: "逻辑或指令，将累加器A与源操作数按位或",
+        operands: "Rn, direct, @Ri, #data",
+        addressing: "寄存器, 直接, 寄存器间接, 立即数",
+        example: "ORL A, #80H  ; A = A | 80H（置位最高位）",
+        note: "可用于置位某些位，影响标志位P"
+      },
+      {
+        id: 18,
+        category: "logical",
+        mnemonic: "XRL",
+        format: "XRL A, src  或  XRL direct, A",
+        bytes: 1,
+        cycles: 1,
+        description: "逻辑异或指令，将累加器A与源操作数按位异或",
+        operands: "Rn, direct, @Ri, #data",
+        addressing: "寄存器, 直接, 寄存器间接, 立即数",
+        example: "XRL A, #0FFH  ; A = A ^ 0FFH（按位取反）",
+        note: "可用于按位取反或清0某些位，影响标志位P"
+      },
+      {
+        id: 19,
+        category: "logical",
+        mnemonic: "CLR",
+        format: "CLR src",
+        bytes: 1,
+        cycles: 1,
+        description: "清0指令，将操作数清0",
+        operands: "A, C, bit",
+        addressing: "寄存器, 位",
+        example: "CLR A  ; A = 0",
+        note: "CLR C用于清进位标志，CLR bit用于清指定位"
+      },
+      {
+        id: 20,
+        category: "logical",
+        mnemonic: "CPL",
+        format: "CPL src",
+        bytes: 1,
+        cycles: 1,
+        description: "取反指令，将操作数按位取反",
+        operands: "A, C, bit",
+        addressing: "寄存器, 位",
+        example: "CPL A  ; A = ~A",
+        note: "CPL C用于取反进位标志，CPL bit用于取反指定位"
+      },
+      {
+        id: 21,
+        category: "logical",
+        mnemonic: "RL",
+        format: "RL A",
+        bytes: 1,
+        cycles: 1,
+        description: "循环左移指令，将累加器A的内容循环左移一位",
+        operands: "A",
+        addressing: "寄存器",
+        example: "RL A  ; 左移一位，D7→D0，其他位左移一位",
+        note: "不影响标志位"
+      },
+      {
+        id: 22,
+        category: "logical",
+        mnemonic: "RR",
+        format: "RR A",
+        bytes: 1,
+        cycles: 1,
+        description: "循环右移指令，将累加器A的内容循环右移一位",
+        operands: "A",
+        addressing: "寄存器",
+        example: "RR A  ; 右移一位，D0→D7，其他位右移一位",
+        note: "不影响标志位"
+      },
+      {
+        id: 23,
+        category: "logical",
+        mnemonic: "RLC",
+        format: "RLC A",
+        bytes: 1,
+        cycles: 1,
+        description: "带进位循环左移指令，将累加器A的内容带进位标志CY循环左移一位",
+        operands: "A",
+        addressing: "寄存器",
+        example: "RLC A  ; D7→CY, CY→D0，其他位左移一位",
+        note: "影响标志位CY"
+      },
+      {
+        id: 24,
+        category: "logical",
+        mnemonic: "RRC",
+        format: "RRC A",
+        bytes: 1,
+        cycles: 1,
+        description: "带进位循环右移指令，将累加器A的内容带进位标志CY循环右移一位",
+        operands: "A",
+        addressing: "寄存器",
+        example: "RRC A  ; D0→CY, CY→D7，其他位右移一位",
+        note: "影响标志位CY"
+      },
+      {
+        id: 25,
+        category: "control",
+        mnemonic: "AJMP",
+        format: "AJMP addr11",
+        bytes: 2,
+        cycles: 2,
+        description: "绝对跳转指令，无条件跳转到11位目标地址",
+        operands: "addr11",
+        addressing: "绝对",
+        example: "AJMP 0100H  ; 跳转到0100H地址",
+        note: "跳转范围：当前PC+2地址的同一2KB区内（0000H~07FFH）"
+      },
+      {
+        id: 26,
+        category: "control",
+        mnemonic: "LJMP",
+        format: "LJMP addr16",
+        bytes: 3,
+        cycles: 2,
+        description: "长跳转指令，无条件跳转到16位目标地址",
+        operands: "addr16",
+        addressing: "绝对",
+        example: "LJMP 1000H  ; 跳转到1000H地址",
+        note: "跳转范围：64KB程序存储器任意地址"
+      },
+      {
+        id: 27,
+        category: "control",
+        mnemonic: "SJMP",
+        format: "SJMP rel",
+        bytes: 2,
+        cycles: 2,
+        description: "短跳转指令，无条件跳转到相对地址",
+        operands: "rel",
+        addressing: "相对",
+        example: "SJMP LOOP  ; 跳转到LOOP标号处",
+        note: "跳转范围：当前PC+2地址的-128~+127范围内"
+      },
+      {
+        id: 28,
+        category: "control",
+        mnemonic: "JMP",
+        format: "JMP @A+DPTR",
+        bytes: 1,
+        cycles: 2,
+        description: "间接跳转指令，无条件跳转到A+DPTR指定的地址",
+        operands: "@A+DPTR",
+        addressing: "基址加变址",
+        example: "JMP @A+DPTR  ; 多分支跳转，根据A的值跳转到不同地址",
+        note: "常用于实现多分支程序，如按键处理程序"
+      },
+      {
+        id: 29,
+        category: "control",
+        mnemonic: "JZ",
+        format: "JZ rel",
+        bytes: 2,
+        cycles: 2,
+        description: "累加器为0跳转指令，若A=0则跳转，否则顺序执行",
+        operands: "rel",
+        addressing: "相对",
+        example: "JZ ZERO  ; 若A=0则跳转到ZERO标号处",
+        note: "跳转范围：当前PC+2地址的-128~+127范围内"
+      },
+      {
+        id: 30,
+        category: "control",
+        mnemonic: "JNZ",
+        format: "JNZ rel",
+        bytes: 2,
+        cycles: 2,
+        description: "累加器非0跳转指令，若A≠0则跳转，否则顺序执行",
+        operands: "rel",
+        addressing: "相对",
+        example: "JNZ NOT_ZERO  ; 若A≠0则跳转到NOT_ZERO标号处",
+        note: "跳转范围：当前PC+2地址的-128~+127范围内"
+      },
+      {
+        id: 31,
+        category: "control",
+        mnemonic: "CJNE",
+        format: "CJNE A, src, rel  或  CJNE Rn, #data, rel  或  CJNE direct, #data, rel",
+        bytes: 3,
+        cycles: 2,
+        description: "比较不相等跳转指令，比较两操作数，若不等则跳转",
+        operands: "A, Rn, direct, #data",
+        addressing: "寄存器, 直接, 立即数",
+        example: "CJNE A, #10, NOT_EQUAL  ; 若A≠10则跳转到NOT_EQUAL",
+        note: "比较后根据结果设置CY标志，跳转范围：当前PC+3地址的-128~+127范围内"
+      },
+      {
+        id: 32,
+        category: "control",
+        mnemonic: "DJNZ",
+        format: "DJNZ src, rel",
+        bytes: 2,
+        cycles: 2,
+        description: "减1不为0跳转指令，将操作数减1，若不为0则跳转",
+        operands: "Rn, direct",
+        addressing: "寄存器, 直接",
+        example: "DJNZ R7, LOOP  ; R7=R7-1，若R7≠0则跳转到LOOP",
+        note: "常用于循环控制，跳转范围：当前PC+2地址的-128~+127范围内"
+      },
+      {
+        id: 33,
+        category: "control",
+        mnemonic: "ACALL",
+        format: "ACALL addr11",
+        bytes: 2,
+        cycles: 2,
+        description: "绝对调用指令，调用11位目标地址的子程序",
+        operands: "addr11",
+        addressing: "绝对",
+        example: "ACALL 0100H  ; 调用0100H处的子程序",
+        note: "调用范围：当前PC+2地址的同一2KB区内，返回地址自动入栈"
+      },
+      {
+        id: 34,
+        category: "control",
+        mnemonic: "LCALL",
+        format: "LCALL addr16",
+        bytes: 3,
+        cycles: 2,
+        description: "长调用指令，调用16位目标地址的子程序",
+        operands: "addr16",
+        addressing: "绝对",
+        example: "LCALL 1000H  ; 调用1000H处的子程序",
+        note: "调用范围：64KB程序存储器任意地址，返回地址自动入栈"
+      },
+      {
+        id: 35,
+        category: "control",
+        mnemonic: "RET",
+        format: "RET",
+        bytes: 1,
+        cycles: 2,
+        description: "子程序返回指令，从子程序返回主程序",
+        operands: "无",
+        addressing: "无",
+        example: "RET  ; 子程序返回",
+        note: "从堆栈中弹出返回地址到PC"
+      },
+      {
+        id: 36,
+        category: "control",
+        mnemonic: "RETI",
+        format: "RETI",
+        bytes: 1,
+        cycles: 2,
+        description: "中断返回指令，从中断服务程序返回",
+        operands: "无",
+        addressing: "无",
+        example: "RETI  ; 中断服务程序返回",
+        note: "除返回主程序外，还清除相应的中断优先级状态位"
+      },
+      {
+        id: 37,
+        category: "control",
+        mnemonic: "NOP",
+        format: "NOP",
+        bytes: 1,
+        cycles: 1,
+        description: "空操作指令，不执行任何操作，延时一个机器周期",
+        operands: "无",
+        addressing: "无",
+        example: "NOP  ; 空操作",
+        note: "常用于时间延迟或程序调试"
+      },
+      {
+        id: 38,
+        category: "bit-operation",
+        mnemonic: "SETB",
+        format: "SETB src",
+        bytes: 1,
+        cycles: 1,
+        description: "置位指令，将操作数置1",
+        operands: "C, bit",
+        addressing: "位",
+        example: "SETB C  ; CY=1",
+        note: "SETB C用于置位进位标志，SETB bit用于置位指定位"
+      },
+      {
+        id: 39,
+        category: "bit-operation",
+        mnemonic: "CLR",
+        format: "CLR src",
+        bytes: 1,
+        cycles: 1,
+        description: "清0指令，将操作数清0",
+        operands: "C, bit",
+        addressing: "位",
+        example: "CLR C  ; CY=0",
+        note: "CLR C用于清进位标志，CLR bit用于清指定位"
+      },
+      {
+        id: 40,
+        category: "bit-operation",
+        mnemonic: "CPL",
+        format: "CPL src",
+        bytes: 1,
+        cycles: 1,
+        description: "取反指令，将操作数按位取反",
+        operands: "C, bit",
+        addressing: "位",
+        example: "CPL C  ; CY=~CY",
+        note: "CPL C用于取反进位标志，CPL bit用于取反指定位"
+      },
+      {
+        id: 41,
+        category: "bit-operation",
+        mnemonic: "ANL",
+        format: "ANL C, bit  或  ANL C, /bit",
+        bytes: 2,
+        cycles: 2,
+        description: "位逻辑与指令，将进位标志CY与指定位或指定位的反码逻辑与",
+        operands: "bit",
+        addressing: "位",
+        example: "ANL C, ACC.0  ; CY = CY & ACC.0",
+        note: "/bit表示先对该位取反再进行与操作"
+      },
+      {
+        id: 42,
+        category: "bit-operation",
+        mnemonic: "ORL",
+        format: "ORL C, bit  或  ORL C, /bit",
+        bytes: 2,
+        cycles: 2,
+        description: "位逻辑或指令，将进位标志CY与指定位或指定位的反码逻辑或",
+        operands: "bit",
+        addressing: "位",
+        example: "ORL C, ACC.0  ; CY = CY | ACC.0",
+        note: "/bit表示先对该位取反再进行或操作"
+      },
+      {
+        id: 43,
+        category: "bit-operation",
+        mnemonic: "JB",
+        format: "JB bit, rel",
+        bytes: 3,
+        cycles: 2,
+        description: "位为1跳转指令，若指定位为1则跳转，否则顺序执行",
+        operands: "bit, rel",
+        addressing: "位, 相对",
+        example: "JB P, ERROR  ; 若奇偶标志P=1则跳转到ERROR",
+        note: "跳转范围：当前PC+3地址的-128~+127范围内"
+      },
+      {
+        id: 44,
+        category: "bit-operation",
+        mnemonic: "JNB",
+        format: "JNB bit, rel",
+        bytes: 3,
+        cycles: 2,
+        description: "位为0跳转指令，若指定位为0则跳转，否则顺序执行",
+        operands: "bit, rel",
+        addressing: "位, 相对",
+        example: "JNB TF0, WAIT  ; 若定时器0溢出标志TF0=0则跳转到WAIT",
+        note: "跳转范围：当前PC+3地址的-128~+127范围内"
+      },
+      {
+        id: 45,
+        category: "bit-operation",
+        mnemonic: "JBC",
+        format: "JBC bit, rel",
+        bytes: 3,
+        cycles: 2,
+        description: "位为1跳转并清0指令，若指定位为1则跳转并清0该位",
+        operands: "bit, rel",
+        addressing: "位, 相对",
+        example: "JBC RI, READ  ; 若接收中断标志RI=1则跳转到READ并清0 RI",
+        note: "常用于查询中断标志，跳转范围：当前PC+3地址的-128~+127范围内"
+      }
+    ];
+
+    // 页面加载完成后执行
+    document.addEventListener('DOMContentLoaded', function() {
+      // 初始化指令列表
+      loadInstructions('all');
+      
+      // 初始化图表
+      initCharts();
+      
+      // 导航栏滚动效果
+      const navbar = document.getElementById('navbar');
+      window.addEventListener('scroll', function() {
+        if (window.scrollY > 10) {
+          navbar.classList.add('py-2');
+          navbar.classList.remove('py-3');
+        } else {
+          navbar.classList.add('py-3');
+          navbar.classList.remove('py-2');
+        }
+      });
+      
+      // 移动端菜单切换
+      const menuToggle = document.getElementById('menu-toggle');
+      const mobileMenu = document.getElementById('mobile-menu');
+      menuToggle.addEventListener('click', function() {
+        mobileMenu.classList.toggle('hidden');
+      });
+      
+      // 分类标签点击事件
+      const categoryBtns = document.querySelectorAll('.category-btn');
+      categoryBtns.forEach(btn => {
+        btn.addEventListener('click', function() {
+          // 切换激活状态
+          categoryBtns.forEach(b => {
+            b.classList.remove('bg-primary', 'text-white');
+            b.classList.add('bg-gray-200', 'text-dark');
+          });
+          this.classList.remove('bg-gray-200', 'text-dark');
+          this.classList.add('bg-primary', 'text-white');
+          
+          // 加载对应分类的指令
+          const category = this.getAttribute('data-category');
+          loadInstructions(category);
+        });
+      });
+      
+      // 加载更多指令
+      document.getElementById('load-more').addEventListener('click', function() {
+        loadInstructions('all');
+        this.innerHTML = '<i class="fa fa-check mr-2"></i> 已加载全部指令';
+        this.disabled = true;
+        this.classList.add('opacity-50', 'cursor-not-allowed');
+      });
+      
+      // 搜索指令
+      const searchInput = document.getElementById('instruction-search');
+      searchInput.addEventListener('input', function() {
+        const searchTerm = this.value.toLowerCase();
+        filterInstructions(searchTerm);
+      });
+      
+      // 热门搜索标签点击
+      document.querySelectorAll('.search-tag').forEach(tag => {
+        tag.addEventListener('click', function() {
+          const tagText = this.getAttribute('data-tag');
+          document.getElementById('instruction-search').value = tagText;
+          filterInstructions(tagText.toLowerCase());
+        });
+      });
+      
+      // 关闭模态框
+      const closeModal = document.getElementById('close-modal');
+      const closeModalBtn = document.getElementById('close-modal-btn');
+      const instructionModal = document.getElementById('instruction-modal');
+      
+      function closeModalFunc() {
+        instructionModal.classList.add('hidden');
+      }
+      
+      closeModal.addEventListener('click', closeModalFunc);
+      closeModalBtn.addEventListener('click', closeModalFunc);
+      
+      // 点击模态框外部关闭
+      instructionModal.addEventListener('click', function(e) {
+        if (e.target === instructionModal) {
+          closeModalFunc();
+        }
+      });
+      
+      // 平滑滚动
+      document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function (e) {
+          e.preventDefault();
+          
+          const targetId = this.getAttribute('href');
+          if (targetId === '#') return;
+          
+          const targetElement = document.querySelector(targetId);
+          if (targetElement) {
+            targetElement.scrollIntoView({
+              behavior: 'smooth'
+            });
+            
+            // 关闭移动端菜单
+            mobileMenu.classList.add('hidden');
+          }
+        });
+      });
+    });
+    
+    // 加载指令列表
+    function loadInstructions(category) {
+      const instructionList = document.getElementById('instruction-list');
+      instructionList.innerHTML = '';
+      
+      let filteredInstructions = instructionData;
+      if (category !== 'all') {
+        filteredInstructions = instructionData.filter(instr => instr.category === category);
+      }
+      
+      // 随机排序，每次加载显示不同顺序
+      filteredInstructions = filteredInstructions.sort(() => Math.random() - 0.5);
+      
+      filteredInstructions.forEach(instr => {
+        const card = document.createElement('div');
+        card.className = 'bg-white rounded-xl overflow-hidden shadow-md card-hover animate-fade-in';
+        card.innerHTML = `
+          <div class="p-6">
+            <div class="flex justify-between items-start mb-3">
+              <span class="px-3 py-1 rounded-full text-xs font-medium ${getCategoryColor(instr.category)}">
+                ${getCategoryName(instr.category)}
+              </span>
+              <span class="text-sm text-gray-500">${instr.bytes}B ${instr.cycles}T</span>
+            </div>
+            <h3 class="text-lg font-semibold mb-2">${instr.mnemonic}</h3>
+            <p class="text-gray-600 text-sm mb-4">${instr.description}</p>
+            <div class="flex flex-wrap gap-2">
+              <span class="px-3 py-1 bg-gray-100 text-gray-700 text-xs rounded-full">${instr.format}</span>
+              <span class="px-3 py-1 bg-gray-100 text-gray-700 text-xs rounded-full">${instr.operands}</span>
+            </div>
+          </div>
+          <div class="bg-gray-50 px-6 py-3 flex justify-end">
+            <button class="text-primary font-medium text-sm hover:underline view-instruction" data-id="${instr.id}">
+              查看详情 <i class="fa fa-angle-right ml-1"></i>
+            </button>
+          </div>
+        `;
+        instructionList.appendChild(card);
+      });
+      
+      // 为查看详情按钮添加事件
+      document.querySelectorAll('.view-instruction').forEach(btn => {
+        btn.addEventListener('click', function() {
+          const id = parseInt(this.getAttribute('data-id'));
+          showInstructionDetails(id);
+        });
+      });
+    }
+    
+    // 过滤指令
+    function filterInstructions(term) {
+      const resultsList = document.getElementById('search-results-list');
+      resultsList.innerHTML = '';
+      
+      if (term === '') {
+        resultsList.innerHTML = `
+          <div class="bg-light p-4 rounded-lg">
+            <p class="text-gray-500"><i class="fa fa-search-minus mr-2"></i> 请输入指令助记符或描述进行搜索</p>
+          </div>
+        `;
+        return;
+      }
+      
+      const filtered = instructionData.filter(instr => 
+        instr.mnemonic.toLowerCase().includes(term) || 
+        instr.description.toLowerCase().includes(term) || 
+        instr.operands.toLowerCase().includes(term) ||
+        instr.addressing.toLowerCase().includes(term)
+      );
+      
+      if (filtered.length === 0) {
+        resultsList.innerHTML = `
+          <div class="bg-light p-4 rounded-lg">
+            <p class="text-gray-500"><i class="fa fa-search-minus mr-2"></i> 未找到包含"${term}"的指令</p>
+          </div>
+        `;
+        return;
+      }
+      
+      filtered.forEach(instr => {
+        const result = document.createElement('div');
+        result.className = 'bg-white p-4 rounded-lg shadow-sm hover:shadow-md transition-shadow';
+        result.innerHTML = `
+                    <div class="flex justify-between items-start mb-2">
+            <h3 class="text-lg font-semibold text-primary">${instr.mnemonic}</h3>
+            <span class="px-3 py-1 rounded-full text-xs font-medium ${getCategoryColor(instr.category)}">
+              ${getCategoryName(instr.category)}
+            </span>
+          </div>
+          <p class="text-gray-600 mb-3">${instr.description}</p>
+          <div class="flex flex-wrap gap-2 mb-3">
+            <span class="px-2 py-1 bg-gray-100 text-gray-700 text-xs rounded-full">${instr.format}</span>
+            <span class="px-2 py-1 bg-gray-100 text-gray-700 text-xs rounded-full">${instr.bytes}字节</span>
+            <span class="px-2 py-1 bg-gray-100 text-gray-700 text-xs rounded-full">${instr.cycles}周期</span>
+          </div>
+          <button class="text-primary text-sm font-medium hover:underline view-result" data-id="${instr.id}">
+            查看完整详情 <i class="fa fa-angle-right ml-1"></i>
+          </button>
+        `;
+        resultsList.appendChild(result);
+      });
+      
+      // 为查看详情按钮添加事件
+      document.querySelectorAll('.view-result').forEach(btn => {
+        btn.addEventListener('click', function() {
+          const id = parseInt(this.getAttribute('data-id'));
+          showInstructionDetails(id);
+        });
+      });
+    }
+    
+    // 显示指令详情
+    function showInstructionDetails(id) {
+      const instruction = instructionData.find(instr => instr.id === id);
+      if (!instruction) return;
+      
+      const modal = document.getElementById('instruction-modal');
+      const modalTitle = document.getElementById('modal-title');
+      const modalHeader = document.getElementById('modal-header');
+      const modalContent = document.getElementById('modal-content');
+      
+      modalTitle.textContent = instruction.mnemonic + ' 指令详情';
+      
+      // 设置模态框头部
+      modalHeader.innerHTML = `
+        <div class="flex flex-col md:flex-row md:items-center justify-between">
+          <div>
+            <h4 class="text-xl font-bold text-dark">${instruction.mnemonic}</h4>
+            <p class="text-gray-600">${instruction.description}</p>
+          </div>
+          <div class="mt-4 md:mt-0 flex flex-wrap gap-2">
+            <span class="px-3 py-1 rounded-full text-sm font-medium ${getCategoryColor(instruction.category)}">
+              ${getCategoryName(instruction.category)}
+            </span>
+            <span class="px-3 py-1 bg-gray-100 text-gray-700 text-sm rounded-full">
+              <i class="fa fa-file-text-o mr-1"></i> ${instruction.bytes}字节
+            </span>
+            <span class="px-3 py-1 bg-gray-100 text-gray-700 text-sm rounded-full">
+              <i class="fa fa-clock-o mr-1"></i> ${instruction.cycles}周期
+            </span>
+          </div>
+        </div>
+      `;
+      
+      // 设置模态框内容
+      modalContent.innerHTML = `
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div>
+            <h5 class="text-lg font-semibold mb-3">指令格式</h5>
+            <p class="bg-gray-50 p-3 rounded-lg text-dark">${instruction.format}</p>
+            
+            <h5 class="text-lg font-semibold mt-6 mb-3">操作数</h5>
+            <p class="bg-gray-50 p-3 rounded-lg text-dark">${instruction.operands}</p>
+            
+            <h5 class="text-lg font-semibold mt-6 mb-3">寻址方式</h5>
+            <p class="bg-gray-50 p-3 rounded-lg text-dark">${instruction.addressing}</p>
+          </div>
+          
+          <div>
+            <h5 class="text-lg font-semibold mb-3">指令说明</h5>
+            <p class="bg-gray-50 p-3 rounded-lg text-dark">
+              ${instruction.note || '无特殊说明'}
+            </p>
+            
+            <h5 class="text-lg font-semibold mt-6 mb-3">示例</h5>
+            <p class="bg-gray-50 p-3 rounded-lg text-dark">${instruction.example}</p>
+          </div>
+        </div>
+      `;
+      
+      // 显示模态框
+      modal.classList.remove('hidden');
+    }
+    
+    // 获取分类名称
+    function getCategoryName(category) {
+      const categories = {
+        'data-transfer': '数据传送',
+        'arithmetic': '算术运算',
+        'logical': '逻辑运算',
+        'control': '控制转移',
+        'bit-operation': '位操作'
+      };
+      return categories[category] || category;
+    }
+    
+    // 获取分类颜色
+    function getCategoryColor(category) {
+      const colors = {
+        'data-transfer': 'bg-blue-100 text-blue-800',
+        'arithmetic': 'bg-green-100 text-green-800',
+        'logical': 'bg-purple-100 text-purple-800',
+        'control': 'bg-yellow-100 text-yellow-800',
+        'bit-operation': 'bg-red-100 text-red-800'
+      };
+      return colors[category] || 'bg-gray-100 text-gray-800';
+    }
+    
+    // 初始化图表
+    function initCharts() {
+      // 分类统计图表
+      const categoryCtx = document.getElementById('category-chart').getContext('2d');
+      new Chart(categoryCtx, {
+        type: 'doughnut',
+        data: {
+          labels: ['数据传送', '算术运算', '逻辑运算', '控制转移', '位操作'],
+          datasets: [{
+            data: [29, 24, 24, 17, 17],
+            backgroundColor: [
+              '#3B82F6', // 蓝色
+              '#10B981', // 绿色
+              '#8B5CF6', // 紫色
+              '#F59E0B', // 黄色
+              '#EF4444'  // 红色
+            ],
+            borderWidth: 0
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              position: 'right',
+              labels: {
+                boxWidth: 12,
+                padding: 15
+              }
+            },
+            tooltip: {
+              callbacks: {
+                label: function(context) {
+                  const label = context.label || '';
+                  const value = context.raw || 0;
+                  const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                  const percentage = Math.round((value / total) * 100);
+                  return `${label}: ${value} 条 (${percentage}%)`;
+                }
+              }
+            }
+          },
+          cutout: '65%'
+        }
+      });
+      
+      // 字节数统计图表
+      const byteCtx = document.getElementById('byte-chart').getContext('2d');
+      new Chart(byteCtx, {
+        type: 'bar',
+        data: {
+          labels: ['单字节指令', '双字节指令', '三字节指令'],
+          datasets: [{
+            label: '指令数量',
+            data: [49, 45, 17],
+            backgroundColor: [
+              '#3B82F6',
+              '#10B981',
+              '#8B5CF6'
+            ],
+            borderRadius: 6
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              display: false
+            },
+            tooltip: {
+              callbacks: {
+                label: function(context) {
+                  return `指令数量: ${context.raw} 条`;
+                }
+              }
+            }
+          },
+          scales: {
+            y: {
+              beginAtZero: true,
+              grid: {
+                display: true,
+                color: 'rgba(0, 0, 0, 0.05)'
+              },
+              ticks: {
+                precision: 0
+              }
+            },
+            x: {
+              grid: {
+                display: false
+              }
+            }
+          }
+        }
+      });
+    }
+  </script>
+</body>
+</html>
